@@ -20,6 +20,7 @@ function swipeIt () {
   }
 
   function next () {}
+  function prev () {}
 }
 
 export default swipeIt()
