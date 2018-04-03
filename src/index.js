@@ -18,6 +18,8 @@ function swipeIt () {
   function init () {
     console.log('init...')
   }
+
+  function next () {}
 }
 
 export default swipeIt()
