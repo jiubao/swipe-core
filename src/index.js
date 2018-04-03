@@ -21,6 +21,7 @@ function swipeIt () {
 
   function next () {}
   function prev () {}
+  function current () {}
 }
 
 export default swipeIt()
