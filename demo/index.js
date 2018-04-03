@@ -1,0 +1,1 @@
+window['swipe-core'].init()

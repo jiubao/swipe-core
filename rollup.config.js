@@ -10,7 +10,7 @@ export default {
   output: [{
     file: cfg.browser,
     format: 'umd',
-    name: 'vue-vswiper'
+    name: 'swipe-core'
   }, {
     file: cfg.module,
     format: 'es'
