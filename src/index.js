@@ -1,4 +1,14 @@
-function swipeIt () {
+var defaultOptions = {
+  interval: 500,
+  cycle: true,
+  expose: false
+}
+function swipeIt (options) {
+  var opts = {
+    ...defaultOptions,
+    ...options
+  }
+
   return {
     init
   }
@@ -15,13 +25,13 @@ function swipeIt () {
 
   function shouldCancel () {}
 
-  function init () {
-    console.log('init...')
-  }
-
   function next () {}
   function prev () {}
   function current () {}
+
+  function init () {
+    console.log('init...')
+  }
 }
 
 export default swipeIt()
