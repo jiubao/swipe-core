@@ -1,0 +1,11 @@
+* { margin: 0; padding: 0;}
+img {width: 100%;}
+
+.swiper-item {
+  height: 110px; overflow: hidden;
+  position: absolute;
+}
+
+.swiper {
+  position: relative;
+}
