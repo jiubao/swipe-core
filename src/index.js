@@ -1,4 +1,4 @@
-import {on, off} from './utils'
+import {on, off, once} from './utils'
 
 var defaultOptions = {
   interval: 500,
@@ -57,6 +57,9 @@ function swipeIt (options) {
   }
 
   function onTouchStart (evt) {
+    if (phase === 4 || phase === 2) return
+    phase = 0
+
     var touch = evt.touches[0]
     startTime = Date.now()
     currentX = startX = touch.pageX
@@ -64,6 +67,8 @@ function swipeIt (options) {
   }
 
   function onTouchMove (evt) {
+    if (phase === 2 || phase === 4) return
+
     var touch = evt.touches[0]
     currentX = touch.pageX
     currentY = touch.clientY
@@ -82,25 +87,63 @@ function swipeIt (options) {
 
     evt.preventDefault()
 
-    console.log('gap: ', _gap)
-    console.log('width: ', width)
+    // console.log('gap: ', _gap)
+    // console.log('width: ', width)
     moveX(prev(), _gap - width)
     moveX(current(), _gap)
     moveX(next(), _gap + width)
-
-
   }
 
-  function onTouchEnd () {}
+  function onTouchEnd (evt) {
+    if (phase === 4 || phase === 2) return
+    phase = 2
 
-  function animateX () {}
+    var _gap = gap()
+    if (!shouldCancel()) {
+      moveX(_gap >= 0 ? next() : prev(), 10000)
 
-  function shouldCancel () {}
+      index = _gap >= 0 ? index - 1 : index + 1
+      if (index < 0) index = len - 1
+      else if (index === len) index = 0
+      phase = 0
+    }
+    animateX(prev(), -width)
+    animateX(current(), 0)
+    animateX(next(), width)
+    // if (shouldCancel()) {
+    //   // TODO
+    //   animateX(prev(), -width)
+    //   animateX(current(), 0)
+    //   animateX(next(), width)
+    // } else {
+    //   // TODO
+    //   animateX(prev(), _gap > 0 ? 0 : -width * 2)
+    //   animateX(current(), _gap > 0 ? width : -width)
+    //   animateX(next(), _gap > 0 ? width * 2 : 0)
+    // }
+  }
+
+  function animateX (el, offset) {
+    el.style.webkitTransition = `-webkit-transform ${interval}ms cubic-bezier(0.22, 0.61, 0.36, 1)`
+    // use setTimeout 20 instead of requestAnimationFrame
+    setTimeout(() => el.style.webkitTransform = `translate3d(${offset}px, 0, 0)`, 20)
+    var called = false
+    function callback () {
+      if (called) return
+      called = true
+      this.status = 0
+      el.style.webkitTransition = ''
+    }
+    once(el, 'webkitTransitionEnd', callback)
+    setTimeout(callback, interval + 20)
+  }
+
+  function shouldCancel () {
+    return false
+  }
 
   function init () {
-    console.log('init...')
-
-    elms.forEach((el, i) => i !== index && moveX(el, 10000))
+    elms.forEach((el, i) => moveX(el, i === index ? 0 : 10000))
 
     // index = opts.index
     on(root, 'touchstart', onTouchStart)

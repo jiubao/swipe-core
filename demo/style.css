@@ -1,6 +1,10 @@
 * { margin: 0; padding: 0;}
 img {width: 100%;}
 
+body {
+  overflow-x: hidden;
+}
+
 .swiper-item {
   height: 110px; overflow: hidden;
   position: absolute;
@@ -8,4 +12,12 @@ img {width: 100%;}
 
 .swiper {
   position: relative;
+  width: 375px;
+  height: 110px;
+}
+
+.test {
+  width: 375px;
+  height: 100px;
+  border: solid 1px red;
 }
