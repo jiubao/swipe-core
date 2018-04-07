@@ -63,8 +63,12 @@ function swipeIt (options) {
   var first = elms[0], last = elms[len - 1];
 
   var current = function () { return elms[index]; };
-  var prev = function () { return index === 0 && !cycle ? null : elms[index === 0 ? len - 1 : index - 1]; };
-  var next = function () { return index === len - 1 && !cycle ? null : elms[index === len - 1 ? 0 : index + 1]; };
+  var prev = function () { return elms[prevIndex(index, len, cycle)]; };
+  var pprev = function () { return elms[prevIndex(prevIndex(index, len, cycle), len, cycle)]; };
+  var next = function () { return elms[nextIndex(index, len, cycle)]; };
+  var nnext = function () { return elms[nextIndex(nextIndex(index, len, cycle), len, cycle)]; };
+  // var prev = () => index === 0 && !cycle ? null : elms[index === 0 ? len - 1 : index - 1]
+  // var next = () => index === len - 1 && !cycle ? null : elms[index === len - 1 ? 0 : index + 1]
   // var first = () => elms[0]
   // var last = () => elms[elms.length - 1]
   var gap = function () { return Math.min(Math.max(-width, currentX - startX), width); };
@@ -94,6 +98,7 @@ function swipeIt (options) {
     currentX = touch.pageX;
     currentY = touch.clientY;
     var _gap = gap();
+    var right = _gap >= 0;
 
     if (phase === 0) {
       var x = Math.abs(_gap);
@@ -113,6 +118,7 @@ function swipeIt (options) {
     moveX(prev(), _gap - width);
     moveX(current(), _gap);
     moveX(next(), _gap + width);
+    moveX(right ? pprev() : nnext(), right ? _gap - 2 * width : _gap + 2 * width);
   }
 
   function onTouchEnd (evt) {
@@ -121,27 +127,20 @@ function swipeIt (options) {
 
     var _gap = gap();
     if (!shouldCancel()) {
-      moveX(_gap >= 0 ? next() : prev(), 10000);
+      moveX(_gap >= 0 ? next() : prev(), -width);
 
       index = _gap >= 0 ? index - 1 : index + 1;
       if (index < 0) { index = len - 1; }
       else if (index === len) { index = 0; }
+
+      // moveX(_gap >= 0 ? prev() : next(), _gap >= 0 ? -width : width)
       phase = 0;
     }
-    animateX(prev(), -width);
-    animateX(current(), 0);
-    animateX(next(), width);
-    // if (shouldCancel()) {
-    //   // TODO
-    //   animateX(prev(), -width)
-    //   animateX(current(), 0)
-    //   animateX(next(), width)
-    // } else {
-    //   // TODO
-    //   animateX(prev(), _gap > 0 ? 0 : -width * 2)
-    //   animateX(current(), _gap > 0 ? width : -width)
-    //   animateX(next(), _gap > 0 ? width * 2 : 0)
-    // }
+    // setTimeout(() => {
+      animateX(prev(), -width);
+      animateX(current(), 0);
+      animateX(next(), width);
+    // }, 20)
   }
 
   function animateX (el, offset) {
@@ -164,7 +163,7 @@ function swipeIt (options) {
   }
 
   function init () {
-    elms.forEach(function (el, i) { return moveX(el, i === index ? 0 : 10000); });
+    elms.forEach(function (el, i) { return moveX(el, i === index ? 0 : -width); });
 
     // index = opts.index
     on(root, 'touchstart', onTouchStart);
@@ -177,6 +176,13 @@ function moveX (el, x) {
   if (!el) { return }
   el.style.webkitTransition = '';
   el.style.webkitTransform = "translate3d(" + x + "px, 0, 0)";
+}
+
+function prevIndex(index, len, cycle) {
+  return index === 0 && !cycle ? -1 : (index === 0 ? len - 1 : index - 1)
+}
+function nextIndex(index, len, cycle) {
+  return index === len - 1 && !cycle ? -1 : (index === len - 1 ? 0 : index + 1)
 }
 
 export default swipeIt;
