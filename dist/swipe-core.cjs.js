@@ -29,14 +29,9 @@ function newNode (item) {
 function LinkList (arr) {
   var this$1 = this;
 
-  // this.head = this.tail = null
   this.list = [];
   arr.forEach(function (item) { return this$1.append(item); });
 }
-
-// LinkList.prototype.get = function (index) {
-//   return this.list[index]
-// }
 
 LinkList.prototype.append = function (item) {
   var node = newNode(item);
@@ -84,11 +79,11 @@ function swipeIt (options) {
    * 0100: vertical scrolling
    */
   var phase = 0;
-  var startX = 0, currentX = 0, startY = 0, currentY = 0, len = elms.length, slides = [];
+  var startTime = 0, startX = 0, currentX = 0, startY = 0, currentY = 0, len = elms.length, slides = [];
 
-  var current = function () { return elms[index]; };
-  var prev = function () { return current().prev; };
-  var next = function () { return current().next; };
+  var current = elms[index];
+  var prev = function () { return current.prev; };
+  var next = function () { return current.next; };
   var gap = function () { return Math.min(Math.max(-width, currentX - startX), width); };
 
   init();
@@ -102,6 +97,7 @@ function swipeIt (options) {
     phase = 0;
 
     var touch = evt.touches[0];
+    startTime = Date.now();
     currentX = startX = touch.pageX;
     currentY = startY = touch.clientY;
   }
@@ -129,7 +125,7 @@ function swipeIt (options) {
     evt.preventDefault();
 
     (expose || right) && moveX(prev(), _gap - width);
-    moveX(current(), _gap);
+    moveX(current, _gap);
     (expose || !right) && moveX(next(), _gap + width);
     expose && moveX(right ? prev().prev : next().next, right ? _gap - 2 * width : _gap + 2 * width);
   }
@@ -140,18 +136,14 @@ function swipeIt (options) {
 
     var _gap = gap();
     var right = _gap >= 0;
-    if (!shouldCancel()) {
-      moveX(_gap >= 0 ? next() : prev(), -width);
-
-      index = _gap >= 0 ? index - 1 : index + 1;
-      if (index < 0) { index = len - 1; }
-      else if (index === len) { index = 0; }
-
-      // moveX(_gap >= 0 ? prev() : next(), _gap >= 0 ? -width : width)
-      phase = 0;
+    var canceled = shouldCancel();
+    if (!canceled) {
+      moveX(right ? next() : prev(), 10000);
+      current = current[right ? 'prev' : 'next'];
     }
+    phase = 0;
     (expose || !right) && animateX(prev(), -width);
-    animateX(current(), 0);
+    animateX(current, 0);
     (expose || right) && animateX(next(), width);
   }
 
@@ -172,16 +164,23 @@ function swipeIt (options) {
   }
 
   function shouldCancel () {
-    return false
+    var _gap = gap();
+    var right = _gap >= 0;
+    var cancel = Math.abs(_gap) < width / 3;
+    var endTime = Date.now();
+    var duration = endTime - startTime;
+
+    var result = ((duration > 300 || duration < 16) && cancel) || (!cycle && right && current === slides.head) || (!cycle && !right && current === slides.tail);
+    console.log('should cancel: ', result);
+    return result
   }
 
   function init () {
     len = elms.length;
     slides = new LinkList(elms);
-    elms.forEach(function (el, i) { return moveX(el, i === index ? 0 : -width); });
+    elms.forEach(function (el, i) { return moveX(el, i === index ? 0 : 10000); });
 
     destroy();
-    // index = opts.index
     on(root, 'touchstart', onTouchStart);
     on(root, 'touchmove', onTouchMove);
     on(root, 'touchend', onTouchEnd);

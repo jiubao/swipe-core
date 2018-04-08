@@ -25,14 +25,9 @@ function newNode (item) {
 }
 
 function LinkList (arr) {
-  // this.head = this.tail = null
   this.list = []
   arr.forEach(item => this.append(item))
 }
-
-// LinkList.prototype.get = function (index) {
-//   return this.list[index]
-// }
 
 LinkList.prototype.append = function (item) {
   var node = newNode(item)
@@ -46,7 +41,5 @@ LinkList.prototype.append = function (item) {
   node.next.prev = node
   return this.tail = node
 }
-
-// window.LinkList = LinkList
 
 export {LinkList}
