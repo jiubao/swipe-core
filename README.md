@@ -4,6 +4,12 @@
 ## Demo
 https://jiubao.github.io/swipe-core/
 
+## Ongoing
+css transition has some limitations, switch to js to simulate animation
+
+* use requestAnimationFrame, do we need polyfill?
+* js cubic bezier
+
 ## Todos
 * ~~performance~~
 * ~~vertical scroll on page~~
