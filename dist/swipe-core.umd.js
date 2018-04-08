@@ -23,6 +23,38 @@
     on(el, event, listener);
   };
 
+  function newNode (item) {
+    // var node = Object.create(null)
+    // node.item = item
+    // return node.next = node.prev = node
+    return item.next = item.prev = item
+  }
+
+  function LinkList (arr) {
+    var this$1 = this;
+
+    // this.head = this.tail = null
+    this.list = [];
+    arr.forEach(function (item) { return this$1.append(item); });
+  }
+
+  // LinkList.prototype.get = function (index) {
+  //   return this.list[index]
+  // }
+
+  LinkList.prototype.append = function (item) {
+    var node = newNode(item);
+    this.list.push(node);
+    if (!this.tail) {
+      return this.head = this.tail = node
+    }
+    node.prev = this.tail;
+    node.next = this.tail.next;
+    this.tail.next = node;
+    node.next.prev = node;
+    return this.tail = node
+  };
+
   var defaultOptions = {
     interval: 500,
     cycle: true,
@@ -49,13 +81,6 @@
 
     if (!root || !elms | elms.length < 2) { return }
 
-    // var state = {
-    //   phase: 0, // dragging, animating
-    //   startTime: 0,
-    //   startX: 0,
-    //   currentX: 0
-    // }
-
     /*
      * 0000: stop
      * 0001: dragging
@@ -65,14 +90,17 @@
     var phase = 0;
     var startX = 0, currentX = 0, startY = 0, currentY = 0;
 
+    var slides = new LinkList(elms);
+
     var len = elms.length;
-    var first = elms[0], last = elms[len - 1];
 
     var current = function () { return elms[index]; };
-    var prev = function () { return elms[prevIndex(index, len, cycle)]; };
-    var pprev = function () { return elms[prevIndex(prevIndex(index, len, cycle), len, cycle)]; };
-    var next = function () { return elms[nextIndex(index, len, cycle)]; };
-    var nnext = function () { return elms[nextIndex(nextIndex(index, len, cycle), len, cycle)]; };
+    var prev = function () { return current().prev; };
+    var next = function () { return current().next; };
+    // var prev = () => elms[prevIndex(index, len, cycle)]
+    // var pprev = () => elms[prevIndex(prevIndex(index, len, cycle), len, cycle)]
+    // var next = () => elms[nextIndex(index, len, cycle)]
+    // var nnext = () => elms[nextIndex(nextIndex(index, len, cycle), len, cycle)]
     // var prev = () => index === 0 && !cycle ? null : elms[index === 0 ? len - 1 : index - 1]
     // var next = () => index === len - 1 && !cycle ? null : elms[index === len - 1 ? 0 : index + 1]
     // var first = () => elms[0]
@@ -119,12 +147,10 @@
 
       evt.preventDefault();
 
-      // console.log('gap: ', _gap)
-      // console.log('width: ', width)
-      moveX(prev(), _gap - width);
+      (expose || right) && moveX(prev(), _gap - width);
       moveX(current(), _gap);
-      moveX(next(), _gap + width);
-      moveX(right ? pprev() : nnext(), right ? _gap - 2 * width : _gap + 2 * width);
+      (expose || !right) && moveX(next(), _gap + width);
+      expose && moveX(right ? prev().prev : next().next, right ? _gap - 2 * width : _gap + 2 * width);
     }
 
     function onTouchEnd (evt) {
@@ -132,6 +158,7 @@
       phase = 2;
 
       var _gap = gap();
+      var right = _gap >= 0;
       if (!shouldCancel()) {
         moveX(_gap >= 0 ? next() : prev(), -width);
 
@@ -142,11 +169,9 @@
         // moveX(_gap >= 0 ? prev() : next(), _gap >= 0 ? -width : width)
         phase = 0;
       }
-      // setTimeout(() => {
-        animateX(prev(), -width);
-        animateX(current(), 0);
-        animateX(next(), width);
-      // }, 20)
+      (expose || !right) && animateX(prev(), -width);
+      animateX(current(), 0);
+      (expose || right) && animateX(next(), width);
     }
 
     function animateX (el, offset) {
@@ -182,13 +207,6 @@
     if (!el) { return }
     el.style.webkitTransition = '';
     el.style.webkitTransform = "translate3d(" + x + "px, 0, 0)";
-  }
-
-  function prevIndex(index, len, cycle) {
-    return index === 0 && !cycle ? -1 : (index === 0 ? len - 1 : index - 1)
-  }
-  function nextIndex(index, len, cycle) {
-    return index === len - 1 && !cycle ? -1 : (index === len - 1 ? 0 : index + 1)
   }
 
   return swipeIt;
