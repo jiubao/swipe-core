@@ -75,7 +75,7 @@ function swipeIt (options) {
   var expose = opts.expose;
   var interval = opts.interval;
 
-  if (!root || !elms | elms.length < 2) { return }
+  if (!root) { return }
 
   /*
    * 0000: stop
@@ -84,32 +84,17 @@ function swipeIt (options) {
    * 0100: vertical scrolling
    */
   var phase = 0;
-  var startX = 0, currentX = 0, startY = 0, currentY = 0;
-
-  var slides = new LinkList(elms);
-
-  var len = elms.length;
+  var startX = 0, currentX = 0, startY = 0, currentY = 0, len = elms.length, slides = [];
 
   var current = function () { return elms[index]; };
   var prev = function () { return current().prev; };
   var next = function () { return current().next; };
-  // var prev = () => elms[prevIndex(index, len, cycle)]
-  // var pprev = () => elms[prevIndex(prevIndex(index, len, cycle), len, cycle)]
-  // var next = () => elms[nextIndex(index, len, cycle)]
-  // var nnext = () => elms[nextIndex(nextIndex(index, len, cycle), len, cycle)]
-  // var prev = () => index === 0 && !cycle ? null : elms[index === 0 ? len - 1 : index - 1]
-  // var next = () => index === len - 1 && !cycle ? null : elms[index === len - 1 ? 0 : index + 1]
-  // var first = () => elms[0]
-  // var last = () => elms[elms.length - 1]
   var gap = function () { return Math.min(Math.max(-width, currentX - startX), width); };
 
   init();
 
   return {
-    init: init,
-    print: function print () {
-      console.log();
-    }
+    init: init
   }
 
   function onTouchStart (evt) {
@@ -171,6 +156,7 @@ function swipeIt (options) {
   }
 
   function animateX (el, offset) {
+    // el.style.webkitTransition = '-webkit-transform 100ms ease-in-out';
     el.style.webkitTransition = "-webkit-transform " + interval + "ms cubic-bezier(0.22, 0.61, 0.36, 1)";
     // use setTimeout 20 instead of requestAnimationFrame
     setTimeout(function () { return el.style.webkitTransform = "translate3d(" + offset + "px, 0, 0)"; }, 20);
@@ -190,12 +176,21 @@ function swipeIt (options) {
   }
 
   function init () {
+    len = elms.length;
+    slides = new LinkList(elms);
     elms.forEach(function (el, i) { return moveX(el, i === index ? 0 : -width); });
 
+    destroy();
     // index = opts.index
     on(root, 'touchstart', onTouchStart);
     on(root, 'touchmove', onTouchMove);
     on(root, 'touchend', onTouchEnd);
+  }
+
+  function destroy () {
+    off(root, 'touchstart', onTouchStart);
+    off(root, 'touchmove', onTouchMove);
+    off(root, 'touchend', onTouchEnd);
   }
 }
 
@@ -204,5 +199,20 @@ function moveX (el, x) {
   el.style.webkitTransition = '';
   el.style.webkitTransform = "translate3d(" + x + "px, 0, 0)";
 }
+
+// var prev = () => elms[prevIndex(index, len, cycle)]
+// var pprev = () => elms[prevIndex(prevIndex(index, len, cycle), len, cycle)]
+// var next = () => elms[nextIndex(index, len, cycle)]
+// var nnext = () => elms[nextIndex(nextIndex(index, len, cycle), len, cycle)]
+// var prev = () => index === 0 && !cycle ? null : elms[index === 0 ? len - 1 : index - 1]
+// var next = () => index === len - 1 && !cycle ? null : elms[index === len - 1 ? 0 : index + 1]
+// var first = () => elms[0]
+// var last = () => elms[elms.length - 1]
+// function prevIndex(index, len, cycle) {
+//   return index === 0 && !cycle ? -1 : (index === 0 ? len - 1 : index - 1)
+// }
+// function nextIndex(index, len, cycle) {
+//   return index === len - 1 && !cycle ? -1 : (index === len - 1 ? 0 : index + 1)
+// }
 
 module.exports = swipeIt;

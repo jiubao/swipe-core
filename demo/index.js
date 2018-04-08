@@ -1,4 +1,5 @@
 window['swipe-core']({
   root: document.getElementById('swiper'),
-  elms: document.querySelectorAll('.swiper-item')
+  elms: document.querySelectorAll('.swiper-item'),
+  index: 2
 })
