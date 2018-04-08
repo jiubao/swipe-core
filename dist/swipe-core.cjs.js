@@ -136,15 +136,27 @@ function swipeIt (options) {
 
     var _gap = gap();
     var right = _gap >= 0;
-    var canceled = shouldCancel();
-    if (!canceled) {
-      moveX(right ? next() : prev(), 10000);
-      current = current[right ? 'prev' : 'next'];
-    }
+
+    var abort = shouldCancel();
+    abort || moveX(right ? next() : prev(), 10000);
+
+    (abort || right) && animateX(prev(), abort ? -width : 0);
+    animateX(current, abort ? 0 : width * (right ? 1 : -1));
+    (abort || !right) && animateX(next(), abort ? width : 0);
+    (expose && !abort) && animateX(right ? prev().prev : next().next, right ? -width : width);
+
+    if (!abort) { current = current[right ? 'prev' : 'next']; }
     phase = 0;
-    (expose || !right) && animateX(prev(), -width);
-    animateX(current, 0);
-    (expose || right) && animateX(next(), width);
+
+    // var canceled = shouldCancel()
+    // if (!canceled) {
+    //   moveX(right ? next() : prev(), 10000)
+    //   current = current[right ? 'prev' : 'next']
+    // }
+    // phase = 0;
+    // (expose || !right) && animateX(prev(), -width);
+    // animateX(current, 0);
+    // (expose || right) && animateX(next(), width);
   }
 
   function animateX (el, offset) {
