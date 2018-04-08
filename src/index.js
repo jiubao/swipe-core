@@ -34,6 +34,7 @@ function swipeIt (options) {
   var prev = () => current.prev
   var next = () => current.next
   var gap = () => Math.min(Math.max(-width, currentX - startX), width)
+  var animations = []
 
   init()
 
@@ -44,6 +45,7 @@ function swipeIt (options) {
   function onTouchStart (evt) {
     if (phase === 4 || phase === 2) return
     phase = 0
+    while (animations.length) animations.splice(0, 1)[0]()
 
     var touch = evt.touches[0]
     startTime = Date.now()
@@ -96,32 +98,25 @@ function swipeIt (options) {
 
     if (!abort) current = current[right ? 'prev' : 'next'];
     phase = 0;
-
-    // var canceled = shouldCancel()
-    // if (!canceled) {
-    //   moveX(right ? next() : prev(), 10000)
-    //   current = current[right ? 'prev' : 'next']
-    // }
-    // phase = 0;
-    // (expose || !right) && animateX(prev(), -width);
-    // animateX(current, 0);
-    // (expose || right) && animateX(next(), width);
   }
 
   function animateX (el, offset) {
     // el.style.webkitTransition = '-webkit-transform 100ms ease-in-out';
     el.style.webkitTransition = `-webkit-transform ${interval}ms cubic-bezier(0.22, 0.61, 0.36, 1)`
     // use setTimeout 20 instead of requestAnimationFrame
-    setTimeout(() => el.style.webkitTransform = `translate3d(${offset}px, 0, 0)`, 20)
+    setTimeout(() => el.style.webkitTransform = `translate3d(${offset}px, 0, 0)`, 0)
     var called = false
     function callback () {
       if (called) return
       called = true
-      this.status = 0
       el.style.webkitTransition = ''
     }
     once(el, 'webkitTransitionEnd', callback)
-    setTimeout(callback, interval + 20)
+    var t1 = setTimeout(callback, interval + 20)
+    animations.push(function () {
+      clearTimeout(t1)
+      callback()
+    })
   }
 
   function shouldCancel () {
@@ -131,9 +126,7 @@ function swipeIt (options) {
     var endTime = Date.now()
     var duration = endTime - startTime
 
-    var result = ((duration > 300 || duration < 16) && cancel) || (!cycle && right && current === slides.head) || (!cycle && !right && current === slides.tail)
-    console.log('should cancel: ', result)
-    return result
+    return ((duration > 300 || duration < 16) && cancel) || (!cycle && right && current === slides.head) || (!cycle && !right && current === slides.tail)
   }
 
   function init () {
