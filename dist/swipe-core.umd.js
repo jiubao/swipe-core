@@ -45,16 +45,18 @@
 
   // for a 60Hz monitor, requestAnimationFrame will trigger the callback every 16.67ms (1000 / 60 == 16.66...)
   // todo: for performance concern, add threshold, to control how many times fn will be called in one minute
-  var ticking = false;
-  function requestFrame (fn, giveup) {
-    if (!giveup || !ticking) {
-      window.requestAnimationFrame(function () {
-        ticking = false;
-        fn();
-      });
-      ticking = true;
-    }
-  }
+  // var ticking = false
+  // export function requestFrame (fn, giveup) {
+  //   if (!giveup || !ticking) {
+  //     window.requestAnimationFrame(() => {
+  //       ticking = false
+  //       fn()
+  //     })
+  //     ticking = true
+  //   }
+  // }
+  var requestFrame = window.requestAnimationFrame;
+  var cancelFrame = window.cancelAnimationFrame;
 
   var cubic = function (k) { return --k * k * k + 1; };
 
@@ -84,7 +86,7 @@
 
     if (!root) { return }
 
-    var main = root.children[0], hide = document.createElement('div');
+    var main = root.children[0], hide = document.createElement('div'), animations = {main: -1}, lastGap = 0;
 
     /*
      * 0000: stop
@@ -98,19 +100,26 @@
     var current = elms[index];
     var prev = function () { return current.prev; };
     var next = function () { return current.next; };
-    var gap = function () { return Math.min(Math.max(-width, currentX - startX), width); };
-    var animations = [];
+    // var gap = () => Math.min(Math.max(-width, currentX - startX + lastGap), width)
+    var gap = function () { return currentX - startX + lastGap; };
+    // var animations = []
 
     init();
 
+    var tt = 0;
     return {
       init: init
     }
 
     function onTouchStart (evt) {
-      if (phase === 4 || phase === 2) { return }
+      if (phase === 4) { return }
+
+      if (phase === 2) {
+        // while (animations.length) animations.splice(0, 1)[0]()
+        cancelFrame(animations.main);
+        tt = 1;
+      }
       phase = 0;
-      while (animations.length) { animations.splice(0, 1)[0](); }
 
       var touch = evt.touches[0];
       startTime = Date.now();
@@ -126,22 +135,27 @@
       currentY = touch.clientY;
       var _gap = gap();
 
-      if (phase === 0) {
-        var x = Math.abs(_gap);
-        var y = Math.abs(currentY - startY);
-        if (x * 2 < y) {
-          phase = 4;
-          return
-        }
+      phase = 1;
 
-        phase = 1;
-      }
+      // if (phase === 0) {
+      //   var x = Math.abs(_gap)
+      //   var y = Math.abs(currentY - startY)
+      //   if (x * 2 < y) {
+      //     phase = 4
+      //     return
+      //   }
+      //
+      //   phase = 1
+      // }
 
       evt.preventDefault();
 
       // left = left + _gap
 
       // moveX(main, _gap - current.index * width);
+      console.log('onmove.left: ', left);
+      console.log('onmove.lastgap: ', lastGap);
+      console.log('onmove.gap: ', _gap);
       moveX(main, left + _gap);
 
 
@@ -155,14 +169,22 @@
       if (phase === 4 || phase === 2) { return }
       phase = 2;
 
+      if (tt == 1) {
+        console.log('...');
+      }
+
       var _gap = gap();
+      if (_gap === 0) { return }
       var right = _gap >= 0;
+      lastGap = _gap;
 
       var abort = shouldCancel();
-      var from = currentX - startX + left;
-      left = abort ? left : left + width * (right ? 1 : -1);
+      console.log('end.abort: ', abort);
+      var from = _gap + left;
+      var nextleft = abort ? left : left + width * (right ? 1 : -1);
       // animateX(main, left);
-      animate(main, from, left, interval);
+      animate(main, from, nextleft, callback);
+      // setTimeout(callback, interval)
       // main.appendChild(current.next.next);
       // moveX(current.next.next, current.next.next.index * width)
       // abort || moveX(right ? next() : prev(), 10000);
@@ -172,15 +194,20 @@
       // (abort || !right) && animateX(next(), abort ? width : 0);
       // (expose && !abort) && animateX(right ? prev().prev : next().next, right ? -width : width);
 
-      if (!abort) {
-        hide.appendChild(right ? next() : prev());
-        current = current[right ? 'prev' : 'next'];
-        var target = right ? prev() : next();
-        moveX(target, width * (right ? -1 : 1) - left);
-        // moveX(target, target.index * width)
-        main.appendChild(target);
+      function callback () {
+        console.log('callback....');
+        if (!abort) {
+          left = nextleft;
+          hide.appendChild(right ? next() : prev());
+          current = current[right ? 'prev' : 'next'];
+          var target = right ? prev() : next();
+          moveX(target, width * (right ? -1 : 1) - left);
+          // moveX(target, target.index * width)
+          main.appendChild(target);
+        }
+        phase = 0;
+        lastGap = 0;
       }
-      phase = 0;
     }
 
     // function animateX (el, offset) {
@@ -201,6 +228,25 @@
     //     callback()
     //   })
     // }
+
+    function animate (elm, from, to, callback) {
+      var start = Date.now();
+      function loop () {
+        console.log('looping...');
+        var now = Date.now();
+        var during = now - start;
+        if (during >= interval) {
+          moveX(elm, to);
+          callback && callback();
+          return
+        }
+        var distance = (to - from) * cubic(during / interval) + from;
+        lastGap = distance - left;
+        moveX(elm, distance);
+        animations.main = requestFrame(loop);
+      }
+      loop();
+    }
 
     function shouldCancel () {
       var _gap = gap();
@@ -250,21 +296,6 @@
     if (!el) { return }
     el.style.webkitTransition = '';
     el.style.webkitTransform = "translate3d(" + x + "px, 0, 0)";
-  }
-
-  function animate (elm, from, to, interval) {
-    var start = Date.now();
-    function loop () {
-      var now = Date.now();
-      var during = now - start;
-      if (during >= interval) {
-        moveX(elm, to);
-        return
-      }
-      moveX(elm, (to - from) * cubic(during / interval) + from);
-      requestFrame(loop);
-    }
-    loop();
   }
 
   // var prev = () => elms[prevIndex(index, len, cycle)]

@@ -48,16 +48,18 @@ LinkList.prototype.append = function (item) {
 
 // for a 60Hz monitor, requestAnimationFrame will trigger the callback every 16.67ms (1000 / 60 == 16.66...)
 // todo: for performance concern, add threshold, to control how many times fn will be called in one minute
-var ticking = false
-export function requestFrame (fn, giveup) {
-  if (!giveup || !ticking) {
-    window.requestAnimationFrame(() => {
-      ticking = false
-      fn()
-    })
-    ticking = true
-  }
-}
+// var ticking = false
+// export function requestFrame (fn, giveup) {
+//   if (!giveup || !ticking) {
+//     window.requestAnimationFrame(() => {
+//       ticking = false
+//       fn()
+//     })
+//     ticking = true
+//   }
+// }
+export const requestFrame = window.requestAnimationFrame
+export const cancelFrame = window.cancelAnimationFrame
 
 export const cubic = k => --k * k * k + 1
 
