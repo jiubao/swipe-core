@@ -12,17 +12,6 @@
     element.removeEventListener(evt, handler, false);
   }
 
-  /* istanbul ignore next */
-  var once = function (el, event, fn) {
-    var listener = function () {
-      if (fn) {
-        fn.apply(this, arguments);
-      }
-      off(el, event, listener);
-    };
-    on(el, event, listener);
-  };
-
   function newNode (item) {
     // var node = Object.create(null)
     // node.item = item
@@ -53,6 +42,21 @@
     node.next.prev = node;
     return this.tail = node
   };
+
+  // for a 60Hz monitor, requestAnimationFrame will trigger the callback every 16.67ms (1000 / 60 == 16.66...)
+  // todo: for performance concern, add threshold, to control how many times fn will be called in one minute
+  var ticking = false;
+  function requestFrame (fn, giveup) {
+    if (!giveup || !ticking) {
+      window.requestAnimationFrame(function () {
+        ticking = false;
+        fn();
+      });
+      ticking = true;
+    }
+  }
+
+  var cubic = function (k) { return --k * k * k + 1; };
 
   var defaultOptions = {
     interval: 500,
@@ -155,8 +159,10 @@
       var right = _gap >= 0;
 
       var abort = shouldCancel();
+      var from = currentX - startX + left;
       left = abort ? left : left + width * (right ? 1 : -1);
-      animateX(main, left);
+      // animateX(main, left);
+      animate(main, from, left, interval);
       // main.appendChild(current.next.next);
       // moveX(current.next.next, current.next.next.index * width)
       // abort || moveX(right ? next() : prev(), 10000);
@@ -177,24 +183,24 @@
       phase = 0;
     }
 
-    function animateX (el, offset) {
-      // el.style.webkitTransition = '-webkit-transform 100ms ease-in-out';
-      el.style.webkitTransition = "-webkit-transform " + interval + "ms cubic-bezier(0.22, 0.61, 0.36, 1)";
-      // use setTimeout 20 instead of requestAnimationFrame
-      setTimeout(function () { return el.style.webkitTransform = "translate3d(" + offset + "px, 0, 0)"; }, 0);
-      var called = false;
-      function callback () {
-        if (called) { return }
-        called = true;
-        el.style.webkitTransition = '';
-      }
-      once(el, 'webkitTransitionEnd', callback);
-      var t1 = setTimeout(callback, interval + 20);
-      animations.push(function () {
-        clearTimeout(t1);
-        callback();
-      });
-    }
+    // function animateX (el, offset) {
+    //   // el.style.webkitTransition = '-webkit-transform 100ms ease-in-out';
+    //   el.style.webkitTransition = `-webkit-transform ${interval}ms cubic-bezier(0.22, 0.61, 0.36, 1)`
+    //   // use setTimeout 20 instead of requestAnimationFrame
+    //   setTimeout(() => el.style.webkitTransform = `translate3d(${offset}px, 0, 0)`, 0)
+    //   var called = false
+    //   function callback () {
+    //     if (called) return
+    //     called = true
+    //     el.style.webkitTransition = ''
+    //   }
+    //   once(el, 'webkitTransitionEnd', callback)
+    //   var t1 = setTimeout(callback, interval + 20)
+    //   animations.push(function () {
+    //     clearTimeout(t1)
+    //     callback()
+    //   })
+    // }
 
     function shouldCancel () {
       var _gap = gap();
@@ -244,6 +250,21 @@
     if (!el) { return }
     el.style.webkitTransition = '';
     el.style.webkitTransform = "translate3d(" + x + "px, 0, 0)";
+  }
+
+  function animate (elm, from, to, interval) {
+    var start = Date.now();
+    function loop () {
+      var now = Date.now();
+      var during = now - start;
+      if (during >= interval) {
+        moveX(elm, to);
+        return
+      }
+      moveX(elm, (to - from) * cubic(during / interval) + from);
+      requestFrame(loop);
+    }
+    loop();
   }
 
   // var prev = () => elms[prevIndex(index, len, cycle)]
