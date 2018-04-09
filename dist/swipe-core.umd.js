@@ -35,6 +35,10 @@
 
     this.list = [];
     arr.forEach(function (item) { return this$1.append(item); });
+    // arr.forEach((item, index) => {
+    //   item.index = index
+    //   this.append(item)
+    // })
   }
 
   LinkList.prototype.append = function (item) {
@@ -76,6 +80,8 @@
 
     if (!root) { return }
 
+    var main = root.children[0], hide = document.createElement('div');
+
     /*
      * 0000: stop
      * 0001: dragging
@@ -83,7 +89,7 @@
      * 0100: vertical scrolling
      */
     var phase = 0;
-    var startTime = 0, startX = 0, currentX = 0, startY = 0, currentY = 0, len = elms.length, slides = [];
+    var startTime = 0, startX = 0, currentX = 0, startY = 0, currentY = 0, len = elms.length, slides = [], left = 0;
 
     var current = elms[index];
     var prev = function () { return current.prev; };
@@ -115,7 +121,6 @@
       currentX = touch.pageX;
       currentY = touch.clientY;
       var _gap = gap();
-      var right = _gap >= 0;
 
       if (phase === 0) {
         var x = Math.abs(_gap);
@@ -130,10 +135,16 @@
 
       evt.preventDefault();
 
-      (expose || right) && moveX(prev(), _gap - width);
-      moveX(current, _gap);
-      (expose || !right) && moveX(next(), _gap + width);
-      expose && moveX(right ? prev().prev : next().next, right ? _gap - 2 * width : _gap + 2 * width);
+      // left = left + _gap
+
+      // moveX(main, _gap - current.index * width);
+      moveX(main, left + _gap);
+
+
+      // (expose || right) && moveX(prev(), _gap - width);
+      // moveX(current, _gap);
+      // (expose || !right) && moveX(next(), _gap + width);
+      // expose && moveX(right ? prev().prev : next().next, right ? _gap - 2 * width : _gap + 2 * width);
     }
 
     function onTouchEnd (evt) {
@@ -144,14 +155,25 @@
       var right = _gap >= 0;
 
       var abort = shouldCancel();
-      abort || moveX(right ? next() : prev(), 10000);
+      left = abort ? left : left + width * (right ? 1 : -1);
+      animateX(main, left);
+      // main.appendChild(current.next.next);
+      // moveX(current.next.next, current.next.next.index * width)
+      // abort || moveX(right ? next() : prev(), 10000);
+      //
+      // (abort || right) && animateX(prev(), abort ? -width : 0);
+      // animateX(current, abort ? 0 : width * (right ? 1 : -1));
+      // (abort || !right) && animateX(next(), abort ? width : 0);
+      // (expose && !abort) && animateX(right ? prev().prev : next().next, right ? -width : width);
 
-      (abort || right) && animateX(prev(), abort ? -width : 0);
-      animateX(current, abort ? 0 : width * (right ? 1 : -1));
-      (abort || !right) && animateX(next(), abort ? width : 0);
-      (expose && !abort) && animateX(right ? prev().prev : next().next, right ? -width : width);
-
-      if (!abort) { current = current[right ? 'prev' : 'next']; }
+      if (!abort) {
+        hide.appendChild(right ? next() : prev());
+        current = current[right ? 'prev' : 'next'];
+        var target = right ? prev() : next();
+        moveX(target, width * (right ? -1 : 1) - left);
+        // moveX(target, target.index * width)
+        main.appendChild(target);
+      }
       phase = 0;
     }
 
@@ -185,9 +207,25 @@
     }
 
     function init () {
+      hide.style.display = 'none';
+      document.body.appendChild(hide);
       len = elms.length;
       slides = new LinkList(elms);
-      elms.forEach(function (el, i) { return moveX(el, i === index ? 0 : 10000); });
+      elms.forEach(function (el, i) {
+        switch (el) {
+          case current:
+            moveX(el, 0);
+            break;
+          case current.prev:
+            moveX(el, -width);
+            break;
+          case current.next:
+            moveX(el, width);
+            break;
+          default:
+            hide.appendChild(el);
+        }
+      });
 
       destroy();
       on(root, 'touchstart', onTouchStart);
