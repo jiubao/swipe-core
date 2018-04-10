@@ -24,13 +24,13 @@ function swipeIt (options) {
   var main = root.children[0], hide = document.createElement('div'), animations = {main: -1}, threshold = width / 3
 
   /*
-   * 0000: stop
+   * 0000: start
    * 0001: dragging
    * 0010: animating
    * 0100: vertical scrolling
    */
   var phase = 0
-  var x = 0, startTime = 0, startX = 0, currentX = 0, startY = 0, currentY = 0, slides = [] //, left = 0
+  var x = 0, startTime = 0, startX = 0, currentX = 0, startY = 0, slides = [] //, left = 0
 
   var current = elms[index]
 
@@ -41,7 +41,7 @@ function swipeIt (options) {
   }
 
   function onTouchStart (evt) {
-    if (phase === 4) return
+    // if (phase === 4) return
 
     if (phase === 2) {
       // while (animations.length) animations.splice(0, 1)[0]()
@@ -52,18 +52,24 @@ function swipeIt (options) {
     var touch = evt.touches[0]
     startTime = Date.now()
     currentX = startX = touch.pageX
-    currentY = startY = touch.clientY
+    startY = touch.clientY
   }
 
   function onTouchMove (evt) {
     if (phase === 2 || phase === 4) return
 
     var touch = evt.touches[0]
-    var _gap = touch.pageX - currentX
-    currentX = touch.pageX
-    currentY = touch.clientY
-    x = x + _gap
+    var gap = touch.pageX - currentX
 
+    if (phase === 0 && Math.abs(gap) * 2 < Math.abs(touch.clientY - startY)) {
+      phase = 4
+      return
+    }
+
+    phase = 1
+    currentX = touch.pageX
+
+    x = x + gap
     moveX(main, x)
 
     evt.preventDefault();
@@ -103,10 +109,12 @@ function swipeIt (options) {
 
   // 375, 187, 188
   function onTouchEnd (evt) {
+    if (phase === 4) return
     phase = 2
     var right = (currentX - startX) >= 0
     var fast = (Date.now() - startTime) < 200
 
+    // if (cycle && (right && current === slides.head) || (!right && current === slides.tail)) {} else {
     var cx = current.x + x
     if (cx > threshold || (fast && right)) {
       hide.appendChild(current.next)
@@ -121,6 +129,7 @@ function swipeIt (options) {
       moveX(current.next, current.next.x)
       main.appendChild(current.next)
     }
+
     animate(main, x, current.x * -1, fast ? 150 : interval)
   }
 
