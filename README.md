@@ -13,9 +13,11 @@ css transition has some limitations, switch to js to simulate animation
 ## Todos
 * ~~performance~~
 * ~~vertical scroll on page~~
-* group current 3 slides
-* use js to simulate animation
-* ease animating
-* fast drag
-* fast touch
+* ~~group current 3 slides~~
+* ~~use js to simulate animation~~
+* ~~ease animating~~
+* ~~fast drag~~
+* ~~fast touch~~
 * swipe left & right
+* disable cycle
+* expose mode
