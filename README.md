@@ -18,7 +18,7 @@ css transition has some limitations, switch to js to simulate animation
 * ~~ease animating~~
 * ~~fast drag~~
 * ~~fast touch~~
-* swipe left & right
+* ~~swipe left & right~~
 * ~~disable cycle~~
 * ~~expose mode~~
 * support one / two slides
