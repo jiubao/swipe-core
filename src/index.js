@@ -1,7 +1,7 @@
 import {on, off, once, LinkList, requestFrame, cancelFrame, cubic} from './utils'
 
 var defaultOptions = {
-  interval: 500,
+  interval: 400,
   cycle: true,
   expose: false,
   root: null, // required
@@ -21,7 +21,8 @@ function swipeIt (options) {
 
   if (!root) return
 
-  var main = root.children[0], hide = document.createElement('div'), animations = {main: -1}, lastGap = 0
+  var main = root.children[0], hide = document.createElement('div'), animations = {main: -1}, lastGap = 0;
+  var x = 0
 
   /*
    * 0000: stop
@@ -40,6 +41,7 @@ function swipeIt (options) {
   // var animations = []
 
   init()
+  var first = prev(), last = next()
 
   var tt = 0
   return {
@@ -66,6 +68,20 @@ function swipeIt (options) {
     if (phase === 2 || phase === 4) return
 
     var touch = evt.touches[0]
+    var _gap = touch.pageX - currentX
+    currentX = touch.pageX
+    currentY = touch.clientY
+    x = x + _gap
+
+    moveX(main, x)
+
+    evt.preventDefault();
+  }
+
+  function _onTouchMove (evt) {
+    if (phase === 2 || phase === 4) return
+
+    var touch = evt.touches[0]
     currentX = touch.pageX
     currentY = touch.clientY
     var _gap = gap()
@@ -88,20 +104,34 @@ function swipeIt (options) {
 
     // left = left + _gap
 
-    // moveX(main, _gap - current.index * width);
     console.log('onmove.left: ', left)
     console.log('onmove.lastgap: ', lastGap)
     console.log('onmove.gap: ', _gap)
     moveX(main, left + _gap);
-
-
-    // (expose || right) && moveX(prev(), _gap - width);
-    // moveX(current, _gap);
-    // (expose || !right) && moveX(next(), _gap + width);
-    // expose && moveX(right ? prev().prev : next().next, right ? _gap - 2 * width : _gap + 2 * width);
   }
 
+  // 375, 187, 188
   function onTouchEnd (evt) {
+    phase = 2
+    var cx = current.x + x
+    if (cx > 187) {
+      hide.appendChild(current.next)
+      current = current.prev
+      current.prev.x = current.x - width
+      moveX(current.prev, current.prev.x)
+      main.appendChild(current.prev)
+    } else if (cx < -187) {
+      hide.appendChild(current.prev)
+      current = current.next
+      current.next.x = current.x + width
+      moveX(current.next, current.next.x)
+      main.appendChild(current.next)
+    }
+    animate(main, x, current.x * -1)
+  }
+
+  function _onTouchEnd (evt) {
+    return
     if (phase === 4 || phase === 2) return
     phase = 2
 
@@ -118,17 +148,7 @@ function swipeIt (options) {
     console.log('end.abort: ', abort)
     var from = _gap + left
     var nextleft = abort ? left : left + width * (right ? 1 : -1);
-    // animateX(main, left);
     animate(main, from, nextleft, callback)
-    // setTimeout(callback, interval)
-    // main.appendChild(current.next.next);
-    // moveX(current.next.next, current.next.next.index * width)
-    // abort || moveX(right ? next() : prev(), 10000);
-    //
-    // (abort || right) && animateX(prev(), abort ? -width : 0);
-    // animateX(current, abort ? 0 : width * (right ? 1 : -1));
-    // (abort || !right) && animateX(next(), abort ? width : 0);
-    // (expose && !abort) && animateX(right ? prev().prev : next().next, right ? -width : width);
 
     function callback () {
       console.log('callback....')
@@ -138,32 +158,12 @@ function swipeIt (options) {
         current = current[right ? 'prev' : 'next'];
         var target = right ? prev() : next()
         moveX(target, width * (right ? -1 : 1) - left)
-        // moveX(target, target.index * width)
         main.appendChild(target)
       }
       phase = 0;
       lastGap = 0
     }
   }
-
-  // function animateX (el, offset) {
-  //   // el.style.webkitTransition = '-webkit-transform 100ms ease-in-out';
-  //   el.style.webkitTransition = `-webkit-transform ${interval}ms cubic-bezier(0.22, 0.61, 0.36, 1)`
-  //   // use setTimeout 20 instead of requestAnimationFrame
-  //   setTimeout(() => el.style.webkitTransform = `translate3d(${offset}px, 0, 0)`, 0)
-  //   var called = false
-  //   function callback () {
-  //     if (called) return
-  //     called = true
-  //     el.style.webkitTransition = ''
-  //   }
-  //   once(el, 'webkitTransitionEnd', callback)
-  //   var t1 = setTimeout(callback, interval + 20)
-  //   animations.push(function () {
-  //     clearTimeout(t1)
-  //     callback()
-  //   })
-  // }
 
   function animate (elm, from, to, callback) {
     var start = Date.now()
@@ -178,6 +178,7 @@ function swipeIt (options) {
       }
       var distance = (to - from) * cubic(during / interval) + from
       lastGap = distance - left
+      x = distance
       moveX(elm, distance)
       animations.main = requestFrame(loop)
     }
@@ -203,12 +204,15 @@ function swipeIt (options) {
       switch (el) {
         case current:
           moveX(el, 0)
+          el.x = 0
           break;
         case current.prev:
           moveX(el, -width)
+          el.x = -width
           break;
         case current.next:
           moveX(el, width)
+          el.x = width
           break;
         default:
           hide.appendChild(el)
@@ -235,18 +239,3 @@ function moveX (el, x) {
 }
 
 export default swipeIt
-
-// var prev = () => elms[prevIndex(index, len, cycle)]
-// var pprev = () => elms[prevIndex(prevIndex(index, len, cycle), len, cycle)]
-// var next = () => elms[nextIndex(index, len, cycle)]
-// var nnext = () => elms[nextIndex(nextIndex(index, len, cycle), len, cycle)]
-// var prev = () => index === 0 && !cycle ? null : elms[index === 0 ? len - 1 : index - 1]
-// var next = () => index === len - 1 && !cycle ? null : elms[index === len - 1 ? 0 : index + 1]
-// var first = () => elms[0]
-// var last = () => elms[elms.length - 1]
-// function prevIndex(index, len, cycle) {
-//   return index === 0 && !cycle ? -1 : (index === 0 ? len - 1 : index - 1)
-// }
-// function nextIndex(index, len, cycle) {
-//   return index === len - 1 && !cycle ? -1 : (index === len - 1 ? 0 : index + 1)
-// }

@@ -26,11 +26,11 @@ function newNode (item) {
 
 function LinkList (arr) {
   this.list = []
-  arr.forEach(item => this.append(item))
-  // arr.forEach((item, index) => {
-  //   item.index = index
-  //   this.append(item)
-  // })
+  // arr.forEach(item => this.append(item))
+  arr.forEach((item, index) => {
+    item.index = index
+    this.append(item)
+  })
 }
 
 LinkList.prototype.append = function (item) {
