@@ -6,6 +6,10 @@ export function off (element, evt, handler) {
   element.removeEventListener(evt, handler, false)
 }
 
+export function isFunction (value) {
+  return typeof value === 'function'
+}
+
 /* istanbul ignore next */
 export const once = function (el, event, fn) {
   var listener = function () {
