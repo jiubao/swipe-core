@@ -12,7 +12,8 @@ window['swipe-core']({
 window['swipe-core']({
   root: document.getElementById('swiper2'),
   elms: document.querySelectorAll('.swiper-item2'),
-  width: 315
+  width: 315,
+  expose: true
   // width: window.screen.width
   // cycle: false,
   // index: 0
