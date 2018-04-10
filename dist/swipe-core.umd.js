@@ -74,8 +74,8 @@
     root: null, // required
     elms: [], // required
     index: 0,
-    width: 375, // required
-    height: 100 // required
+    width: window.screen.width, // required
+    height: 200 // required
   };
 
   var hides = document.createElement('div');
@@ -201,11 +201,18 @@
     }
 
     function init () {
+      root.style.position = 'relative';
+      root.style.width = width + 'px';
+      root.style.height = height + 'px';
       slides = new LinkList(elms);
       moveEx(current, 0);
       moveEx(current.prev, -width);
       moveEx(current.next, width);
       elms.forEach(function (el) {
+        el.style.position = 'absolute';
+        el.style.width = width + 'px';
+        el.style.height = height + 'px';
+        el.style.overflow = 'hidden';
         if (el !== current && el !== current.prev && el !== current.next) { hide(el); }
       });
 

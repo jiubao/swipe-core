@@ -5,21 +5,10 @@ body {
   overflow-x: hidden;
 }
 
-.swiper-item {
-  height: 500px; overflow: hidden;
-  position: absolute;
+.box {
+  padding: 0 5px;
 }
 
-.swiper {
-  position: relative;
-  width: 375px;
-  height: 500px;
+#swiper2 {
+  margin-left: 30px;
 }
-
-/*
-.test {
-  width: 375px;
-  height: 100px;
-  border: solid 1px red;
-}
-*/

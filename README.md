@@ -20,7 +20,7 @@ css transition has some limitations, switch to js to simulate animation
 * ~~fast touch~~
 * swipe left & right
 * ~~disable cycle~~
-* expose mode
+* ~~expose mode~~
 * support one / two slides
 * support dynamic slides
 * ~~dynamic interval~~
