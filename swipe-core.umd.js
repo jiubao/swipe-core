@@ -12,16 +12,9 @@
     element.removeEventListener(evt, handler, false);
   }
 
-  /* istanbul ignore next */
-  var once = function (el, event, fn) {
-    var listener = function () {
-      if (fn) {
-        fn.apply(this, arguments);
-      }
-      off(el, event, listener);
-    };
-    on(el, event, listener);
-  };
+  function isFunction (value) {
+    return typeof value === 'function'
+  }
 
   function newNode (item) {
     // var node = Object.create(null)
@@ -33,14 +26,13 @@
   function LinkList (arr) {
     var this$1 = this;
 
-    // this.head = this.tail = null
     this.list = [];
-    arr.forEach(function (item) { return this$1.append(item); });
+    // arr.forEach(item => this.append(item))
+    arr.forEach(function (item, index) {
+      item.index = index;
+      this$1.append(item);
+    });
   }
-
-  // LinkList.prototype.get = function (index) {
-  //   return this.list[index]
-  // }
 
   LinkList.prototype.append = function (item) {
     var node = newNode(item);
@@ -55,16 +47,40 @@
     return this.tail = node
   };
 
+  // for a 60Hz monitor, requestAnimationFrame will trigger the callback every 16.67ms (1000 / 60 == 16.66...)
+  // todo: for performance concern, add threshold, to control how many times fn will be called in one minute
+  // var ticking = false
+  // export function requestFrame (fn, giveup) {
+  //   if (!giveup || !ticking) {
+  //     window.requestAnimationFrame(() => {
+  //       ticking = false
+  //       fn()
+  //     })
+  //     ticking = true
+  //   }
+  // }
+  var requestFrame = window.requestAnimationFrame;
+  var cancelFrame = window.cancelAnimationFrame;
+
+  var cubic = function (k) { return --k * k * k + 1; };
+
+  var FAST_THRESHOLD = 100;
+  var FAST_INTERVAL = 200;
+  var MAX_INTERVAL = 1000;
+
   var defaultOptions = {
-    interval: 500,
     cycle: true,
     expose: false,
     root: null, // required
     elms: [], // required
     index: 0,
-    width: 375, // required
-    height: 100 // required
+    width: window.screen.width, // required
+    height: 200 // required
   };
+
+  var hides = document.createElement('div');
+  hides.style.display = 'none';
+  document.body.appendChild(hides);
 
   function swipeIt (options) {
     var opts = Object.assign({}, defaultOptions,
@@ -77,24 +93,25 @@
     var height = opts.height;
     var cycle = opts.cycle;
     var expose = opts.expose;
-    var interval = opts.interval;
 
     if (!root) { return }
 
+    var main = root.children[0], animations = {main: -1}, threshold = width / 3;
+
     /*
-     * 0000: stop
+     * 0000: start
      * 0001: dragging
      * 0010: animating
      * 0100: vertical scrolling
      */
     var phase = 0;
-    var startX = 0, currentX = 0, startY = 0, currentY = 0, len = elms.length, slides = [];
+    var x = 0, startTime = 0, startX = 0, currentX = 0, startY = 0, slides = []; //, left = 0
 
-    var current = function () { return elms[index]; };
-    var prev = function () { return current().prev; };
-    var next = function () { return current().next; };
-    var gap = function () { return Math.min(Math.max(-width, currentX - startX), width); };
+    var current = elms[index];
 
+    var show = function (el) { return main.appendChild(el); };
+    var stopR = function () { return !cycle && currentX > startX && current === slides.head; };
+    var stopL = function () { return !cycle && currentX <= startX && current === slides.tail; };
     init();
 
     return {
@@ -102,90 +119,107 @@
     }
 
     function onTouchStart (evt) {
-      if (phase === 4 || phase === 2) { return }
+      if (phase === 2) {
+        // while (animations.length) animations.splice(0, 1)[0]()
+        cancelFrame(animations.main);
+      }
       phase = 0;
 
       var touch = evt.touches[0];
+      startTime = Date.now();
       currentX = startX = touch.pageX;
-      currentY = startY = touch.clientY;
+      startY = touch.clientY;
     }
 
     function onTouchMove (evt) {
       if (phase === 2 || phase === 4) { return }
 
       var touch = evt.touches[0];
-      currentX = touch.pageX;
-      currentY = touch.clientY;
-      var _gap = gap();
-      var right = _gap >= 0;
+      var gap = touch.pageX - currentX;
 
-      if (phase === 0) {
-        var x = Math.abs(_gap);
-        var y = Math.abs(currentY - startY);
-        if (x * 2 < y) {
-          phase = 4;
-          return
-        }
-
-        phase = 1;
+      if (phase === 0 && Math.abs(gap) * 2 < Math.abs(touch.clientY - startY)) {
+        phase = 4;
+        return
       }
 
-      evt.preventDefault();
+      phase = 1;
+      currentX = touch.pageX;
 
-      (expose || right) && moveX(prev(), _gap - width);
-      moveX(current(), _gap);
-      (expose || !right) && moveX(next(), _gap + width);
-      expose && moveX(right ? prev().prev : next().next, right ? _gap - 2 * width : _gap + 2 * width);
+      x = x + gap;
+      moveX(main, x);
+
+      evt.preventDefault();
     }
 
     function onTouchEnd (evt) {
-      if (phase === 4 || phase === 2) { return }
+      if (phase === 4) { return }
       phase = 2;
+      var right = currentX > startX;
+      var fast = (Date.now() - startTime) < FAST_THRESHOLD;
 
-      var _gap = gap();
-      var right = _gap >= 0;
-      if (!shouldCancel()) {
-        moveX(_gap >= 0 ? next() : prev(), -width);
-
-        index = _gap >= 0 ? index - 1 : index + 1;
-        if (index < 0) { index = len - 1; }
-        else if (index === len) { index = 0; }
-
-        // moveX(_gap >= 0 ? prev() : next(), _gap >= 0 ? -width : width)
-        phase = 0;
+      if (!stopR() && !stopL()) {
+        var cx = current.x + x;
+        if (cx > threshold || (fast && right)) {
+          hide(current.next);
+          current = current.prev;
+          if (!stopR()) {
+            moveEx(current.prev, current.x - width);
+            show(current.prev);
+          }
+        } else if (cx < -threshold || (fast && !right)) {
+          hide(current.prev);
+          current = current.next;
+          if (!stopL()) {
+            moveEx(current.next, current.x + width);
+            show(current.next);
+          }
+        }
       }
-      (expose || !right) && animateX(prev(), -width);
-      animateX(current(), 0);
-      (expose || right) && animateX(next(), width);
+
+      var to = current.x * -1;
+      var t = Math.min(Math.max(MAX_INTERVAL * Math.abs(to - x) / width, FAST_INTERVAL), MAX_INTERVAL * 2 / 3);
+
+      animate(main, x, to, fast ? FAST_INTERVAL : t);
     }
 
-    function animateX (el, offset) {
-      // el.style.webkitTransition = '-webkit-transform 100ms ease-in-out';
-      el.style.webkitTransition = "-webkit-transform " + interval + "ms cubic-bezier(0.22, 0.61, 0.36, 1)";
-      // use setTimeout 20 instead of requestAnimationFrame
-      setTimeout(function () { return el.style.webkitTransform = "translate3d(" + offset + "px, 0, 0)"; }, 20);
-      var called = false;
-      function callback () {
-        if (called) { return }
-        called = true;
-        this.status = 0;
-        el.style.webkitTransition = '';
+    function animate (elm, from, to, interval, callback) {
+      var start = Date.now();
+      function loop () {
+        var now = Date.now();
+        var during = now - start;
+        if (during >= interval) {
+          moveX(elm, to);
+          isFunction(callback) && callback();
+          return
+        }
+        var distance = (to - from) * cubic(during / interval) + from;
+        x = distance;
+        moveX(elm, distance);
+        animations.main = requestFrame(loop);
       }
-      once(el, 'webkitTransitionEnd', callback);
-      setTimeout(callback, interval + 20);
-    }
-
-    function shouldCancel () {
-      return false
+      loop();
     }
 
     function init () {
-      len = elms.length;
+      root.style.position = 'relative';
+      root.style.width = width + 'px';
+      root.style.height = height + 'px';
       slides = new LinkList(elms);
-      elms.forEach(function (el, i) { return moveX(el, i === index ? 0 : -width); });
+      moveEx(current, 0);
+      moveEx(current.prev, -width);
+      moveEx(current.next, width);
+      elms.forEach(function (el) {
+        el.style.position = 'absolute';
+        el.style.width = width + 'px';
+        el.style.height = height + 'px';
+        el.style.overflow = 'hidden';
+        if (el !== current && el !== current.prev && el !== current.next) { hide(el); }
+      });
+
+      if (!cycle && index === 0) { hide(current.prev); }
+      if (!cycle && index === elms.length - 1) { hide(current.next); }
 
       destroy();
-      // index = opts.index
       on(root, 'touchstart', onTouchStart);
       on(root, 'touchmove', onTouchMove);
       on(root, 'touchend', onTouchEnd);
@@ -197,27 +231,14 @@
       off(root, 'touchend', onTouchEnd);
     }
   }
+  var moveEx = function (el, x) { el.x = x; moveX(el, x); };
+  var hide = function (el) { return hides.appendChild(el); };
 
   function moveX (el, x) {
     if (!el) { return }
     el.style.webkitTransition = '';
     el.style.webkitTransform = "translate3d(" + x + "px, 0, 0)";
   }
-
-  // var prev = () => elms[prevIndex(index, len, cycle)]
-  // var pprev = () => elms[prevIndex(prevIndex(index, len, cycle), len, cycle)]
-  // var next = () => elms[nextIndex(index, len, cycle)]
-  // var nnext = () => elms[nextIndex(nextIndex(index, len, cycle), len, cycle)]
-  // var prev = () => index === 0 && !cycle ? null : elms[index === 0 ? len - 1 : index - 1]
-  // var next = () => index === len - 1 && !cycle ? null : elms[index === len - 1 ? 0 : index + 1]
-  // var first = () => elms[0]
-  // var last = () => elms[elms.length - 1]
-  // function prevIndex(index, len, cycle) {
-  //   return index === 0 && !cycle ? -1 : (index === 0 ? len - 1 : index - 1)
-  // }
-  // function nextIndex(index, len, cycle) {
-  //   return index === len - 1 && !cycle ? -1 : (index === len - 1 ? 0 : index + 1)
-  // }
 
   return swipeIt;
 
