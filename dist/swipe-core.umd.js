@@ -115,7 +115,7 @@
     init();
 
     return {
-      init: init
+      init: init, destroy: destroy
     }
 
     function onTouchStart (evt) {
@@ -201,6 +201,7 @@
     }
 
     function init () {
+      if (!expose) { root.style.overflow = 'hidden'; }
       root.style.position = 'relative';
       root.style.width = width + 'px';
       root.style.height = height + 'px';
