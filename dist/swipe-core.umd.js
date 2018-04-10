@@ -105,7 +105,8 @@
      * 0100: vertical scrolling
      */
     var phase = 0;
-    var x = 0, startTime = 0, startX = 0, currentX = 0, startY = 0, slides = []; //, left = 0
+    var restartX = 0, direction = 0; // -1: left, 0: na, 1: right
+    var x = 0, startTime = 0, startX = 0, currentX = 0, startY = 0, slides = [];
 
     var current = elms[index];
 
@@ -124,10 +125,11 @@
         cancelFrame(animations.main);
       }
       phase = 0;
+      direction = 0;
 
       var touch = evt.touches[0];
       startTime = Date.now();
-      currentX = startX = touch.pageX;
+      restartX = currentX = startX = touch.pageX;
       startY = touch.clientY;
     }
 
@@ -142,6 +144,13 @@
         return
       }
 
+      var _d = gap > 0 ? 1 : -1;
+      if (direction !== _d) {
+        restartX = currentX;
+        startTime = Date.now();
+        direction = _d;
+      }
+
       phase = 1;
       currentX = touch.pageX;
 
@@ -151,29 +160,37 @@
       evt.preventDefault();
     }
 
+    function moveRight () {
+      hide(current.next);
+      current = current.prev;
+      if (!stopR()) {
+        moveEx(current.prev, current.x - width);
+        show(current.prev);
+      }
+    }
+
+    function moveLeft () {
+      hide(current.prev);
+      current = current.next;
+      if (!stopL()) {
+        moveEx(current.next, current.x + width);
+        show(current.next);
+      }
+    }
+
     function onTouchEnd (evt) {
       if (phase === 4 || currentX === startX) { return }
       phase = 2;
-      var right = currentX > startX;
+      var right = currentX > restartX;
       var fast = (Date.now() - startTime) < FAST_THRESHOLD;
 
       if (!stopR() && !stopL()) {
         var cx = current.x + x;
-        if (cx > threshold || (fast && right)) {
-          hide(current.next);
-          current = current.prev;
-          if (!stopR()) {
-            moveEx(current.prev, current.x - width);
-            show(current.prev);
-          }
-        } else if (cx < -threshold || (fast && !right)) {
-          hide(current.prev);
-          current = current.next;
-          if (!stopL()) {
-            moveEx(current.next, current.x + width);
-            show(current.next);
-          }
-        }
+        if (fast) {
+          if (right && cx > 0) { moveRight(); }
+          else if (!right && cx < 0) { moveLeft(); }
+        } else if (cx > threshold) { moveRight(); }
+        else if (cx < -threshold) { moveLeft(); }
       }
 
       var to = current.x * -1;

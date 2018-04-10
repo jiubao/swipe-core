@@ -3,7 +3,7 @@ var screenWidth = window.screen.width
 window['swipe-core']({
   root: root1,
   elms: Array.prototype.slice.apply(root1.children[0].children),
-  height: 200
+  height: 200,
   // width: window.screen.width
   // cycle: false,
   // index: 0
