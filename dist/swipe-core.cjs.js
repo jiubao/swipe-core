@@ -153,14 +153,12 @@ function swipeIt (options) {
     if (cx > threshold || (fast && right)) {
       hide.appendChild(current.next);
       current = current.prev;
-      current.prev.x = current.x - width;
-      moveX(current.prev, current.prev.x);
+      moveEx(current.prev, current.x - width);
       main.appendChild(current.prev);
     } else if (cx < -threshold || (fast && !right)) {
       hide.appendChild(current.prev);
       current = current.next;
-      current.next.x = current.x + width;
-      moveX(current.next, current.next.x);
+      moveEx(current.next, current.x + width);
       main.appendChild(current.next);
     }
 
@@ -197,23 +195,11 @@ function swipeIt (options) {
 
   function init () {
     slides = new LinkList(elms);
+    moveEx(current, 0);
+    moveEx(current.prev, -width);
+    moveEx(current.next, width);
     elms.forEach(function (el, i) {
-      switch (el) {
-        case current:
-          moveX(el, 0);
-          el.x = 0;
-          break;
-        case current.prev:
-          moveX(el, -width);
-          el.x = -width;
-          break;
-        case current.next:
-          moveX(el, width);
-          el.x = width;
-          break;
-        default:
-          hide.appendChild(el);
-      }
+      if (el !== current && el !== current.prev && el !== current.next) { hide.appendChild(el); }
     });
 
     destroy();
@@ -228,6 +214,7 @@ function swipeIt (options) {
     off(root, 'touchend', onTouchEnd);
   }
 }
+var moveEx = function (el, x) { el.x = x; moveX(el, x); };
 
 function moveX (el, x) {
   if (!el) { return }
