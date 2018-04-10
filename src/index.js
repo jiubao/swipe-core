@@ -11,6 +11,10 @@ var defaultOptions = {
   height: 100 // required
 }
 
+var hide = document.createElement('div')
+hide.style.display = 'none'
+document.body.appendChild(hide)
+
 function swipeIt (options) {
   var opts = {
     ...defaultOptions,
@@ -21,7 +25,7 @@ function swipeIt (options) {
 
   if (!root) return
 
-  var main = root.children[0], hide = document.createElement('div'), animations = {main: -1}, threshold = width / 3
+  var main = root.children[0], animations = {main: -1}, threshold = width / 3
 
   /*
    * 0000: start
@@ -41,8 +45,6 @@ function swipeIt (options) {
   }
 
   function onTouchStart (evt) {
-    // if (phase === 4) return
-
     if (phase === 2) {
       // while (animations.length) animations.splice(0, 1)[0]()
       cancelFrame(animations.main)
@@ -75,46 +77,13 @@ function swipeIt (options) {
     evt.preventDefault();
   }
 
-  // function _onTouchMove (evt) {
-  //   if (phase === 2 || phase === 4) return
-  //
-  //   var touch = evt.touches[0]
-  //   currentX = touch.pageX
-  //   currentY = touch.clientY
-  //   var _gap = gap()
-  //   var right = _gap >= 0
-  //
-  //   phase = 1
-  //
-  //   // if (phase === 0) {
-  //   //   var x = Math.abs(_gap)
-  //   //   var y = Math.abs(currentY - startY)
-  //   //   if (x * 2 < y) {
-  //   //     phase = 4
-  //   //     return
-  //   //   }
-  //   //
-  //   //   phase = 1
-  //   // }
-  //
-  //   evt.preventDefault();
-  //
-  //   // left = left + _gap
-  //
-  //   console.log('onmove.left: ', left)
-  //   // console.log('onmove.lastgap: ', lastGap)
-  //   console.log('onmove.gap: ', _gap)
-  //   moveX(main, left + _gap);
-  // }
-
-  // 375, 187, 188
   function onTouchEnd (evt) {
     if (phase === 4) return
     phase = 2
     var right = (currentX - startX) >= 0
     var fast = (Date.now() - startTime) < 200
 
-    // if (cycle && (right && current === slides.head) || (!right && current === slides.tail)) {} else {
+    // if (!cycle && (right && current === slides.head) || (!right && current === slides.tail)) {} else {
     var cx = current.x + x
     if (cx > threshold || (fast && right)) {
       hide.appendChild(current.next)
@@ -133,37 +102,6 @@ function swipeIt (options) {
     animate(main, x, current.x * -1, fast ? 150 : interval)
   }
 
-  // function _onTouchEnd (evt) {
-  //   return
-  //   if (phase === 4 || phase === 2) return
-  //   phase = 2
-  //
-  //   var _gap = gap()
-  //   if (_gap === 0) return
-  //   var right = _gap >= 0
-  //   lastGap = _gap
-  //
-  //   var abort = shouldCancel();
-  //   console.log('end.abort: ', abort)
-  //   var from = _gap + left
-  //   var nextleft = abort ? left : left + width * (right ? 1 : -1);
-  //   animate(main, from, nextleft, callback)
-  //
-  //   function callback () {
-  //     console.log('callback....')
-  //     if (!abort) {
-  //       left = nextleft
-  //       hide.appendChild(right ? next() : prev());
-  //       current = current[right ? 'prev' : 'next'];
-  //       var target = right ? prev() : next()
-  //       moveX(target, width * (right ? -1 : 1) - left)
-  //       main.appendChild(target)
-  //     }
-  //     phase = 0;
-  //     lastGap = 0
-  //   }
-  // }
-
   function animate (elm, from, to, interval, callback) {
     var start = Date.now()
     function loop () {
@@ -175,7 +113,6 @@ function swipeIt (options) {
         return
       }
       var distance = (to - from) * cubic(during / interval) + from
-      // lastGap = distance - left
       x = distance
       moveX(elm, distance)
       animations.main = requestFrame(loop)
@@ -194,8 +131,6 @@ function swipeIt (options) {
   // }
 
   function init () {
-    hide.style.display = 'none'
-    document.body.appendChild(hide)
     slides = new LinkList(elms)
     elms.forEach((el, i) => {
       switch (el) {

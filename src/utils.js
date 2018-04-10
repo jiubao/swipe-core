@@ -67,12 +67,4 @@ export const cancelFrame = window.cancelAnimationFrame
 
 export const cubic = k => --k * k * k + 1
 
-// export const easing = {
-//   cubic: {
-//     out: function (k) {
-//       return --k * k * k + 1;
-//     }
-//   }
-// }
-
 export {LinkList}
