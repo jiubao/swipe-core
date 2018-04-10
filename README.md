@@ -23,3 +23,4 @@ css transition has some limitations, switch to js to simulate animation
 * expose mode
 * support one / two slides
 * support dynamic slides
+* ~~dynamic interval~~

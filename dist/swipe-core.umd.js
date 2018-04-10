@@ -64,8 +64,11 @@
 
   var cubic = function (k) { return --k * k * k + 1; };
 
+  var FAST_THRESHOLD = 100;
+  var FAST_INTERVAL = 200;
+  var MAX_INTERVAL = 1000;
+
   var defaultOptions = {
-    interval: 500,
     cycle: true,
     expose: false,
     root: null, // required
@@ -90,7 +93,6 @@
     var height = opts.height;
     var cycle = opts.cycle;
     var expose = opts.expose;
-    var interval = opts.interval;
 
     if (!root) { return }
 
@@ -153,7 +155,7 @@
       if (phase === 4) { return }
       phase = 2;
       var right = currentX > startX;
-      var fast = (Date.now() - startTime) < 200;
+      var fast = (Date.now() - startTime) < FAST_THRESHOLD;
 
       if (!stopR() && !stopL()) {
         var cx = current.x + x;
@@ -174,7 +176,10 @@
         }
       }
 
-      animate(main, x, current.x * -1, fast ? 150 : interval);
+      var to = current.x * -1;
+      var t = Math.min(Math.max(MAX_INTERVAL * Math.abs(to - x) / width, FAST_INTERVAL), MAX_INTERVAL * 2 / 3);
+
+      animate(main, x, to, fast ? FAST_INTERVAL : t);
     }
 
     function animate (elm, from, to, interval, callback) {

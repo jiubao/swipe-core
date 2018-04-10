@@ -1,7 +1,10 @@
 import {on, off, once, LinkList, requestFrame, cancelFrame, cubic, isFunction} from './utils'
 
+const FAST_THRESHOLD = 100
+const FAST_INTERVAL = 200
+const MAX_INTERVAL = 1000
+
 var defaultOptions = {
-  interval: 500,
   cycle: true,
   expose: false,
   root: null, // required
@@ -21,7 +24,7 @@ function swipeIt (options) {
     ...options
   }
 
-  var {index, root, elms, width, height, cycle, expose, interval} = opts
+  var {index, root, elms, width, height, cycle, expose} = opts
 
   if (!root) return
 
@@ -84,7 +87,7 @@ function swipeIt (options) {
     if (phase === 4) return
     phase = 2
     var right = currentX > startX
-    var fast = (Date.now() - startTime) < 200
+    var fast = (Date.now() - startTime) < FAST_THRESHOLD
 
     if (!stopR() && !stopL()) {
       var cx = current.x + x
@@ -105,7 +108,10 @@ function swipeIt (options) {
       }
     }
 
-    animate(main, x, current.x * -1, fast ? 150 : interval)
+    var to = current.x * -1
+    var t = Math.min(Math.max(MAX_INTERVAL * Math.abs(to - x) / width, FAST_INTERVAL), MAX_INTERVAL * 2 / 3)
+
+    animate(main, x, to, fast ? FAST_INTERVAL : t)
   }
 
   function animate (elm, from, to, interval, callback) {
