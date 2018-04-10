@@ -71,9 +71,9 @@ var defaultOptions = {
   height: 100 // required
 };
 
-var hide = document.createElement('div');
-hide.style.display = 'none';
-document.body.appendChild(hide);
+var hides = document.createElement('div');
+hides.style.display = 'none';
+document.body.appendChild(hides);
 
 function swipeIt (options) {
   var opts = Object.assign({}, defaultOptions,
@@ -103,6 +103,9 @@ function swipeIt (options) {
 
   var current = elms[index];
 
+  var show = function (el) { return main.appendChild(el); };
+  var stopR = function () { return !cycle && currentX > startX && current === slides.head; };
+  var stopL = function () { return !cycle && currentX <= startX && current === slides.tail; };
   init();
 
   return {
@@ -145,21 +148,26 @@ function swipeIt (options) {
   function onTouchEnd (evt) {
     if (phase === 4) { return }
     phase = 2;
-    var right = (currentX - startX) >= 0;
+    var right = currentX > startX;
     var fast = (Date.now() - startTime) < 200;
 
-    // if (!cycle && (right && current === slides.head) || (!right && current === slides.tail)) {} else {
-    var cx = current.x + x;
-    if (cx > threshold || (fast && right)) {
-      hide.appendChild(current.next);
-      current = current.prev;
-      moveEx(current.prev, current.x - width);
-      main.appendChild(current.prev);
-    } else if (cx < -threshold || (fast && !right)) {
-      hide.appendChild(current.prev);
-      current = current.next;
-      moveEx(current.next, current.x + width);
-      main.appendChild(current.next);
+    if (!stopR() && !stopL()) {
+      var cx = current.x + x;
+      if (cx > threshold || (fast && right)) {
+        hide(current.next);
+        current = current.prev;
+        if (!stopR()) {
+          moveEx(current.prev, current.x - width);
+          show(current.prev);
+        }
+      } else if (cx < -threshold || (fast && !right)) {
+        hide(current.prev);
+        current = current.next;
+        if (!stopL()) {
+          moveEx(current.next, current.x + width);
+          show(current.next);
+        }
+      }
     }
 
     animate(main, x, current.x * -1, fast ? 150 : interval);
@@ -183,24 +191,17 @@ function swipeIt (options) {
     loop();
   }
 
-  // function shouldCancel () {
-  //   var _gap = gap()
-  //   var right = _gap >= 0
-  //   var cancel = Math.abs(_gap) < width / 3
-  //   var endTime = Date.now()
-  //   var duration = endTime - startTime
-  //
-  //   return ((duration > 300 || duration < 16) && cancel) || (!cycle && right && current === slides.head) || (!cycle && !right && current === slides.tail)
-  // }
-
   function init () {
     slides = new LinkList(elms);
     moveEx(current, 0);
     moveEx(current.prev, -width);
     moveEx(current.next, width);
-    elms.forEach(function (el, i) {
-      if (el !== current && el !== current.prev && el !== current.next) { hide.appendChild(el); }
+    elms.forEach(function (el) {
+      if (el !== current && el !== current.prev && el !== current.next) { hide(el); }
     });
+
+    if (!cycle && index === 0) { hide(current.prev); }
+    if (!cycle && index === elms.length - 1) { hide(current.next); }
 
     destroy();
     on(root, 'touchstart', onTouchStart);
@@ -215,6 +216,7 @@ function swipeIt (options) {
   }
 }
 var moveEx = function (el, x) { el.x = x; moveX(el, x); };
+var hide = function (el) { return hides.appendChild(el); };
 
 function moveX (el, x) {
   if (!el) { return }
