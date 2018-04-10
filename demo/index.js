@@ -16,12 +16,9 @@ window['swipe-core']({
   expose: true
 })
 
-var root3 = document.getElementById('swiper3');
-window['swipe-core']({
-  root: root3,
-  elms: Array.prototype.slice.apply(root3.children[0].children),
-  height: 200
-  // width: window.screen.width
-  // cycle: false,
-  // index: 0
-})
+// var root3 = document.getElementById('swiper3');
+// window['swipe-core']({
+//   root: root3,
+//   elms: Array.prototype.slice.apply(root3.children[0].children),
+//   height: 200
+// })

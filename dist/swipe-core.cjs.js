@@ -60,7 +60,7 @@ var cancelFrame = window.cancelAnimationFrame;
 
 var cubic = function (k) { return --k * k * k + 1; };
 
-var FAST_THRESHOLD = 100;
+var FAST_THRESHOLD = 120;
 var FAST_INTERVAL = 200;
 var MAX_INTERVAL = 1000;
 
@@ -92,7 +92,7 @@ function swipeIt (options) {
 
   if (!root) { return }
 
-  var main = root.children[0], animations = {main: -1}, threshold = width / 3;
+  var main = root.children[0], animations = {main: -1}, threshold = width / 2;
 
   /*
    * 0000: start
@@ -148,7 +148,7 @@ function swipeIt (options) {
   }
 
   function onTouchEnd (evt) {
-    if (phase === 4) { return }
+    if (phase === 4 || currentX === startX) { return }
     phase = 2;
     var right = currentX > startX;
     var fast = (Date.now() - startTime) < FAST_THRESHOLD;
