@@ -1,7 +1,7 @@
 import {on, off, once, LinkList, requestFrame, cancelFrame, cubic, isFunction} from './utils'
 
 const FAST_THRESHOLD = 120
-const FAST_INTERVAL = 200
+const FAST_INTERVAL = 250
 const MAX_INTERVAL = 1000
 
 var defaultOptions = {
@@ -28,7 +28,7 @@ function swipeIt (options) {
 
   if (!root) return
 
-  var main = root.children[0], animations = {main: -1}, threshold = width / 2
+  var main = root.children[0], animations = {main: -1}, threshold = width / 3
 
   /*
    * 0000: start

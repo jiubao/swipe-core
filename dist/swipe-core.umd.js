@@ -65,7 +65,7 @@
   var cubic = function (k) { return --k * k * k + 1; };
 
   var FAST_THRESHOLD = 120;
-  var FAST_INTERVAL = 200;
+  var FAST_INTERVAL = 250;
   var MAX_INTERVAL = 1000;
 
   var defaultOptions = {
@@ -96,7 +96,7 @@
 
     if (!root) { return }
 
-    var main = root.children[0], animations = {main: -1}, threshold = width / 2;
+    var main = root.children[0], animations = {main: -1}, threshold = width / 3;
 
     /*
      * 0000: start
