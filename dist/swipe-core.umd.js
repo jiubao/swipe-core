@@ -47,20 +47,50 @@
     return this.tail = node
   };
 
+  // var vendorPrefixes = ['', 'webkit','Moz','ms','O']
+  // var vendorPrefix = ''
+  // for (var i = 0; i < 5; i++)
+  //   if (window[vendorPrefixes[i] + '']) vendorPrefix = vendorPrefixes[i]; break;
+  // vendorPrefixes.reduce((result, next) => {
+  //   if (typeof result !== 'undefined') return result
+  //   if (window[`${next}${next === '' ? 'r' : 'R'}equestAnimationFrame`]) return next
+  // }, undefined)
+
+  // for a 60Hz monitor, requestAnimationFrame will trigger the callback every 16.67ms (1000 / 60 == 16.66...)
+  var vendorPrefixes = ['webkit','moz','ms','o'];
+  var raf = vendorPrefixes.reduce(function (result, next) { return result || window[(next + "RequestAnimationFrame")]; }, window._requestAnimationFrame);
+  var caf = vendorPrefixes.reduce(function (result, next) { return result || window[(next + "CancelAnimationFrame")]; }, window._cancelAnimationFrame);
+  if (!raf || !caf) {
+    var last = 0;
+    raf = function (fn) {
+      var now = +new Date();
+      last = Math.max(now, last + 16);
+      return setTimeout(fn, last - now)
+    };
+    caf = clearTimeout;
+  }
+  window.raf = raf;
+  window.caf = caf;
+
+  // var requestFrame = vendorPrefixes.reduce((result, next) => {
+  //   return typeof result !== 'undefined' ? result : window[`${next}RequestAnimationFrame`]
+  // }, window.requestAnimationFrame)
+  // window.raf = requestFrame
+
   // for a 60Hz monitor, requestAnimationFrame will trigger the callback every 16.67ms (1000 / 60 == 16.66...)
   // todo: for performance concern, add threshold, to control how many times fn will be called in one minute
-  // var ticking = false
-  // export function requestFrame (fn, giveup) {
-  //   if (!giveup || !ticking) {
-  //     window.requestAnimationFrame(() => {
-  //       ticking = false
-  //       fn()
-  //     })
-  //     ticking = true
+  // var requestFrame = window.requestAnimationFrame
+  // var cancelFrame = window.cancelAnimationFrame
+
+  // if (!requestFrame) {
+  //   var last = 0
+  //   requestFrame = function(fn) {
+  //     var current = Date.now()
+  //     var last = Math.max(0, 16 - (current - last)) + current
+  //     return window.setTimeout(fn, last - current)
   //   }
+  //   cancelFrame = clearTimeout
   // }
-  var requestFrame = window.requestAnimationFrame;
-  var cancelFrame = window.cancelAnimationFrame;
 
   var cubic = function (k) { return --k * k * k + 1; };
 
@@ -125,7 +155,7 @@
     function onTouchStart (evt) {
       if (phase === 2) {
         // while (animations.length) animations.splice(0, 1)[0]()
-        cancelFrame(animations.main);
+        caf(animations.main);
       }
       phase = 0;
       direction = 0;
@@ -219,7 +249,7 @@
         var distance = (to - from) * cubic(during / interval) + from;
         x = distance;
         moveX(elm, distance);
-        animations.main = requestFrame(loop);
+        animations.main = raf(loop);
       }
       loop();
     }

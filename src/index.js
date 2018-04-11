@@ -1,4 +1,4 @@
-import {on, off, once, LinkList, requestFrame, cancelFrame, cubic, isFunction} from './utils'
+import {on, off, once, LinkList, raf, caf, cubic, isFunction} from './utils'
 
 const FAST_THRESHOLD = 120
 const FAST_INTERVAL = 250
@@ -56,7 +56,7 @@ function swipeIt (options) {
   function onTouchStart (evt) {
     if (phase === 2) {
       // while (animations.length) animations.splice(0, 1)[0]()
-      cancelFrame(animations.main)
+      caf(animations.main)
     }
     phase = 0
     direction = 0
@@ -150,7 +150,7 @@ function swipeIt (options) {
       var distance = (to - from) * cubic(during / interval) + from
       x = distance
       moveX(elm, distance)
-      animations.main = requestFrame(loop)
+      animations.main = raf(loop)
     }
     loop()
   }
