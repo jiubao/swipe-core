@@ -194,8 +194,8 @@
       }
 
       var to = current.x * -1;
-      var t = Math.min(Math.max(MAX_INTERVAL * Math.abs(to - x) / width, FAST_INTERVAL), MAX_INTERVAL * 2 / 3);
 
+      var t = Math.min(Math.max(MAX_INTERVAL * Math.abs(to - x) / width, FAST_INTERVAL), MAX_INTERVAL * 2 / 3);
       animate(main, x, to, fast ? FAST_INTERVAL : t);
     }
 
@@ -218,21 +218,31 @@
     }
 
     function init () {
+      if (elms.length === 0) { return }
       if (!expose) { root.style.overflow = 'hidden'; }
       root.style.position = 'relative';
       root.style.width = width + 'px';
       root.style.height = height + 'px';
+      var one = elms.length === 1;
+      if (elms.length === 2) {
+        elms.push(elms[0].cloneNode(true));
+        show(elms[2]);
+        elms.push(elms[1].cloneNode(true));
+        show(elms[3]);
+      }
       slides = new LinkList(elms);
       moveEx(current, 0);
-      moveEx(current.prev, -width);
-      moveEx(current.next, width);
+      one || moveEx(current.prev, -width);
+      one || moveEx(current.next, width);
       elms.forEach(function (el) {
         el.style.position = 'absolute';
         el.style.width = width + 'px';
         el.style.height = height + 'px';
         el.style.overflow = 'hidden';
-        if (el !== current && el !== current.prev && el !== current.next) { hide(el); }
+        if (!one && el !== current && el !== current.prev && el !== current.next) { hide(el); }
       });
+
+      if (one) { return }
 
       if (!cycle && index === 0) { hide(current.prev); }
       if (!cycle && index === elms.length - 1) { hide(current.next); }

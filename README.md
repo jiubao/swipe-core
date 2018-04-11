@@ -21,7 +21,10 @@ css transition has some limitations, switch to js to simulate animation
 * ~~swipe left & right~~
 * ~~disable cycle~~
 * ~~expose mode~~
-* support one / two slides
+* ~~support one / two slides~~
 * support dynamic slides
 * ~~dynamic interval~~
 * init animation
+* auto swipe
+* polyfill requestAnimationFrame
+* polyfill cloneNode deep
