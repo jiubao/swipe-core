@@ -273,8 +273,8 @@
 
   function moveX (el, x) {
     if (!el) { return }
-    el.style.webkitTransition = '';
-    el.style.webkitTransform = "translate3d(" + x + "px, 0, 0)";
+    el.style.transition = el.style.webkitTransition = '';
+    el.style.transform = el.style.webkitTransform = "translate3d(" + x + "px, 0, 0)";
   }
 
   return swipeIt;
