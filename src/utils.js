@@ -69,3 +69,12 @@ if (!raf || !caf) {
 export const cubic = k => --k * k * k + 1
 
 export {LinkList, raf, caf}
+
+// TODO: desktop support, mouse / pointer events
+// var touch = 'ontouchstart' in window
+// export var pointerdown = touch ? 'touchstart' : 'mousedown'
+// export var pointermove = touch ? 'touchmove' : 'mousemove'
+// export var pointerup = touch ? 'touchend' : 'mouseup'
+export const pointerdown = 'touchstart'
+export const pointermove = 'touchmove'
+export const pointerup = 'touchend'

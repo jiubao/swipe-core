@@ -29,5 +29,4 @@ css transition has some limitations, switch to js to simulate animation
 * ~~polyfill requestAnimationFrame~~
 * ~~polyfill cloneNode deep~~
 * ~~vendor prefix for transition/transform/translate3d~~
-* vendor prefix for events
 * support desktop

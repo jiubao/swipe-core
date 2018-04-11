@@ -1,4 +1,4 @@
-import {on, off, once, LinkList, raf, caf, cubic, isFunction} from './utils'
+import {on, off, once, LinkList, raf, caf, cubic, isFunction, pointerdown, pointermove, pointerup} from './utils'
 
 const FAST_THRESHOLD = 120
 const FAST_INTERVAL = 250
@@ -112,6 +112,7 @@ function swipeIt (options) {
     }
   }
 
+  // TODO: auto swipe
   // function autoCallback () {
   //   animate(main, x, x - width, FAST_INTERVAL, autoCallback)
   // }
@@ -187,15 +188,15 @@ function swipeIt (options) {
     if (!two && !cycle && index === elms.length - 1) hide(current.next)
 
     destroy()
-    on(root, 'touchstart', onTouchStart)
-    on(root, 'touchmove', onTouchMove)
-    on(root, 'touchend', onTouchEnd)
+    on(root, pointerdown, onTouchStart)
+    on(root, pointermove, onTouchMove)
+    on(root, pointerup, onTouchEnd)
   }
 
   function destroy () {
-    off(root, 'touchstart', onTouchStart)
-    off(root, 'touchmove', onTouchMove)
-    off(root, 'touchend', onTouchEnd)
+    off(root, pointerdown, onTouchStart)
+    off(root, pointermove, onTouchMove)
+    off(root, pointerup, onTouchEnd)
   }
 }
 

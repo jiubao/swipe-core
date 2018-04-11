@@ -59,6 +59,15 @@ if (!raf || !caf) {
 
 var cubic = function (k) { return --k * k * k + 1; };
 
+// TODO: desktop support, mouse / pointer events
+// var touch = 'ontouchstart' in window
+// export var pointerdown = touch ? 'touchstart' : 'mousedown'
+// export var pointermove = touch ? 'touchmove' : 'mousemove'
+// export var pointerup = touch ? 'touchend' : 'mouseup'
+var pointerdown = 'touchstart';
+var pointermove = 'touchmove';
+var pointerup = 'touchend';
+
 var FAST_THRESHOLD = 120;
 var FAST_INTERVAL = 250;
 var MAX_INTERVAL = 1000;
@@ -176,6 +185,7 @@ function swipeIt (options) {
     }
   }
 
+  // TODO: auto swipe
   // function autoCallback () {
   //   animate(main, x, x - width, FAST_INTERVAL, autoCallback)
   // }
@@ -251,15 +261,15 @@ function swipeIt (options) {
     if (!two && !cycle && index === elms.length - 1) { hide(current.next); }
 
     destroy();
-    on(root, 'touchstart', onTouchStart);
-    on(root, 'touchmove', onTouchMove);
-    on(root, 'touchend', onTouchEnd);
+    on(root, pointerdown, onTouchStart);
+    on(root, pointermove, onTouchMove);
+    on(root, pointerup, onTouchEnd);
   }
 
   function destroy () {
-    off(root, 'touchstart', onTouchStart);
-    off(root, 'touchmove', onTouchMove);
-    off(root, 'touchend', onTouchEnd);
+    off(root, pointerdown, onTouchStart);
+    off(root, pointermove, onTouchMove);
+    off(root, pointerup, onTouchEnd);
   }
 }
 var moveEx = function (el, x) { el.x = x; moveX(el, x); };
