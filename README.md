@@ -1,5 +1,5 @@
 # swipe-core
-* 2.2k before gzipped
+* 3.2k before gzipped
 
 ## Demo
 https://jiubao.github.io/swipe-core/
