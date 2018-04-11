@@ -39,6 +39,7 @@ function swipeIt (options) {
   var phase = 0
   var restartX = 0, direction = 0 // -1: left, 0: na, 1: right
   var x = 0, startTime = 0, startX = 0, currentX = 0, startY = 0, slides = []
+  var two = false
 
   var current = elms[index]
 
@@ -93,7 +94,7 @@ function swipeIt (options) {
   }
 
   function moveRight () {
-    hide(current.next)
+    two || hide(current.next)
     current = current.prev
     if (!stopR()) {
       moveEx(current.prev, current.x - width)
@@ -102,7 +103,7 @@ function swipeIt (options) {
   }
 
   function moveLeft () {
-    hide(current.prev)
+    two || hide(current.prev)
     current = current.next
     if (!stopL()) {
       moveEx(current.next, current.x + width)
@@ -155,29 +156,30 @@ function swipeIt (options) {
     root.style.position = 'relative'
     root.style.width = width + 'px'
     root.style.height = height + 'px'
-    var one = elms.length === 1
-    if (elms.length === 2) {
+    if (elms.length === 2 && cycle) {
       elms.push(elms[0].cloneNode(true))
       show(elms[2])
       elms.push(elms[1].cloneNode(true))
       show(elms[3])
     }
+    var one = elms.length === 1
+    two = elms.length === 2
     slides = new LinkList(elms)
     moveEx(current, 0)
-    one || moveEx(current.prev, -width)
+    one || two || moveEx(current.prev, -width)
     one || moveEx(current.next, width)
     elms.forEach(el => {
       el.style.position = 'absolute'
       el.style.width = width + 'px'
       el.style.height = height + 'px'
       el.style.overflow = 'hidden'
-      if (!one && el !== current && el !== current.prev && el !== current.next) hide(el)
+      if (!two && !one && el !== current && el !== current.prev && el !== current.next) hide(el)
     })
 
     if (one) return
 
-    if (!cycle && index === 0) hide(current.prev)
-    if (!cycle && index === elms.length - 1) hide(current.next)
+    if (!two && !cycle && index === 0) hide(current.prev)
+    if (!two && !cycle && index === elms.length - 1) hide(current.next)
 
     destroy()
     on(root, 'touchstart', onTouchStart)
