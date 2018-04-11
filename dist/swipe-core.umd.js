@@ -69,6 +69,7 @@
   var MAX_INTERVAL = 1000;
 
   var defaultOptions = {
+    auto: false,
     cycle: true,
     expose: false,
     root: null, // required
@@ -93,6 +94,7 @@
     var height = opts.height;
     var cycle = opts.cycle;
     var expose = opts.expose;
+    var auto = opts.auto;
 
     if (!root) { return }
 
@@ -178,6 +180,10 @@
         show(current.next);
       }
     }
+
+    // function autoCallback () {
+    //   animate(main, x, x - width, FAST_INTERVAL, autoCallback)
+    // }
 
     function onTouchEnd (evt) {
       if (phase === 4 || currentX === startX) { return }

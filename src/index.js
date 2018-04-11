@@ -5,6 +5,7 @@ const FAST_INTERVAL = 250
 const MAX_INTERVAL = 1000
 
 var defaultOptions = {
+  auto: false,
   cycle: true,
   expose: false,
   root: null, // required
@@ -24,7 +25,7 @@ function swipeIt (options) {
     ...options
   }
 
-  var {index, root, elms, width, height, cycle, expose} = opts
+  var {index, root, elms, width, height, cycle, expose, auto} = opts
 
   if (!root) return
 
@@ -110,6 +111,10 @@ function swipeIt (options) {
       show(current.next)
     }
   }
+
+  // function autoCallback () {
+  //   animate(main, x, x - width, FAST_INTERVAL, autoCallback)
+  // }
 
   function onTouchEnd (evt) {
     if (phase === 4 || currentX === startX) return
