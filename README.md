@@ -32,3 +32,4 @@ css transition has some limitations, switch to js to simulate animation
 * support dynamic slides
 * init animation
 * support desktop
+* stop auto swipe when out of screen
