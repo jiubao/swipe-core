@@ -78,3 +78,5 @@ export {LinkList, raf, caf}
 export const pointerdown = 'touchstart'
 export const pointermove = 'touchmove'
 export const pointerup = 'touchend'
+
+export const computedProp = (el, prop) => window.getComputedStyle(el, null).getPropertyValue(prop)

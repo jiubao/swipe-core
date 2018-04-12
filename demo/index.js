@@ -17,9 +17,9 @@ window['swipe-core']({
 
 window['swipe-core']({
   root: expose,
-  elms: document.querySelectorAll('.swiper-item2'),
-  width: 315,
+  elms: Array.prototype.slice.apply(expose.children[0].children),
   expose: true,
+  css: true
 })
 
 window['swipe-core']({

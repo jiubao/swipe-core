@@ -28,8 +28,8 @@ css transition has some limitations, switch to js to simulate animation
 * ~~polyfill cloneNode deep~~
 * ~~vendor prefix for transition/transform/translate3d~~
 * ~~current index interface~~
-* css width height
-* support dynamic slides
+* ~~css width height~~
+* dynamic slides
 * init animation
-* support desktop
+* desktop
 * stop auto swipe when out of screen

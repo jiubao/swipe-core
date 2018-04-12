@@ -1,4 +1,4 @@
-import {on, off, once, LinkList, raf, caf, cubic, isFunction, pointerdown, pointermove, pointerup} from './utils'
+import {on, off, once, LinkList, raf, caf, cubic, isFunction, pointerdown, pointermove, pointerup, computedProp} from './utils'
 
 const FAST_THRESHOLD = 120
 const FAST_INTERVAL = 250
@@ -13,7 +13,8 @@ var defaultOptions = {
   elms: [], // required
   index: 0,
   width: window.screen.width, // required
-  height: 200 // required
+  height: 200, // required
+  css: false
 }
 
 var hides = document.createElement('div')
@@ -26,10 +27,14 @@ function swipeIt (options) {
     ...options
   }
 
-  var {index, root, elms, width, height, cycle, expose, auto} = opts
+  var {index, root, elms, width, height, cycle, expose, auto, css} = opts
 
   if (!root) return
 
+  if (css) {
+    width = Number(computedProp(root, 'width').slice(0, -2))
+    height = Number(computedProp(root, 'height').slice(0, -2))
+  }
   var main = root.children[0], animations = {main: -1, timeouts: []}, threshold = width / 3
 
   /*
@@ -168,8 +173,10 @@ function swipeIt (options) {
     if (elms.length === 0) return
     if (!expose) root.style.overflow = 'hidden'
     root.style.position = 'relative'
-    root.style.width = width + 'px'
-    root.style.height = height + 'px'
+    if (!css) {
+      root.style.width = width + 'px'
+      root.style.height = height + 'px'
+    }
     if (elms.length === 2 && cycle) {
       elms.push(elms[0].cloneNode(true))
       show(elms[2])
@@ -184,8 +191,10 @@ function swipeIt (options) {
     one || moveEx(current.next, width)
     elms.forEach(el => {
       el.style.position = 'absolute'
-      el.style.width = width + 'px'
-      el.style.height = height + 'px'
+      if (!css) {
+        el.style.width = width + 'px'
+        el.style.height = height + 'px'
+      }
       el.style.overflow = 'hidden'
       if (!two && !one && el !== current && el !== current.prev && el !== current.next) hide(el)
     })
