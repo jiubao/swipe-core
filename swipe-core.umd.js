@@ -48,34 +48,49 @@
   };
 
   // for a 60Hz monitor, requestAnimationFrame will trigger the callback every 16.67ms (1000 / 60 == 16.66...)
-  // todo: for performance concern, add threshold, to control how many times fn will be called in one minute
-  // var ticking = false
-  // export function requestFrame (fn, giveup) {
-  //   if (!giveup || !ticking) {
-  //     window.requestAnimationFrame(() => {
-  //       ticking = false
-  //       fn()
-  //     })
-  //     ticking = true
-  //   }
-  // }
-  var requestFrame = window.requestAnimationFrame;
-  var cancelFrame = window.cancelAnimationFrame;
+  var vendorPrefixes = ['webkit','moz','ms','o'];
+  var raf = vendorPrefixes.reduce(function (result, next) { return result || window[(next + "RequestAnimationFrame")]; }, window.requestAnimationFrame);
+  var caf = vendorPrefixes.reduce(function (result, next) { return result || window[(next + "CancelAnimationFrame")]; }, window.cancelAnimationFrame);
+  if (!raf || !caf) {
+    var last = 0;
+    raf = function (fn) {
+      var now = +new Date();
+      last = Math.max(now, last + 16);
+      return setTimeout(fn, last - now)
+    };
+    caf = clearTimeout;
+  }
+  // window.raf = raf
+  // window.caf = caf
 
   var cubic = function (k) { return --k * k * k + 1; };
+
+  // TODO: desktop support, mouse / pointer events
+  // var touch = 'ontouchstart' in window
+  // export var pointerdown = touch ? 'touchstart' : 'mousedown'
+  // export var pointermove = touch ? 'touchmove' : 'mousemove'
+  // export var pointerup = touch ? 'touchend' : 'mouseup'
+  var pointerdown = 'touchstart';
+  var pointermove = 'touchmove';
+  var pointerup = 'touchend';
+
+  var computedProp = function (el, prop) { return window.getComputedStyle(el, null).getPropertyValue(prop); };
 
   var FAST_THRESHOLD = 120;
   var FAST_INTERVAL = 250;
   var MAX_INTERVAL = 1000;
+  var AUTO_TIMEOUT = 3000;
 
   var defaultOptions = {
+    auto: false,
     cycle: true,
     expose: false,
     root: null, // required
     elms: [], // required
     index: 0,
     width: window.screen.width, // required
-    height: 200 // required
+    height: 200, // required
+    css: false
   };
 
   var hides = document.createElement('div');
@@ -93,10 +108,16 @@
     var height = opts.height;
     var cycle = opts.cycle;
     var expose = opts.expose;
+    var auto = opts.auto;
+    var css = opts.css;
 
     if (!root) { return }
 
-    var main = root.children[0], animations = {main: -1}, threshold = width / 3;
+    if (css) {
+      width = Number(computedProp(root, 'width').slice(0, -2));
+      height = Number(computedProp(root, 'height').slice(0, -2));
+    }
+    var main = root.children[0], animations = {main: -1, timeouts: []}, threshold = width / 3;
 
     /*
      * 0000: start
@@ -104,9 +125,10 @@
      * 0010: animating
      * 0100: vertical scrolling
      */
-    var phase = 0;
+    var phase = 0, autoPhase = 0;
     var restartX = 0, direction = 0; // -1: left, 0: na, 1: right
     var x = 0, startTime = 0, startX = 0, currentX = 0, startY = 0, slides = [];
+    var two = false;
 
     var current = elms[index];
 
@@ -116,14 +138,12 @@
     init();
 
     return {
-      init: init, destroy: destroy
+      destroy: destroy, index: function (_) { return current.index; }
     }
 
     function onTouchStart (evt) {
-      if (phase === 2) {
-        // while (animations.length) animations.splice(0, 1)[0]()
-        cancelFrame(animations.main);
-      }
+      caf(animations.main);
+      while (animations.timeouts.length) { clearTimeout(animations.timeouts.splice(0, 1)[0]); }
       phase = 0;
       direction = 0;
 
@@ -161,7 +181,7 @@
     }
 
     function moveRight () {
-      hide(current.next);
+      two || hide(current.next);
       current = current.prev;
       if (!stopR()) {
         moveEx(current.prev, current.x - width);
@@ -170,12 +190,24 @@
     }
 
     function moveLeft () {
-      hide(current.prev);
+      two || hide(current.prev);
       current = current.next;
       if (!stopL()) {
         moveEx(current.next, current.x + width);
         show(current.next);
       }
+    }
+
+    function onAutoAnimation () {
+      if (-current.x - x <= width / 2) { autoPhase = 0; }
+      else if (autoPhase === 0) {
+        autoPhase = 1;
+        moveLeft();
+      }
+    }
+
+    function autoCallback () {
+      animations.timeouts.push(setTimeout(function () { return animate(main, x, x - width, MAX_INTERVAL, onAutoAnimation, autoCallback); }, AUTO_TIMEOUT));
     }
 
     function onTouchEnd (evt) {
@@ -197,11 +229,13 @@
 
       var t = Math.min(Math.max(MAX_INTERVAL * Math.abs(to - x) / width, FAST_INTERVAL), MAX_INTERVAL * 2 / 3);
       animate(main, x, to, fast ? FAST_INTERVAL : t);
+      auto && autoCallback();
     }
 
-    function animate (elm, from, to, interval, callback) {
+    function animate (elm, from, to, interval, onAnimation, callback) {
       var start = Date.now();
       function loop () {
+        isFunction(onAnimation) && onAnimation();
         var now = Date.now();
         var during = now - start;
         if (during >= interval) {
@@ -212,7 +246,7 @@
         var distance = (to - from) * cubic(during / interval) + from;
         x = distance;
         moveX(elm, distance);
-        animations.main = requestFrame(loop);
+        animations.main = raf(loop);
       }
       loop();
     }
@@ -221,42 +255,49 @@
       if (elms.length === 0) { return }
       if (!expose) { root.style.overflow = 'hidden'; }
       root.style.position = 'relative';
-      root.style.width = width + 'px';
-      root.style.height = height + 'px';
-      var one = elms.length === 1;
-      if (elms.length === 2) {
+      if (!css) {
+        root.style.width = width + 'px';
+        root.style.height = height + 'px';
+      }
+      if (elms.length === 2 && cycle) {
         elms.push(elms[0].cloneNode(true));
         show(elms[2]);
         elms.push(elms[1].cloneNode(true));
         show(elms[3]);
       }
+      var one = elms.length === 1;
+      two = elms.length === 2;
       slides = new LinkList(elms);
       moveEx(current, 0);
-      one || moveEx(current.prev, -width);
+      one || two || moveEx(current.prev, -width);
       one || moveEx(current.next, width);
       elms.forEach(function (el) {
         el.style.position = 'absolute';
-        el.style.width = width + 'px';
-        el.style.height = height + 'px';
+        if (!css) {
+          el.style.width = width + 'px';
+          el.style.height = height + 'px';
+        }
         el.style.overflow = 'hidden';
-        if (!one && el !== current && el !== current.prev && el !== current.next) { hide(el); }
+        if (!two && !one && el !== current && el !== current.prev && el !== current.next) { hide(el); }
       });
 
       if (one) { return }
 
-      if (!cycle && index === 0) { hide(current.prev); }
-      if (!cycle && index === elms.length - 1) { hide(current.next); }
+      if (!two && !cycle && index === 0) { hide(current.prev); }
+      if (!two && !cycle && index === elms.length - 1) { hide(current.next); }
 
       destroy();
-      on(root, 'touchstart', onTouchStart);
-      on(root, 'touchmove', onTouchMove);
-      on(root, 'touchend', onTouchEnd);
+      on(root, pointerdown, onTouchStart);
+      on(root, pointermove, onTouchMove);
+      on(root, pointerup, onTouchEnd);
+
+      auto && autoCallback();
     }
 
     function destroy () {
-      off(root, 'touchstart', onTouchStart);
-      off(root, 'touchmove', onTouchMove);
-      off(root, 'touchend', onTouchEnd);
+      off(root, pointerdown, onTouchStart);
+      off(root, pointermove, onTouchMove);
+      off(root, pointerup, onTouchEnd);
     }
   }
   var moveEx = function (el, x) { el.x = x; moveX(el, x); };
@@ -264,8 +305,8 @@
 
   function moveX (el, x) {
     if (!el) { return }
-    el.style.webkitTransition = '';
-    el.style.webkitTransform = "translate3d(" + x + "px, 0, 0)";
+    el.style.transition = el.style.webkitTransition = '';
+    el.style.transform = el.style.webkitTransform = "translate3d(" + x + "px, 0, 0)";
   }
 
   return swipeIt;

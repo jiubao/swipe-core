@@ -1,33 +1,44 @@
-var root1 = document.getElementById('swiper')
+var basic = document.getElementById('auto')
+var expose = document.getElementById('expose')
+var two = document.getElementById('two');
+var one = document.getElementById('one');
+var uncycle = document.getElementById('uncycle');
+
 var screenWidth = window.screen.width
 window['swipe-core']({
-  root: root1,
-  elms: Array.prototype.slice.apply(root1.children[0].children),
+  root: basic,
+  elms: Array.prototype.slice.apply(basic.children[0].children),
   height: 200,
+  auto: true
   // width: window.screen.width
   // cycle: false,
   // index: 0
 })
 
 window['swipe-core']({
-  root: document.getElementById('swiper2'),
-  elms: document.querySelectorAll('.swiper-item2'),
-  width: 315,
-  expose: true
+  root: expose,
+  elms: Array.prototype.slice.apply(expose.children[0].children),
+  expose: true,
+  css: true
 })
 
-var root3 = document.getElementById('swiper3');
 window['swipe-core']({
-  root: root3,
-  elms: Array.prototype.slice.apply(root3.children[0].children),
+  root: two,
+  elms: Array.prototype.slice.apply(two.children[0].children),
   width: 315,
   height: 230,
-  expose: true
+  expose: true,
 })
 
-var root4 = document.getElementById('swiper4')
 window['swipe-core']({
-  root: root4,
-  elms: Array.prototype.slice.apply(root4.children[0].children),
+  root: one,
+  elms: Array.prototype.slice.apply(one.children[0].children),
   height: 200
+})
+
+window['swipe-core']({
+  root: uncycle,
+  elms: Array.prototype.slice.apply(uncycle.children[0].children),
+  height: 200,
+  cycle: false
 })
