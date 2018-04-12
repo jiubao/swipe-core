@@ -22,12 +22,13 @@ css transition has some limitations, switch to js to simulate animation
 * ~~disable cycle~~
 * ~~expose mode~~
 * ~~support one / two slides~~
-* support dynamic slides
 * ~~dynamic interval~~
-* init animation
-* auto swipe
+* ~~auto swipe~~
 * ~~polyfill requestAnimationFrame~~
 * ~~polyfill cloneNode deep~~
 * ~~vendor prefix for transition/transform/translate3d~~
+* ~~current index interface~~
+* css width height
+* support dynamic slides
+* init animation
 * support desktop
-* current index interface
