@@ -1,4 +1,4 @@
-var basic = document.getElementById('basic')
+var basic = document.getElementById('auto')
 var expose = document.getElementById('expose')
 var two = document.getElementById('two');
 var one = document.getElementById('one');

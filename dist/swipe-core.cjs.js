@@ -73,6 +73,7 @@ var pointerup = 'touchend';
 var FAST_THRESHOLD = 120;
 var FAST_INTERVAL = 250;
 var MAX_INTERVAL = 1000;
+var AUTO_TIMEOUT = 3000;
 
 var defaultOptions = {
   auto: false,
@@ -104,7 +105,7 @@ function swipeIt (options) {
 
   if (!root) { return }
 
-  var main = root.children[0], animations = {main: -1}, threshold = width / 3;
+  var main = root.children[0], animations = {main: -1, timeouts: []}, threshold = width / 3;
 
   /*
    * 0000: start
@@ -112,7 +113,7 @@ function swipeIt (options) {
    * 0010: animating
    * 0100: vertical scrolling
    */
-  var phase = 0;
+  var phase = 0, autoPhase = 0;
   var restartX = 0, direction = 0; // -1: left, 0: na, 1: right
   var x = 0, startTime = 0, startX = 0, currentX = 0, startY = 0, slides = [];
   var two = false;
@@ -125,14 +126,12 @@ function swipeIt (options) {
   init();
 
   return {
-    init: init, destroy: destroy
+    destroy: destroy, index: function (_) { return current.index; }
   }
 
   function onTouchStart (evt) {
-    if (phase === 2) {
-      // while (animations.length) animations.splice(0, 1)[0]()
-      caf(animations.main);
-    }
+    caf(animations.main);
+    while (animations.timeouts.length) { clearTimeout(animations.timeouts.splice(0, 1)[0]); }
     phase = 0;
     direction = 0;
 
@@ -187,10 +186,17 @@ function swipeIt (options) {
     }
   }
 
-  // TODO: auto swipe
-  // function autoCallback () {
-  //   animate(main, x, x - width, FAST_INTERVAL, autoCallback)
-  // }
+  function onAutoAnimation () {
+    if (-current.x - x <= width / 2) { autoPhase = 0; }
+    else if (autoPhase === 0) {
+      autoPhase = 1;
+      moveLeft();
+    }
+  }
+
+  function autoCallback () {
+    animations.timeouts.push(setTimeout(function () { return animate(main, x, x - width, MAX_INTERVAL, onAutoAnimation, autoCallback); }, AUTO_TIMEOUT));
+  }
 
   function onTouchEnd (evt) {
     if (phase === 4 || currentX === startX) { return }
@@ -211,11 +217,13 @@ function swipeIt (options) {
 
     var t = Math.min(Math.max(MAX_INTERVAL * Math.abs(to - x) / width, FAST_INTERVAL), MAX_INTERVAL * 2 / 3);
     animate(main, x, to, fast ? FAST_INTERVAL : t);
+    auto && autoCallback();
   }
 
-  function animate (elm, from, to, interval, callback) {
+  function animate (elm, from, to, interval, onAnimation, callback) {
     var start = Date.now();
     function loop () {
+      isFunction(onAnimation) && onAnimation();
       var now = Date.now();
       var during = now - start;
       if (during >= interval) {
@@ -266,6 +274,8 @@ function swipeIt (options) {
     on(root, pointerdown, onTouchStart);
     on(root, pointermove, onTouchMove);
     on(root, pointerup, onTouchEnd);
+
+    auto && autoCallback();
   }
 
   function destroy () {

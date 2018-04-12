@@ -1,5 +1,5 @@
 # swipe-core
-* 3.2k before gzipped
+* 3.1k before gzipped
 
 ## Demo
 https://jiubao.github.io/swipe-core/
@@ -30,3 +30,4 @@ css transition has some limitations, switch to js to simulate animation
 * ~~polyfill cloneNode deep~~
 * ~~vendor prefix for transition/transform/translate3d~~
 * support desktop
+* current index interface
