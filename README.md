@@ -4,6 +4,13 @@
 ## Demo
 https://jiubao.github.io/swipe-core/
 
+## Features
+* css transition has limitations, use js to simulate animation
+* use requestAnimationFrame and have a compact polyfill
+* cubic bezier to simulate ease out
+* always move one element which contain current 3 slides
+* a compact link node implementation to loop slides
+
 ## Install
 ```sh
 $ npm install --save swipe-core
@@ -97,14 +104,9 @@ swiper({
 ## Events
 coming soon
 
-## Features
-css transition has some limitations, switch to js to simulate animation
-
-* use requestAnimationFrame
-* js cubic bezier
-
 ## Todos
 * ~~performance~~
+* ~~link list~~
 * ~~vertical scroll on page~~
 * ~~group current 3 slides~~
 * ~~use js to simulate animation~~

@@ -10,17 +10,6 @@ export function isFunction (value) {
   return typeof value === 'function'
 }
 
-/* istanbul ignore next */
-export const once = function (el, event, fn) {
-  var listener = function () {
-    if (fn) {
-      fn.apply(this, arguments)
-    }
-    off(el, event, listener)
-  }
-  on(el, event, listener)
-}
-
 function newNode (item) {
   // var node = Object.create(null)
   // node.item = item

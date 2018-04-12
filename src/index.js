@@ -1,4 +1,4 @@
-import {on, off, once, LinkList, raf, caf, cubic, isFunction, pointerdown, pointermove, pointerup, computedProp} from './utils'
+import {on, off, LinkList, raf, caf, cubic, isFunction, pointerdown, pointermove, pointerup, computedProp} from './utils'
 
 
 const FAST_THRESHOLD = 120
