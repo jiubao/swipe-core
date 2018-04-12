@@ -5,6 +5,7 @@
 https://jiubao.github.io/swipe-core/
 
 ## Features
+* designed for mobile: compact, smooth and efficient
 * css transition has limitations, use js to simulate animation
 * use requestAnimationFrame and have a compact polyfill
 * cubic bezier to simulate ease out
