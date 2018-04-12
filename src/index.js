@@ -1,8 +1,10 @@
 import {on, off, once, LinkList, raf, caf, cubic, isFunction, pointerdown, pointermove, pointerup, computedProp} from './utils'
 
+
 const FAST_THRESHOLD = 120
 const FAST_INTERVAL = 250
 const MAX_INTERVAL = 1000
+const MAX_PART = MAX_INTERVAL * 2 / 3
 const AUTO_TIMEOUT = 3000
 
 var defaultOptions = {
@@ -12,8 +14,8 @@ var defaultOptions = {
   root: null, // required
   elms: [], // required
   index: 0,
-  width: window.screen.width, // required
-  height: 200, // required
+  width: window.screen.width, // if css is false, need width & height
+  height: 200,
   css: false
 }
 
@@ -125,11 +127,11 @@ function swipeIt (options) {
   }
 
   function autoCallback () {
-    animations.timeouts.push(setTimeout(() => animate(main, x, x - width, MAX_INTERVAL, onAutoAnimation, autoCallback), AUTO_TIMEOUT))
+    animations.timeouts.push(setTimeout(() => animate(main, x, x - width, MAX_PART, onAutoAnimation, autoCallback), AUTO_TIMEOUT))
   }
 
   function onTouchEnd (evt) {
-    if (phase === 4 || currentX === startX) return
+    if (phase === 4) return
     phase = 2
     var right = currentX > restartX
     var fast = (Date.now() - startTime) < FAST_THRESHOLD
@@ -145,7 +147,7 @@ function swipeIt (options) {
 
     var to = current.x * -1
 
-    var t = Math.min(Math.max(MAX_INTERVAL * Math.abs(to - x) / width, FAST_INTERVAL), MAX_INTERVAL * 2 / 3)
+    var t = Math.min(Math.max(MAX_INTERVAL * Math.abs(to - x) / width, FAST_INTERVAL), MAX_PART)
     animate(main, x, to, fast ? FAST_INTERVAL : t)
     auto && autoCallback()
   }

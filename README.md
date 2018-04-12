@@ -33,3 +33,4 @@ css transition has some limitations, switch to js to simulate animation
 * init animation
 * desktop
 * stop auto swipe when out of screen
+* onStart | onMove | onEnd

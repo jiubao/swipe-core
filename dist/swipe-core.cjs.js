@@ -75,6 +75,7 @@ var computedProp = function (el, prop) { return window.getComputedStyle(el, null
 var FAST_THRESHOLD = 120;
 var FAST_INTERVAL = 250;
 var MAX_INTERVAL = 1000;
+var MAX_PART = MAX_INTERVAL * 2 / 3;
 var AUTO_TIMEOUT = 3000;
 
 var defaultOptions = {
@@ -84,8 +85,8 @@ var defaultOptions = {
   root: null, // required
   elms: [], // required
   index: 0,
-  width: window.screen.width, // required
-  height: 200, // required
+  width: window.screen.width, // if css is false, need width & height
+  height: 200,
   css: false
 };
 
@@ -203,11 +204,11 @@ function swipeIt (options) {
   }
 
   function autoCallback () {
-    animations.timeouts.push(setTimeout(function () { return animate(main, x, x - width, MAX_INTERVAL, onAutoAnimation, autoCallback); }, AUTO_TIMEOUT));
+    animations.timeouts.push(setTimeout(function () { return animate(main, x, x - width, MAX_PART, onAutoAnimation, autoCallback); }, AUTO_TIMEOUT));
   }
 
   function onTouchEnd (evt) {
-    if (phase === 4 || currentX === startX) { return }
+    if (phase === 4) { return }
     phase = 2;
     var right = currentX > restartX;
     var fast = (Date.now() - startTime) < FAST_THRESHOLD;
@@ -223,7 +224,7 @@ function swipeIt (options) {
 
     var to = current.x * -1;
 
-    var t = Math.min(Math.max(MAX_INTERVAL * Math.abs(to - x) / width, FAST_INTERVAL), MAX_INTERVAL * 2 / 3);
+    var t = Math.min(Math.max(MAX_INTERVAL * Math.abs(to - x) / width, FAST_INTERVAL), MAX_PART);
     animate(main, x, to, fast ? FAST_INTERVAL : t);
     auto && autoCallback();
   }
