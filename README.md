@@ -90,7 +90,7 @@ swiper({
 
 ## methods
 | Name | Description | Parameters | Return |
-| ----- | :-: | :-: | :-: | :-: |
+| ----- | :-: | :-: | :-: |
 | destroy | destroy swipe | | |
 | index | get current index | | current index |
 
