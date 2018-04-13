@@ -1,11 +1,11 @@
 import {on, off, LinkList, raf, caf, cubic, isFunction, pointerdown, pointermove, pointerup, computedProp} from './utils'
-
+import {observe, unobserve} from './intersect'
 
 const FAST_THRESHOLD = 120
 const FAST_INTERVAL = 250
 const MAX_INTERVAL = 1000
 const MAX_PART = MAX_INTERVAL * 2 / 3
-const AUTO_TIMEOUT = 3000
+const AUTO_TIMEOUT = 1000
 
 var defaultOptions = {
   auto: false,
@@ -212,9 +212,21 @@ function swipeIt (options) {
     on(root, pointerup, onTouchEnd)
 
     auto && autoCallback()
+    if (auto) {
+      observe(root, function (entries) {
+        if (entries[0].intersectionRatio === 1) {
+          autoCallback()
+        }
+        else {
+          caf(animations.main)
+          while (animations.timeouts.length) clearTimeout(animations.timeouts.splice(0, 1)[0])
+        }
+      })
+    }
   }
 
   function destroy () {
+    // unobserve()
     off(root, pointerdown, onTouchStart)
     off(root, pointermove, onTouchMove)
     off(root, pointerup, onTouchEnd)

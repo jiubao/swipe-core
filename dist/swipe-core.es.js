@@ -70,11 +70,24 @@ var pointerup = 'touchend';
 
 var computedProp = function (el, prop) { return window.getComputedStyle(el, null).getPropertyValue(prop); };
 
+// TODO: check IntersectionObserver
+var options = { root: null, rootMargin: '0px', threshold: [0, 1], func: null };
+var observer = new IntersectionObserver (callback, options);
+function callback (entries, observer) {
+  // console.log('intersect:', entries)
+  console.log('intersect:', entries[0].intersectionRatio);
+  options.func(entries, observer);
+}
+function observe (el, fn) {
+  observer.observe(el);
+  options.func = fn;
+}
+
 var FAST_THRESHOLD = 120;
 var FAST_INTERVAL = 250;
 var MAX_INTERVAL = 1000;
 var MAX_PART = MAX_INTERVAL * 2 / 3;
-var AUTO_TIMEOUT = 3000;
+var AUTO_TIMEOUT = 1000;
 
 var defaultOptions = {
   auto: false,
@@ -287,9 +300,21 @@ function swipeIt (options) {
     on(root, pointerup, onTouchEnd);
 
     auto && autoCallback();
+    if (auto) {
+      observe(root, function (entries) {
+        if (entries[0].intersectionRatio === 1) {
+          autoCallback();
+        }
+        else {
+          caf(animations.main);
+          while (animations.timeouts.length) { clearTimeout(animations.timeouts.splice(0, 1)[0]); }
+        }
+      });
+    }
   }
 
   function destroy () {
+    // unobserve()
     off(root, pointerdown, onTouchStart);
     off(root, pointermove, onTouchMove);
     off(root, pointerup, onTouchEnd);
