@@ -125,8 +125,8 @@ coming soon
 * ~~vendor prefix for transition/transform/translate3d~~
 * ~~current index interface~~
 * ~~css width height~~
+* ~~stop auto swipe when out of screen~~
 * dynamic slides
 * init animation
 * desktop
-* stop auto swipe when out of screen
 * onStart | onMove | onEnd
