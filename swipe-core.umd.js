@@ -76,6 +76,14 @@
 
   var computedProp = function (el, prop) { return window.getComputedStyle(el, null).getPropertyValue(prop); };
 
+  var options = { root: null, rootMargin: '0px', threshold: [0.99, 1] };
+
+  function observe (el, fn) {
+    var observer = new IntersectionObserver (fn, options);
+    observer.observe(el);
+    return function () { observer.unobserve(el); }
+  }
+
   var FAST_THRESHOLD = 120;
   var FAST_INTERVAL = 250;
   var MAX_INTERVAL = 1000;
@@ -118,24 +126,38 @@
       width = Number(computedProp(root, 'width').slice(0, -2));
       height = Number(computedProp(root, 'height').slice(0, -2));
     }
-    var main = root.children[0], animations = {main: -1, timeouts: []}, threshold = width / 3;
+    var main = root.children[0], animations = {main: -1, auto: -1}, threshold = width / 3;
 
-    /*
+    /* phase
      * 0000: start
      * 0001: dragging
      * 0010: animating
      * 0100: vertical scrolling
+     * 1000: auto animating
+     * 10000: cancel auto animating
      */
-    var phase = 0, autoPhase = 0;
+    var phase = 0;
+
+    /* autoPhase
+     * 0: distance <= width / 2
+     * 1: distance > width / 2
+     */
+    var autoPhase = 0;
     var restartX = 0, direction = 0; // -1: left, 0: na, 1: right
     var x = 0, startTime = 0, startX = 0, currentX = 0, startY = 0, slides = [];
     var two = false;
+    auto = cycle && auto;
 
     var current = elms[index];
 
     var show = function (el) { return main.appendChild(el); };
-    var stopR = function () { return !cycle && currentX > startX && current === slides.head; };
-    var stopL = function () { return !cycle && currentX <= startX && current === slides.tail; };
+    var stopR = function (_) { return !cycle && currentX > startX && current === slides.head; };
+    var stopL = function (_) { return !cycle && currentX <= startX && current === slides.tail; };
+
+    var clearAuto = function (_) { return clearTimeout(animations.auto); };
+    var clearMain = function (_) { return caf(animations.main); };
+    var clearAnimations = function (_) {clearAuto(); clearMain();};
+
     init();
 
     return {
@@ -143,8 +165,7 @@
     }
 
     function onTouchStart (evt) {
-      caf(animations.main);
-      while (animations.timeouts.length) { clearTimeout(animations.timeouts.splice(0, 1)[0]); }
+      clearAnimations();
       phase = 0;
       direction = 0;
 
@@ -200,15 +221,19 @@
     }
 
     function onAutoAnimation () {
-      if (-current.x - x <= width / 2) { autoPhase = 0; }
-      else if (autoPhase === 0) {
+      if (autoPhase === 0 && -current.x - x > width / 2) {
         autoPhase = 1;
         moveLeft();
       }
     }
 
     function autoCallback () {
-      animations.timeouts.push(setTimeout(function () { return animate(main, x, x - width, MAX_PART, onAutoAnimation, autoCallback); }, AUTO_TIMEOUT));
+      clearAuto();
+      animations.auto = setTimeout(function () {
+        autoPhase = 0;
+        phase = 8;
+        animate(main, x, x - width, MAX_PART, onAutoAnimation, autoCallback);
+      }, AUTO_TIMEOUT);
     }
 
     function onTouchEnd (evt) {
@@ -241,7 +266,7 @@
         var during = now - start;
         if (during >= interval) {
           moveX(elm, to);
-          isFunction(callback) && callback();
+          phase !== 16 && isFunction(callback) && callback();
           return
         }
         var distance = (to - from) * cubic(during / interval) + from;
@@ -292,10 +317,21 @@
       on(root, pointermove, onTouchMove);
       on(root, pointerup, onTouchEnd);
 
-      auto && autoCallback();
+      auto && raf(function () {
+        opts.unobserve = observe(root, function (entries) {
+          if (entries[0].intersectionRatio === 1) {
+            autoCallback();
+          } else {
+            phase = 16;
+            clearAuto();
+          }
+        });
+      });
     }
 
     function destroy () {
+      clearAnimations();
+      isFunction(opts.unobserve) && opts.unobserve();
       off(root, pointerdown, onTouchStart);
       off(root, pointermove, onTouchMove);
       off(root, pointerup, onTouchEnd);
