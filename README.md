@@ -95,6 +95,7 @@ swiper({
 | index | initial slide index | Number | 0 | |
 | width | slide width | Number | window.screen.width | |
 | height | slide height | Number | 200 | |
+| css | use css to control w/h | Boolean | false | `true` `false` |
 
 ## methods
 | Name | Description | Parameters | Return |
