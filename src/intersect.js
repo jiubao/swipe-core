@@ -1,19 +1,10 @@
-// TODO: check IntersectionObserver
+const options = { root: null, rootMargin: '0px', threshold: [0.99, 1] }
 
-var targets = []
-const options = { root: null, rootMargin: '0px', threshold: [0, 1], func: null }
-var observer = new IntersectionObserver (callback, options)
-function callback (entries, observer) {
-  // console.log('intersect:', entries)
-  console.log('intersect:', entries[0].intersectionRatio)
-  options.func(entries, observer)
-}
-export function observe (el, fn) {
-  targets.push(el)
+function observe (el, fn) {
+  var observer = new IntersectionObserver (fn, options)
   observer.observe(el)
-  options.func = fn
+  return function () { observer.unobserve(el) }
 }
 
-export function unobserve () {
-  targets.forEach(t => observer.unobserve(t))
-}
+export default observe
+

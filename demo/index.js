@@ -19,7 +19,8 @@ window['swipe-core']({
   root: expose,
   elms: Array.prototype.slice.apply(expose.children[0].children),
   expose: true,
-  css: true
+  css: true,
+  auto: true
 })
 
 window['swipe-core']({
@@ -28,17 +29,20 @@ window['swipe-core']({
   width: 315,
   height: 230,
   expose: true,
+  auto: true
 })
 
 window['swipe-core']({
   root: one,
   elms: Array.prototype.slice.apply(one.children[0].children),
-  height: 200
+  height: 200,
+  auto: true
 })
 
 window['swipe-core']({
   root: uncycle,
   elms: Array.prototype.slice.apply(uncycle.children[0].children),
   height: 200,
-  cycle: false
+  cycle: false,
+  auto: true
 })
