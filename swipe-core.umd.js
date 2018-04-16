@@ -76,9 +76,10 @@
 
   var computedProp = function (el, prop) { return window.getComputedStyle(el, null).getPropertyValue(prop); };
 
-  var options = { root: null, rootMargin: '0px', threshold: [0.99, 1] };
+  var options = { root: null, rootMargin: '0px', threshold: [0, 0.01] };
 
   function observe (el, fn) {
+    if (!window.IntersectionObserver) { return fn() }
     var observer = new IntersectionObserver (fn, options);
     observer.observe(el);
     return function () { observer.unobserve(el); }
@@ -119,6 +120,7 @@
     var expose = opts.expose;
     var auto = opts.auto;
     var css = opts.css;
+    var onEnd = opts.onEnd;
 
     if (!root) { return }
 
@@ -237,6 +239,7 @@
     }
 
     function onTouchEnd (evt) {
+      auto && autoCallback();
       if (phase === 4) { return }
       phase = 2;
       var right = currentX > restartX;
@@ -255,19 +258,19 @@
 
       var t = Math.min(Math.max(MAX_INTERVAL * Math.abs(to - x) / width, FAST_INTERVAL), MAX_PART);
       animate(main, x, to, fast ? FAST_INTERVAL : t);
-      auto && autoCallback();
     }
 
     function animate (elm, from, to, interval, onAnimation, callback) {
       var start = Date.now();
       function loop () {
+        // console.log(elm.parentElement.id)
         isFunction(onAnimation) && onAnimation();
         var now = Date.now();
         var during = now - start;
         if (during >= interval) {
           moveX(elm, to);
           phase !== 16 && isFunction(callback) && callback();
-          return
+          return isFunction(onEnd) && onEnd(current.index)
         }
         var distance = (to - from) * cubic(during / interval) + from;
         x = distance;
@@ -319,12 +322,8 @@
 
       auto && raf(function () {
         opts.unobserve = observe(root, function (entries) {
-          if (entries[0].intersectionRatio === 1) {
-            autoCallback();
-          } else {
-            phase = 16;
-            clearAuto();
-          }
+          if (entries && entries[0].intersectionRatio === 0) { clearAuto(phase = 16); }
+          else { autoCallback(); }
         });
       });
     }
