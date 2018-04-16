@@ -1,5 +1,5 @@
 # swipe-core
-* 3.6k before gzipped
+* 3.9k before gzipped
 
 ## Demo
 https://jiubao.github.io/swipe-core/
@@ -106,6 +106,7 @@ swiper({
 
 ## Events
 simply support an onEnd method
+
 | Name | Description | Parameters |
 | ----- | :-: | :-: |
 | onEnd | called after animation | index |
@@ -131,6 +132,7 @@ simply support an onEnd method
 * ~~current index interface~~
 * ~~css width height~~
 * ~~stop auto swipe when out of screen~~
+* ~~onEnd~~
 * dynamic slides
 * init animation
 * desktop
