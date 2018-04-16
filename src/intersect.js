@@ -1,4 +1,4 @@
-const options = { root: null, rootMargin: '0px', threshold: [0.99, 1] }
+const options = { root: null, rootMargin: '0px', threshold: [0, 0.01] }
 
 function observe (el, fn) {
   if (!window.IntersectionObserver) return fn()

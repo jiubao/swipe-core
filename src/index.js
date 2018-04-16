@@ -172,6 +172,7 @@ function swipeIt (options) {
   function animate (elm, from, to, interval, onAnimation, callback) {
     var start = Date.now()
     function loop () {
+      console.log(elm.parentElement.id)
       isFunction(onAnimation) && onAnimation()
       var now = Date.now()
       var during = now - start
@@ -230,12 +231,8 @@ function swipeIt (options) {
 
     auto && raf(() => {
       opts.unobserve = observe(root, function (entries) {
-        if (!entries || entries[0].intersectionRatio === 1) {
-          autoCallback()
-        } else {
-          phase = 16
-          clearAuto()
-        }
+        if (entries && entries[0].intersectionRatio === 0) clearAuto(phase = 16);
+        else autoCallback();
       })
     })
   }
