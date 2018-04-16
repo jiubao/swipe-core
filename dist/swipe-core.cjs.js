@@ -75,6 +75,7 @@ var computedProp = function (el, prop) { return window.getComputedStyle(el, null
 var options = { root: null, rootMargin: '0px', threshold: [0.99, 1] };
 
 function observe (el, fn) {
+  if (!window.IntersectionObserver) { return fn() }
   var observer = new IntersectionObserver (fn, options);
   observer.observe(el);
   return function () { observer.unobserve(el); }
@@ -233,6 +234,7 @@ function swipeIt (options) {
   }
 
   function onTouchEnd (evt) {
+    auto && autoCallback();
     if (phase === 4) { return }
     phase = 2;
     var right = currentX > restartX;
@@ -251,7 +253,6 @@ function swipeIt (options) {
 
     var t = Math.min(Math.max(MAX_INTERVAL * Math.abs(to - x) / width, FAST_INTERVAL), MAX_PART);
     animate(main, x, to, fast ? FAST_INTERVAL : t);
-    auto && autoCallback();
   }
 
   function animate (elm, from, to, interval, onAnimation, callback) {
@@ -315,7 +316,7 @@ function swipeIt (options) {
 
     auto && raf(function () {
       opts.unobserve = observe(root, function (entries) {
-        if (entries[0].intersectionRatio === 1) {
+        if (!entries || entries[0].intersectionRatio === 1) {
           autoCallback();
         } else {
           phase = 16;
