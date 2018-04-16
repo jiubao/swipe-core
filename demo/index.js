@@ -9,7 +9,8 @@ window['swipe-core']({
   root: basic,
   elms: Array.prototype.slice.apply(basic.children[0].children),
   height: 200,
-  auto: true
+  auto: true,
+  // onEnd: index => console.log(index)
   // width: window.screen.width
   // cycle: false,
   // index: 0

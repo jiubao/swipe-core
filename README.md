@@ -5,7 +5,7 @@
 https://jiubao.github.io/swipe-core/
 
 ## Features
-* designed for mobile: compact, smooth and efficient
+Designed for mobile: compact, smooth and efficient
 * css transition has limitations, use js to simulate animation
 * use requestAnimationFrame and have a compact polyfill
 * cubic bezier to simulate ease out
@@ -49,7 +49,8 @@ var auto = document.getElementById('auto')
 swiper({
   root: auto,
   elms: Array.prototype.slice.apply(auto.children[0].children),
-  auto: true
+  auto: true,
+  onEnd: index => console.log(index)
 })
 ```
 
@@ -84,7 +85,7 @@ swiper({
 .swipe-core-wh { width: 315px; height: 200px; }
 ```
 
-## options
+## Options
 | Attribute | Description | Type | Default | Values |
 | ----- | :-: | :-: | :-: | :-: |
 | auto | auto swipe | Boolean | false | `true` `false` |
@@ -97,14 +98,17 @@ swiper({
 | height | slide height | Number | 200 | |
 | css | use css to control w/h | Boolean | false | `true` `false` |
 
-## methods
+## Methods
 | Name | Description | Parameters | Return |
 | ----- | :-: | :-: | :-: |
 | destroy | destroy swipe | | |
 | index | get current index | | current index |
 
 ## Events
-coming soon
+simply support an onEnd method
+| Name | Description | Parameters |
+| ----- | :-: | :-: |
+| onEnd | called after animation | index |
 
 ## Todos
 * ~~performance~~

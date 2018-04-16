@@ -29,7 +29,7 @@ function swipeIt (options) {
     ...options
   }
 
-  var {index, root, elms, width, height, cycle, expose, auto, css} = opts
+  var {index, root, elms, width, height, cycle, expose, auto, css, onEnd} = opts
 
   if (!root) return
 
@@ -172,14 +172,14 @@ function swipeIt (options) {
   function animate (elm, from, to, interval, onAnimation, callback) {
     var start = Date.now()
     function loop () {
-      console.log(elm.parentElement.id)
+      // console.log(elm.parentElement.id)
       isFunction(onAnimation) && onAnimation()
       var now = Date.now()
       var during = now - start
       if (during >= interval) {
         moveX(elm, to)
         phase !== 16 && isFunction(callback) && callback()
-        return
+        return isFunction(onEnd) && onEnd(current.index)
       }
       var distance = (to - from) * cubic(during / interval) + from
       x = distance
