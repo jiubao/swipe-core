@@ -101,7 +101,7 @@ var defaultOptions = {
   width: window.screen.width, // if css is false, need width & height
   height: 200,
   css: false,
-  ease: 'circ'
+  ease: 'cubic'
 };
 
 var hides = document.createElement('div');
