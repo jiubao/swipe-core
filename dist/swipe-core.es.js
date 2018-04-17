@@ -57,7 +57,13 @@ if (!raf || !caf) {
 // window.raf = raf
 // window.caf = caf
 
-var cubic = function (k) { return --k * k * k + 1; };
+var easing = {
+  cubic: function (k) { return --k * k * k + 1; },
+  // quart: k => 1 - Math.pow(1 - k, 4), // 1 - --k * k * k * k,
+  // quint: k => 1 - Math.pow(1 - k, 5),
+  // expo: k => k === 1 ? 1 : 1 - Math.pow(2, -10 * k),
+  circ: function (k) { return Math.sqrt(1 - Math.pow(k - 1, 2)); }
+};
 
 // TODO: desktop support, mouse / pointer events
 // var touch = 'ontouchstart' in window
@@ -94,7 +100,8 @@ var defaultOptions = {
   index: 0,
   width: window.screen.width, // if css is false, need width & height
   height: 200,
-  css: false
+  css: false,
+  ease: 'circ'
 };
 
 var hides = document.createElement('div');
@@ -115,6 +122,7 @@ function swipeIt (options) {
   var auto = opts.auto;
   var css = opts.css;
   var onEnd = opts.onEnd;
+  var ease = opts.ease;
 
   if (!root) { return }
 
@@ -229,6 +237,7 @@ function swipeIt (options) {
       autoPhase = 0;
       phase = 8;
       animate(main, x, x - width, MAX_PART, onAutoAnimation, autoCallback);
+      // animate(main, x, x - width, MAX_INTERVAL, onAutoAnimation, autoCallback)
     }, AUTO_TIMEOUT);
   }
 
@@ -266,7 +275,7 @@ function swipeIt (options) {
         phase !== 16 && isFunction(callback) && callback();
         return isFunction(onEnd) && onEnd(current.index)
       }
-      var distance = (to - from) * cubic(during / interval) + from;
+      var distance = (to - from) * easing[ease](during / interval) + from;
       x = distance;
       moveX(elm, distance);
       animations.main = raf(loop);

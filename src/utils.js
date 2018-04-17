@@ -55,7 +55,13 @@ if (!raf || !caf) {
 // window.raf = raf
 // window.caf = caf
 
-export const cubic = k => --k * k * k + 1
+export var easing = {
+  cubic: k => --k * k * k + 1,
+  // quart: k => 1 - Math.pow(1 - k, 4), // 1 - --k * k * k * k,
+  // quint: k => 1 - Math.pow(1 - k, 5),
+  // expo: k => k === 1 ? 1 : 1 - Math.pow(2, -10 * k),
+  circ: k => Math.sqrt(1 - Math.pow(k - 1, 2))
+}
 
 export {LinkList, raf, caf}
 

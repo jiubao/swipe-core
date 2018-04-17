@@ -1,4 +1,4 @@
-import {on, off, LinkList, raf, caf, cubic, isFunction, pointerdown, pointermove, pointerup, computedProp} from './utils'
+import {on, off, LinkList, raf, caf, easing, isFunction, pointerdown, pointermove, pointerup, computedProp} from './utils'
 import observe from './intersect'
 
 const FAST_THRESHOLD = 120
@@ -16,7 +16,8 @@ var defaultOptions = {
   index: 0,
   width: window.screen.width, // if css is false, need width & height
   height: 200,
-  css: false
+  css: false,
+  ease: 'circ'
 }
 
 var hides = document.createElement('div')
@@ -29,7 +30,7 @@ function swipeIt (options) {
     ...options
   }
 
-  var {index, root, elms, width, height, cycle, expose, auto, css, onEnd} = opts
+  var {index, root, elms, width, height, cycle, expose, auto, css, onEnd, ease} = opts
 
   if (!root) return
 
@@ -144,6 +145,7 @@ function swipeIt (options) {
       autoPhase = 0
       phase = 8
       animate(main, x, x - width, MAX_PART, onAutoAnimation, autoCallback)
+      // animate(main, x, x - width, MAX_INTERVAL, onAutoAnimation, autoCallback)
     }, AUTO_TIMEOUT)
   }
 
@@ -181,7 +183,7 @@ function swipeIt (options) {
         phase !== 16 && isFunction(callback) && callback()
         return isFunction(onEnd) && onEnd(current.index)
       }
-      var distance = (to - from) * cubic(during / interval) + from
+      var distance = (to - from) * easing[ease](during / interval) + from
       x = distance
       moveX(elm, distance)
       animations.main = raf(loop)

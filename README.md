@@ -97,6 +97,7 @@ swiper({
 | width | slide width | Number | window.screen.width | |
 | height | slide height | Number | 200 | |
 | css | use css to control w/h | Boolean | false | `true` `false` |
+| ease | easing | String | circ | `circ` `cubic` |
 
 ## Methods
 | Name | Description | Parameters | Return |
