@@ -1,4 +1,5 @@
-var basic = document.getElementById('auto')
+var autoCirc = document.getElementById('autoCirc')
+var autoCubic = document.getElementById('autoCubic')
 var expose = document.getElementById('expose')
 var two = document.getElementById('two');
 var one = document.getElementById('one');
@@ -6,13 +7,23 @@ var uncycle = document.getElementById('uncycle');
 
 var screenWidth = window.screen.width
 window['swipe-core']({
-  root: basic,
-  elms: Array.prototype.slice.apply(basic.children[0].children),
+  root: autoCirc,
+  elms: Array.prototype.slice.apply(autoCirc.children[0].children),
   height: 200,
-  auto: true
+  auto: true,
+  ease: 'circ'
+  // onEnd: index => console.log(index)
   // width: window.screen.width
   // cycle: false,
   // index: 0
+})
+
+window['swipe-core']({
+  root: autoCubic,
+  elms: Array.prototype.slice.apply(autoCubic.children[0].children),
+  height: 200,
+  auto: true,
+  ease: 'cubic'
 })
 
 window['swipe-core']({
