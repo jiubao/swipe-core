@@ -1,5 +1,5 @@
 # swipe-core
-* 3.9k before gzipped
+* 4.0k before gzipped
 
 ## Demo
 https://jiubao.github.io/swipe-core/
@@ -97,7 +97,7 @@ swiper({
 | width | slide width | Number | window.screen.width | |
 | height | slide height | Number | 200 | |
 | css | use css to control w/h | Boolean | false | `true` `false` |
-| ease | easing | String | circ | `circ` `cubic` |
+| ease | easing | String | cubic | `circ` `cubic` |
 
 ## Methods
 | Name | Description | Parameters | Return |
