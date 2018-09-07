@@ -134,7 +134,7 @@ simply support an onEnd method
 * ~~css width height~~
 * ~~stop auto swipe when out of screen~~
 * ~~onEnd~~
+* ~~onStart | onMove | onEnd~~
 * dynamic slides
 * init animation
 * desktop
-* onStart | onMove | onEnd

@@ -137,7 +137,6 @@ function swipeIt (options) {
     height = Number(computedProp(root, 'height').slice(0, -2));
   }
   var main = root.children[0], animations = {main: -1, auto: -1}, threshold = width / 3;
-  window.main = main;
 
   /* phase
    * 0000: start
@@ -260,7 +259,6 @@ function swipeIt (options) {
   }
 
   function onTouchEnd (evt) {
-    // return
     auto && autoCallback();
     if (phase === 4) { return }
     phase = 2;
