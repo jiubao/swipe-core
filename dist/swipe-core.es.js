@@ -101,7 +101,9 @@ var defaultOptions = {
   width: window.screen.width, // if css is false, need width & height
   height: 200,
   css: false,
-  ease: 'cubic'
+  ease: 'cubic',
+  onStart: function (_) {},
+  onMove: function (_) {}
 };
 
 var hides = document.createElement('div');
@@ -123,6 +125,8 @@ function swipeIt (options) {
   var css = opts.css;
   var onEnd = opts.onEnd;
   var ease = opts.ease;
+  var onMove = opts.onMove;
+  var onStart = opts.onStart;
 
   if (!root) { return }
 
@@ -131,6 +135,7 @@ function swipeIt (options) {
     height = Number(computedProp(root, 'height').slice(0, -2));
   }
   var main = root.children[0], animations = {main: -1, auto: -1}, threshold = width / 3;
+  window.main = main;
 
   /* phase
    * 0000: start
@@ -153,6 +158,8 @@ function swipeIt (options) {
   auto = cycle && auto;
 
   var current = elms[index];
+  var moveEx = function (el, x) { el.x = x; moveX(el, x); };
+  var hide = function (el) { return hides.appendChild(el); };
 
   var show = function (el) { return main.appendChild(el); };
   var stopR = function (_) { return !cycle && currentX > startX && current === slides.head; };
@@ -168,6 +175,13 @@ function swipeIt (options) {
     destroy: destroy, index: function (_) { return current.index; }
   }
 
+  function moveX (el, x) {
+    if (!el) { return }
+    el.style.transition = el.style.webkitTransition = '';
+    el.style.transform = el.style.webkitTransform = "translate3d(" + x + "px, 0, 0)";
+    onMove(current, main, elms);
+  }
+
   function onTouchStart (evt) {
     clearAnimations();
     phase = 0;
@@ -177,6 +191,7 @@ function swipeIt (options) {
     startTime = Date.now();
     restartX = currentX = startX = touch.pageX;
     startY = touch.clientY;
+    onStart(main);
   }
 
   function onTouchMove (evt) {
@@ -201,7 +216,8 @@ function swipeIt (options) {
     currentX = touch.pageX;
 
     x = x + gap;
-    moveX(main, x);
+    // moveX(main, x)
+    moveEx(main, x);
 
     evt.preventDefault();
   }
@@ -242,6 +258,7 @@ function swipeIt (options) {
   }
 
   function onTouchEnd (evt) {
+    // return
     auto && autoCallback();
     if (phase === 4) { return }
     phase = 2;
@@ -271,13 +288,15 @@ function swipeIt (options) {
       var now = Date.now();
       var during = now - start;
       if (during >= interval) {
-        moveX(elm, to);
+        // moveX(elm, to)
+        moveEx(elm, to);
         phase !== 16 && isFunction(callback) && callback();
-        return isFunction(onEnd) && onEnd(current.index)
+        return isFunction(onEnd) && onEnd(current.index, main)
       }
       var distance = (to - from) * easing[ease](during / interval) + from;
       x = distance;
-      moveX(elm, distance);
+      // moveX(elm, distance)
+      moveEx(elm, distance);
       animations.main = raf(loop);
     }
     loop();
@@ -338,14 +357,6 @@ function swipeIt (options) {
     off(root, pointermove, onTouchMove);
     off(root, pointerup, onTouchEnd);
   }
-}
-var moveEx = function (el, x) { el.x = x; moveX(el, x); };
-var hide = function (el) { return hides.appendChild(el); };
-
-function moveX (el, x) {
-  if (!el) { return }
-  el.style.transition = el.style.webkitTransition = '';
-  el.style.transform = el.style.webkitTransform = "translate3d(" + x + "px, 0, 0)";
 }
 
 export default swipeIt;

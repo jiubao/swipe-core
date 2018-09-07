@@ -6,7 +6,9 @@ body {
 }
 
 .box {
-  padding: 0 5px;
+  padding: 0 30px;
+  height: 200px;
+  overflow: hidden;
 }
 
 #expose, #two {
@@ -16,4 +18,10 @@ body {
 .swipe-core-wh {
   width: 315px;
   height: 200px;
+}
+
+.swipe-core-main {
+  perspective: 500px;
+  -webkit-perspective-origin-y: 100px;
+  /* perspective-origin: 10px; */
 }

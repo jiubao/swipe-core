@@ -17,7 +17,9 @@ var defaultOptions = {
   width: window.screen.width, // if css is false, need width & height
   height: 200,
   css: false,
-  ease: 'cubic'
+  ease: 'cubic',
+  onStart: _ => {},
+  onMove: _ => {}
 }
 
 var hides = document.createElement('div')
@@ -30,7 +32,7 @@ function swipeIt (options) {
     ...options
   }
 
-  var {index, root, elms, width, height, cycle, expose, auto, css, onEnd, ease} = opts
+  var {index, root, elms, width, height, cycle, expose, auto, css, onEnd, ease, onMove, onStart} = opts
 
   if (!root) return
 
@@ -62,6 +64,10 @@ function swipeIt (options) {
 
   var current = elms[index]
 
+  const moveE = el => moveX(el, el.x)
+  const moveEx = (el, x) => { el.x = x; moveX(el, x); }
+  const hide = el => hides.appendChild(el)
+
   const show = el => main.appendChild(el)
   const stopR = _ => !cycle && currentX > startX && current === slides.head
   const stopL = _ => !cycle && currentX <= startX && current === slides.tail
@@ -76,6 +82,13 @@ function swipeIt (options) {
     destroy, index: _ => current.index
   }
 
+  function moveX (el, x) {
+    if (!el) return
+    el.style.transition = el.style.webkitTransition = ''
+    el.style.transform = el.style.webkitTransform = `translate3d(${x}px, 0, 0)`
+    onMove(current, main, elms)
+  }
+
   function onTouchStart (evt) {
     clearAnimations()
     phase = 0
@@ -85,6 +98,7 @@ function swipeIt (options) {
     startTime = Date.now()
     restartX = currentX = startX = touch.pageX
     startY = touch.clientY
+    onStart(main)
   }
 
   function onTouchMove (evt) {
@@ -109,7 +123,8 @@ function swipeIt (options) {
     currentX = touch.pageX
 
     x = x + gap
-    moveX(main, x)
+    // moveX(main, x)
+    moveEx(main, x)
 
     evt.preventDefault();
   }
@@ -179,13 +194,15 @@ function swipeIt (options) {
       var now = Date.now()
       var during = now - start
       if (during >= interval) {
-        moveX(elm, to)
+        // moveX(elm, to)
+        moveEx(elm, to)
         phase !== 16 && isFunction(callback) && callback()
-        return isFunction(onEnd) && onEnd(current.index)
+        return isFunction(onEnd) && onEnd(current.index, main)
       }
       var distance = (to - from) * easing[ease](during / interval) + from
       x = distance
-      moveX(elm, distance)
+      // moveX(elm, distance)
+      moveEx(elm, distance)
       animations.main = raf(loop)
     }
     loop()
@@ -246,16 +263,6 @@ function swipeIt (options) {
     off(root, pointermove, onTouchMove)
     off(root, pointerup, onTouchEnd)
   }
-}
-
-const moveE = el => moveX(el, el.x)
-const moveEx = (el, x) => { el.x = x; moveX(el, x); }
-const hide = el => hides.appendChild(el)
-
-function moveX (el, x) {
-  if (!el) return
-  el.style.transition = el.style.webkitTransition = ''
-  el.style.transform = el.style.webkitTransform = `translate3d(${x}px, 0, 0)`
 }
 
 export default swipeIt
