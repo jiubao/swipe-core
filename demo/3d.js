@@ -3,7 +3,7 @@ var expose = document.getElementById('expose')
 var screenWidth = window.screen.width
 
 function setZ (current, main) {
-  main.style.webkitPerspectiveOriginX = -main.x + 378 / 2 + 'px'
+  main.style.webkitPerspectiveOriginX = -main.x + 384 / 2 + 'px'
   var cs = main.children
   var s = main.x
   var x = current.x
@@ -14,7 +14,7 @@ function setZ (current, main) {
     c = cs[i]
     var x = c.x
     if (c !== current) {
-      c.style.transform = `translate3d(${x}px, 0px, -${130 - gap / 3}px)`
+      c.style.transform = `translate3d(${x}px, 0px, -${144 - gap / 3}px)`
     }
   }
 }

@@ -22,7 +22,8 @@ var defaultOptions = {
   onInit: empty,
   onStart: empty,
   onMove: empty,
-  onEnd: empty
+  onEnd: empty,
+  onEndAnimation: empty
 }
 
 var hides = document.createElement('div')
@@ -35,7 +36,7 @@ function swipeIt (options) {
     ...options
   }
 
-  var {index, root, elms, width, height, cycle, expose, auto, css, onEnd, ease, onMove, onStart, onInit} = opts
+  var {index, root, elms, width, height, cycle, expose, auto, css, onEnd, ease, onMove, onStart, onInit, onEndAnimation} = opts
 
   if (!root) return
 
@@ -187,6 +188,8 @@ function swipeIt (options) {
 
     var t = Math.min(Math.max(MAX_INTERVAL * Math.abs(to - x) / width, FAST_INTERVAL), MAX_PART)
     animate(main, x, to, fast ? FAST_INTERVAL : t)
+
+    onEnd(current.index, main)
   }
 
   function animate (elm, from, to, interval, onAnimation, callback) {
@@ -200,7 +203,7 @@ function swipeIt (options) {
         // moveX(elm, to)
         moveEx(elm, to)
         phase !== 16 && isFunction(callback) && callback()
-        return isFunction(onEnd) && onEnd(current.index, main)
+        return onEndAnimation(current.index, main)
       }
       var distance = (to - from) * easing[ease](during / interval) + from
       x = distance
