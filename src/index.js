@@ -7,6 +7,7 @@ const MAX_INTERVAL = 1000
 const MAX_PART = MAX_INTERVAL * 2 / 3
 const AUTO_TIMEOUT = 3000
 
+const empty = _ => {}
 var defaultOptions = {
   auto: false,
   cycle: true,
@@ -18,8 +19,10 @@ var defaultOptions = {
   height: 200,
   css: false,
   ease: 'cubic',
-  onStart: _ => {},
-  onMove: _ => {}
+  onInit: empty,
+  onStart: empty,
+  onMove: empty,
+  onEnd: empty
 }
 
 var hides = document.createElement('div')
@@ -32,7 +35,7 @@ function swipeIt (options) {
     ...options
   }
 
-  var {index, root, elms, width, height, cycle, expose, auto, css, onEnd, ease, onMove, onStart} = opts
+  var {index, root, elms, width, height, cycle, expose, auto, css, onEnd, ease, onMove, onStart, onInit} = opts
 
   if (!root) return
 
@@ -254,6 +257,9 @@ function swipeIt (options) {
         else autoCallback();
       })
     })
+
+    main.x = 0
+    onInit(current, main)
   }
 
   function destroy () {

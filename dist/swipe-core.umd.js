@@ -1,1 +1,375 @@
-!function(e,t){"object"==typeof exports&&"undefined"!=typeof module?module.exports=t():"function"==typeof define&&define.amd?define(t):e["swipe-core"]=t()}(this,function(){"use strict";function J(e,t,n){e.addEventListener(t,n,!1)}function K(e,t,n){e.removeEventListener(t,n,!1)}function Q(e){return"function"==typeof e}function U(e){var n=this;this.list=[],e.forEach(function(e,t){e.index=t,n.append(e)})}U.prototype.append=function(e){var t,n=(t=e).next=t.prev=t;return this.list.push(n),this.tail?(n.prev=this.tail,n.next=this.tail.next,(this.tail.next=n).next.prev=n,this.tail=n):this.head=this.tail=n};var e=["webkit","moz","ms","o"],W=e.reduce(function(e,t){return e||window[t+"RequestAnimationFrame"]},window.requestAnimationFrame),Z=e.reduce(function(e,t){return e||window[t+"CancelAnimationFrame"]},window.cancelAnimationFrame);if(!W||!Z){var n=0;W=function(e){var t=+new Date;return n=Math.max(t,n+16),setTimeout(e,n-t)},Z=clearTimeout}var $={cubic:function(e){return--e*e*e+1},circ:function(e){return Math.sqrt(1-Math.pow(e-1,2))}},_="touchstart",ee="touchmove",te="touchend",ne=function(e,t){return window.getComputedStyle(e,null).getPropertyValue(t)},ie={root:null,rootMargin:"0px",threshold:[0,.01]},oe=120,re=250,ue=1e3,ae=2*ue/3,ce=3e3,se={auto:!1,cycle:!0,expose:!1,root:null,elms:[],index:0,width:window.screen.width,height:200,css:!1,ease:"cubic",onStart:function(e){},onMove:function(e){}},fe=document.createElement("div");return fe.style.display="none",document.body.appendChild(fe),function(e){var n=Object.assign({},se,e),i=n.index,o=n.root,r=n.elms,u=n.width,a=n.height,c=n.cycle,s=n.expose,f=n.auto,l=n.css,h=n.onEnd,d=n.ease,p=n.onMove,v=n.onStart;if(o){l&&(u=Number(ne(o,"width").slice(0,-2)),a=Number(ne(o,"height").slice(0,-2)));var x=o.children[0],m={main:-1,auto:-1},w=u/3,y=0,t=0,b=0,g=0,M=0,D=0,E=0,T=0,C=0,A=[],F=!1;f=c&&f;var N=r[i],k=function(e,t){var n,i;i=e.x=t,(n=e)&&(n.style.transition=n.style.webkitTransition="",n.style.transform=n.style.webkitTransform="translate3d("+i+"px, 0, 0)",p(N,x,r))},q=function(e){return fe.appendChild(e)},O=function(e){return x.appendChild(e)},S=function(e){return!c&&E<T&&N===A.head},X=function(e){return!c&&T<=E&&N===A.tail},j=function(e){return clearTimeout(m.auto)},I=function(e){j(),Z(m.main)};return function(){if(0!==r.length){s||(o.style.overflow="hidden"),o.style.position="relative",l||(o.style.width=u+"px",o.style.height=a+"px"),2===r.length&&c&&(r.push(r[0].cloneNode(!0)),O(r[2]),r.push(r[1].cloneNode(!0)),O(r[3]));var t=1===r.length;F=2===r.length,A=new U(r),k(N,0),t||F||k(N.prev,-u),t||k(N.next,u),r.forEach(function(e){e.style.position="absolute",l||(e.style.width=u+"px",e.style.height=a+"px"),e.style.overflow="hidden",F||t||e===N||e===N.prev||e===N.next||q(e)}),t||(F||c||0!==i||q(N.prev),F||c||i!==r.length-1||q(N.next),H(),J(o,_,L),J(o,ee,R),J(o,te,B),f&&W(function(){n.unobserve=function(e,t){if(!window.IntersectionObserver)return t();var n=new IntersectionObserver(t,ie);return n.observe(e),function(){n.unobserve(e)}}(o,function(e){e&&0===e[0].intersectionRatio?j(y=16):V()})}))}}(),{destroy:H,index:function(e){return N.index}}}function L(e){I(),g=y=0;var t=e.touches[0];D=Date.now(),b=T=E=t.pageX,C=t.clientY,v(x)}function R(e){if(2!==y&&4!==y){var t=e.touches[0],n=t.pageX-T;if(0===y&&2*Math.abs(n)<Math.abs(t.clientY-C))y=4;else{var i=0<n?1:-1;g!==i&&(b=T,D=Date.now(),g=i),y=1,T=t.pageX,k(x,M+=n),e.preventDefault()}}}function Y(){F||q(N.next),N=N.prev,S()||(k(N.prev,N.x-u),O(N.prev))}function z(){F||q(N.prev),N=N.next,X()||(k(N.next,N.x+u),O(N.next))}function P(){0===t&&-N.x-M>u/2&&(t=1,z())}function V(){j(),m.auto=setTimeout(function(){t=0,y=8,G(x,M,M-u,ae,P,V)},ce)}function B(e){if(f&&V(),4!==y){y=2;var t=b<T,n=Date.now()-D<oe;if(!S()&&!X()){var i=N.x+M;n?t&&0<i?Y():!t&&i<0&&z():w<i?Y():i<-w&&z()}var o=-1*N.x,r=Math.min(Math.max(ue*Math.abs(o-M)/u,re),ae);G(x,M,o,n?re:r)}}function G(i,o,r,u,a,c){var s=Date.now();!function e(){Q(a)&&a();var t=Date.now()-s;if(u<=t)return k(i,r),16!==y&&Q(c)&&c(),Q(h)&&h(N.index,x);var n=(r-o)*$[d](t/u)+o;k(i,M=n),m.main=W(e)}()}function H(){I(),Q(n.unobserve)&&n.unobserve(),K(o,_,L),K(o,ee,R),K(o,te,B)}}});
+(function (global, factory) {
+  typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
+  typeof define === 'function' && define.amd ? define(factory) :
+  (global['swipe-core'] = factory());
+}(this, (function () { 'use strict';
+
+  function on (element, evt, handler) {
+    element.addEventListener(evt, handler, false);
+  }
+
+  function off (element, evt, handler) {
+    element.removeEventListener(evt, handler, false);
+  }
+
+  function isFunction (value) {
+    return typeof value === 'function'
+  }
+
+  function newNode (item) {
+    // var node = Object.create(null)
+    // node.item = item
+    // return node.next = node.prev = node
+    return item.next = item.prev = item
+  }
+
+  function LinkList (arr) {
+    var this$1 = this;
+
+    this.list = [];
+    // arr.forEach(item => this.append(item))
+    arr.forEach(function (item, index) {
+      item.index = index;
+      this$1.append(item);
+    });
+  }
+
+  LinkList.prototype.append = function (item) {
+    var node = newNode(item);
+    this.list.push(node);
+    if (!this.tail) {
+      return this.head = this.tail = node
+    }
+    node.prev = this.tail;
+    node.next = this.tail.next;
+    this.tail.next = node;
+    node.next.prev = node;
+    return this.tail = node
+  };
+
+  // for a 60Hz monitor, requestAnimationFrame will trigger the callback every 16.67ms (1000 / 60 == 16.66...)
+  var vendorPrefixes = ['webkit','moz','ms','o'];
+  var raf = vendorPrefixes.reduce(function (result, next) { return result || window[(next + "RequestAnimationFrame")]; }, window.requestAnimationFrame);
+  var caf = vendorPrefixes.reduce(function (result, next) { return result || window[(next + "CancelAnimationFrame")]; }, window.cancelAnimationFrame);
+  if (!raf || !caf) {
+    var last = 0;
+    raf = function (fn) {
+      var now = +new Date();
+      last = Math.max(now, last + 16);
+      return setTimeout(fn, last - now)
+    };
+    caf = clearTimeout;
+  }
+  // window.raf = raf
+  // window.caf = caf
+
+  var easing = {
+    cubic: function (k) { return --k * k * k + 1; },
+    // quart: k => 1 - Math.pow(1 - k, 4), // 1 - --k * k * k * k,
+    // quint: k => 1 - Math.pow(1 - k, 5),
+    // expo: k => k === 1 ? 1 : 1 - Math.pow(2, -10 * k),
+    circ: function (k) { return Math.sqrt(1 - Math.pow(k - 1, 2)); }
+  };
+
+  // TODO: desktop support, mouse / pointer events
+  // var touch = 'ontouchstart' in window
+  // export var pointerdown = touch ? 'touchstart' : 'mousedown'
+  // export var pointermove = touch ? 'touchmove' : 'mousemove'
+  // export var pointerup = touch ? 'touchend' : 'mouseup'
+  var pointerdown = 'touchstart';
+  var pointermove = 'touchmove';
+  var pointerup = 'touchend';
+
+  var computedProp = function (el, prop) { return window.getComputedStyle(el, null).getPropertyValue(prop); };
+
+  var options = { root: null, rootMargin: '0px', threshold: [0, 0.01] };
+
+  function observe (el, fn) {
+    if (!window.IntersectionObserver) { return fn() }
+    var observer = new IntersectionObserver (fn, options);
+    observer.observe(el);
+    return function () { observer.unobserve(el); }
+  }
+
+  var FAST_THRESHOLD = 120;
+  var FAST_INTERVAL = 250;
+  var MAX_INTERVAL = 1000;
+  var MAX_PART = MAX_INTERVAL * 2 / 3;
+  var AUTO_TIMEOUT = 3000;
+
+  var empty = function (_) {};
+  var defaultOptions = {
+    auto: false,
+    cycle: true,
+    expose: false,
+    root: null, // required
+    elms: [], // required
+    index: 0,
+    width: window.screen.width, // if css is false, need width & height
+    height: 200,
+    css: false,
+    ease: 'cubic',
+    onInit: empty,
+    onStart: empty,
+    onMove: empty,
+    onEnd: empty
+  };
+
+  var hides = document.createElement('div');
+  hides.style.display = 'none';
+  document.body.appendChild(hides);
+
+  function swipeIt (options) {
+    var opts = Object.assign({}, defaultOptions,
+      options);
+
+    var index = opts.index;
+    var root = opts.root;
+    var elms = opts.elms;
+    var width = opts.width;
+    var height = opts.height;
+    var cycle = opts.cycle;
+    var expose = opts.expose;
+    var auto = opts.auto;
+    var css = opts.css;
+    var onEnd = opts.onEnd;
+    var ease = opts.ease;
+    var onMove = opts.onMove;
+    var onStart = opts.onStart;
+    var onInit = opts.onInit;
+
+    if (!root) { return }
+
+    if (css) {
+      width = Number(computedProp(root, 'width').slice(0, -2));
+      height = Number(computedProp(root, 'height').slice(0, -2));
+    }
+    var main = root.children[0], animations = {main: -1, auto: -1}, threshold = width / 3;
+
+    /* phase
+     * 0000: start
+     * 0001: dragging
+     * 0010: animating
+     * 0100: vertical scrolling
+     * 1000: auto animating
+     * 10000: cancel auto animating
+     */
+    var phase = 0;
+
+    /* autoPhase
+     * 0: distance <= width / 2
+     * 1: distance > width / 2
+     */
+    var autoPhase = 0;
+    var restartX = 0, direction = 0; // -1: left, 0: na, 1: right
+    var x = 0, startTime = 0, startX = 0, currentX = 0, startY = 0, slides = [];
+    var two = false;
+    auto = cycle && auto;
+
+    var current = elms[index];
+    var moveEx = function (el, x) { el.x = x; moveX(el, x); };
+    var hide = function (el) { return hides.appendChild(el); };
+
+    var show = function (el) { return main.appendChild(el); };
+    var stopR = function (_) { return !cycle && currentX > startX && current === slides.head; };
+    var stopL = function (_) { return !cycle && currentX <= startX && current === slides.tail; };
+
+    var clearAuto = function (_) { return clearTimeout(animations.auto); };
+    var clearMain = function (_) { return caf(animations.main); };
+    var clearAnimations = function (_) {clearAuto(); clearMain();};
+
+    init();
+
+    return {
+      destroy: destroy, index: function (_) { return current.index; }
+    }
+
+    function moveX (el, x) {
+      if (!el) { return }
+      el.style.transition = el.style.webkitTransition = '';
+      el.style.transform = el.style.webkitTransform = "translate3d(" + x + "px, 0, 0)";
+      onMove(current, main, elms);
+    }
+
+    function onTouchStart (evt) {
+      clearAnimations();
+      phase = 0;
+      direction = 0;
+
+      var touch = evt.touches[0];
+      startTime = Date.now();
+      restartX = currentX = startX = touch.pageX;
+      startY = touch.clientY;
+      onStart(main);
+    }
+
+    function onTouchMove (evt) {
+      if (phase === 2 || phase === 4) { return }
+
+      var touch = evt.touches[0];
+      var gap = touch.pageX - currentX;
+
+      if (phase === 0 && Math.abs(gap) * 2 < Math.abs(touch.clientY - startY)) {
+        phase = 4;
+        return
+      }
+
+      var _d = gap > 0 ? 1 : -1;
+      if (direction !== _d) {
+        restartX = currentX;
+        startTime = Date.now();
+        direction = _d;
+      }
+
+      phase = 1;
+      currentX = touch.pageX;
+
+      x = x + gap;
+      // moveX(main, x)
+      moveEx(main, x);
+
+      evt.preventDefault();
+    }
+
+    function moveRight () {
+      two || hide(current.next);
+      current = current.prev;
+      if (!stopR()) {
+        moveEx(current.prev, current.x - width);
+        show(current.prev);
+      }
+    }
+
+    function moveLeft () {
+      two || hide(current.prev);
+      current = current.next;
+      if (!stopL()) {
+        moveEx(current.next, current.x + width);
+        show(current.next);
+      }
+    }
+
+    function onAutoAnimation () {
+      if (autoPhase === 0 && -current.x - x > width / 2) {
+        autoPhase = 1;
+        moveLeft();
+      }
+    }
+
+    function autoCallback () {
+      clearAuto();
+      animations.auto = setTimeout(function () {
+        autoPhase = 0;
+        phase = 8;
+        animate(main, x, x - width, MAX_PART, onAutoAnimation, autoCallback);
+        // animate(main, x, x - width, MAX_INTERVAL, onAutoAnimation, autoCallback)
+      }, AUTO_TIMEOUT);
+    }
+
+    function onTouchEnd (evt) {
+      auto && autoCallback();
+      if (phase === 4) { return }
+      phase = 2;
+      var right = currentX > restartX;
+      var fast = (Date.now() - startTime) < FAST_THRESHOLD;
+
+      if (!stopR() && !stopL()) {
+        var cx = current.x + x;
+        if (fast) {
+          if (right && cx > 0) { moveRight(); }
+          else if (!right && cx < 0) { moveLeft(); }
+        } else if (cx > threshold) { moveRight(); }
+        else if (cx < -threshold) { moveLeft(); }
+      }
+
+      var to = current.x * -1;
+
+      var t = Math.min(Math.max(MAX_INTERVAL * Math.abs(to - x) / width, FAST_INTERVAL), MAX_PART);
+      animate(main, x, to, fast ? FAST_INTERVAL : t);
+    }
+
+    function animate (elm, from, to, interval, onAnimation, callback) {
+      var start = Date.now();
+      function loop () {
+        // console.log(elm.parentElement.id)
+        isFunction(onAnimation) && onAnimation();
+        var now = Date.now();
+        var during = now - start;
+        if (during >= interval) {
+          // moveX(elm, to)
+          moveEx(elm, to);
+          phase !== 16 && isFunction(callback) && callback();
+          return isFunction(onEnd) && onEnd(current.index, main)
+        }
+        var distance = (to - from) * easing[ease](during / interval) + from;
+        x = distance;
+        // moveX(elm, distance)
+        moveEx(elm, distance);
+        animations.main = raf(loop);
+      }
+      loop();
+    }
+
+    function init () {
+      if (elms.length === 0) { return }
+      if (!expose) { root.style.overflow = 'hidden'; }
+      root.style.position = 'relative';
+      if (!css) {
+        root.style.width = width + 'px';
+        root.style.height = height + 'px';
+      }
+      if (elms.length === 2 && cycle) {
+        elms.push(elms[0].cloneNode(true));
+        show(elms[2]);
+        elms.push(elms[1].cloneNode(true));
+        show(elms[3]);
+      }
+      var one = elms.length === 1;
+      two = elms.length === 2;
+      slides = new LinkList(elms);
+      moveEx(current, 0);
+      one || two || moveEx(current.prev, -width);
+      one || moveEx(current.next, width);
+      elms.forEach(function (el) {
+        el.style.position = 'absolute';
+        if (!css) {
+          el.style.width = width + 'px';
+          el.style.height = height + 'px';
+        }
+        el.style.overflow = 'hidden';
+        if (!two && !one && el !== current && el !== current.prev && el !== current.next) { hide(el); }
+      });
+
+      if (one) { return }
+
+      if (!two && !cycle && index === 0) { hide(current.prev); }
+      if (!two && !cycle && index === elms.length - 1) { hide(current.next); }
+
+      destroy();
+      on(root, pointerdown, onTouchStart);
+      on(root, pointermove, onTouchMove);
+      on(root, pointerup, onTouchEnd);
+
+      auto && raf(function () {
+        opts.unobserve = observe(root, function (entries) {
+          if (entries && entries[0].intersectionRatio === 0) { clearAuto(phase = 16); }
+          else { autoCallback(); }
+        });
+      });
+
+      main.x = 0;
+      onInit(current, main);
+    }
+
+    function destroy () {
+      clearAnimations();
+      isFunction(opts.unobserve) && opts.unobserve();
+      off(root, pointerdown, onTouchStart);
+      off(root, pointermove, onTouchMove);
+      off(root, pointerup, onTouchEnd);
+    }
+  }
+
+  return swipeIt;
+
+})));

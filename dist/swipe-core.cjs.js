@@ -93,6 +93,7 @@ var MAX_INTERVAL = 1000;
 var MAX_PART = MAX_INTERVAL * 2 / 3;
 var AUTO_TIMEOUT = 3000;
 
+var empty = function (_) {};
 var defaultOptions = {
   auto: false,
   cycle: true,
@@ -104,8 +105,10 @@ var defaultOptions = {
   height: 200,
   css: false,
   ease: 'cubic',
-  onStart: function (_) {},
-  onMove: function (_) {}
+  onInit: empty,
+  onStart: empty,
+  onMove: empty,
+  onEnd: empty
 };
 
 var hides = document.createElement('div');
@@ -129,6 +132,7 @@ function swipeIt (options) {
   var ease = opts.ease;
   var onMove = opts.onMove;
   var onStart = opts.onStart;
+  var onInit = opts.onInit;
 
   if (!root) { return }
 
@@ -348,6 +352,9 @@ function swipeIt (options) {
         else { autoCallback(); }
       });
     });
+
+    main.x = 0;
+    onInit(current, main);
   }
 
   function destroy () {

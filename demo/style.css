@@ -6,17 +6,17 @@ body {
 }
 
 .box {
-  padding: 0 30px;
+  padding: 0 31.5px;
   height: 200px;
   overflow: hidden;
 }
 
 #expose, #two {
-  margin-left: 30px;
+  margin-left: -1.5px;
 }
 
 .swipe-core-wh {
-  width: 315px;
+  width: 378px;
   height: 200px;
 }
 
