@@ -26,7 +26,7 @@ window['swipe-core']({
   css: true,
   index: 3,
   // cycle: false,
-  auto: true,
+  // auto: true,
   onEnd: (index, current, main, all) => {
     console.log(index)
   },
