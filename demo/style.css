@@ -3,11 +3,22 @@ img {width: 100%;}
 
 body {
   overflow-x: hidden;
+  background: #eed;
 }
 
-.box {
+.series-item {
   padding: 0 32px;
+}
+
+.item-box {
+  width: 320px;
+  height: 160px;
   overflow: hidden;
+  filter: drop-shadow(0px 0px 3px rgba(0, 0, 0));
+  /* box-shadow: 5px 5px 5px -5px #000,-5px 5px 5px -5px #000; */
+  /* box-shadow: 5px 5px 5px -5px #000; */
+  /* box-shadow: 0 1px 4px rgba(0, 0, 0, 0.27), 0 0 40px rgba(0, 0, 0, 0.06) inset; */
+  /* box-shadow: 0 1px 4px rgba(0, 0, 0) inset; */
 }
 
 #expose, #two {
@@ -24,3 +35,42 @@ body {
   -webkit-perspective-origin-y: 100px;
   /* perspective-origin: 10px; */
 }
+
+/* .curved_box {
+    display: inline-block;
+    *display: inline;
+    background-color: #fff;
+    border: 1px solid #eee;
+    -webkit-box-shadow: 0 1px 4px rgba(0, 0, 0, 0.27), 0 0 60px rgba(0, 0, 0, 0.06) inset;
+    -moz-box-shadow: 0 1px 4px rgba(0, 0, 0, 0.27), 0 0 40px rgba(0, 0, 0, 0.06) inset;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.27), 0 0 40px rgba(0, 0, 0, 0.06) inset;
+    position: relative;
+    *zoom: 1;
+}
+
+.curved_box:before {
+    -webkit-transform: skew(-15deg) rotate(-6deg);
+    -moz-transform: skew(-15deg) rotate(-6deg);
+    transform: skew(-15deg) rotate(-6deg);
+    left: 15px;
+}
+.curved_box:after {
+    -webkit-transform: skew(15deg) rotate(6deg);
+    -moz-transform: skew(15deg) rotate(6deg);
+    transform: skew(15deg) rotate(6deg);
+    right: 15px;
+}
+
+.curved_box:before, .curved_box:after {
+    width: 70%;
+    height: 55%;
+    content: ' ';
+
+    -webkit-box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+    -moz-box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+
+    position: absolute;
+    bottom: 10px;
+    z-index: -1;
+} */

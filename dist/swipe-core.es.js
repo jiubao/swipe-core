@@ -337,7 +337,7 @@ function swipeIt (options) {
 
   function init () {
     if (elms.length === 0) { return }
-    if (!expose) { root.style.overflow = 'hidden'; }
+    // if (!expose) root.style.overflow = 'hidden'
     root.style.position = 'relative';
     if (!css) {
       root.style.width = width + 'px';
@@ -362,7 +362,7 @@ function swipeIt (options) {
         el.style.width = width + 'px';
         el.style.height = height + 'px';
       }
-      el.style.overflow = 'hidden';
+      // el.style.overflow = 'hidden'
       if (!two && !one && el !== current && el !== current.prev && el !== current.next) { hide(el); }
     });
 
