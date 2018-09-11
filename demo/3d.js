@@ -27,13 +27,13 @@ window['swipe-core']({
   index: 3,
   // cycle: false,
   auto: true,
-  onEnd: (index, main) => {
+  onEnd: (index, current, main, all) => {
     console.log(index)
   },
-  onInit: (current, main) => {
+  onInit: (index, current, main, all) => {
     setZ(current, main)
   },
-  onMove: (current, main, all) => {
+  onMove: (index, current, main, all) => {
     setZ(current, main)
   }
 })

@@ -36,7 +36,7 @@ function swipeIt (options) {
     ...options
   }
 
-  var {index, root, elms, width, height, cycle, expose, auto, css, onEnd, ease, onMove, onStart, onInit, onEndAnimation} = opts
+  var {index, root, elms, width, height, cycle, expose, auto, css, ease, onInit, onStart, onMove, onEnd, onEndAnimation} = opts
 
   if (!root) return
 
@@ -90,7 +90,7 @@ function swipeIt (options) {
     if (!el) return
     el.style.transition = el.style.webkitTransition = ''
     el.style.transform = el.style.webkitTransform = `translate3d(${x}px, 0, 0)`
-    onMove(current, main, elms)
+    onMove(current.index, current, main, elms)
   }
 
   function onTouchStart (evt) {
@@ -102,7 +102,7 @@ function swipeIt (options) {
     startTime = Date.now()
     restartX = currentX = startX = touch.pageX
     startY = touch.clientY
-    onStart(main)
+    onStart(current.index, current, main, elms)
   }
 
   function onTouchMove (evt) {
@@ -165,7 +165,7 @@ function swipeIt (options) {
       phase = 8
       animate(main, x, x - width, MAX_PART, onAutoAnimation, autoCallback)
       // animate(main, x, x - width, MAX_INTERVAL, onAutoAnimation, autoCallback)
-      onEnd(current.next.index, main)
+      onEnd(current.next.index, current.next, main, elms)
     }, AUTO_TIMEOUT)
   }
 
@@ -190,7 +190,7 @@ function swipeIt (options) {
     var t = Math.min(Math.max(MAX_INTERVAL * Math.abs(to - x) / width, FAST_INTERVAL), MAX_PART)
     animate(main, x, to, fast ? FAST_INTERVAL : t)
 
-    onEnd(current.index, main)
+    onEnd(current.index, current, main, elms)
   }
 
   function animate (elm, from, to, interval, onAnimation, callback) {
@@ -204,7 +204,7 @@ function swipeIt (options) {
         // moveX(elm, to)
         moveEx(elm, to)
         phase !== 16 && isFunction(callback) && callback()
-        return onEndAnimation(current.index, main)
+        return onEndAnimation(current.index, current, main, elms)
       }
       var distance = (to - from) * easing[ease](during / interval) + from
       x = distance
@@ -264,7 +264,7 @@ function swipeIt (options) {
     })
 
     main.x = 0
-    onInit(current, main)
+    onInit(current.index, current, main, elms)
   }
 
   function destroy () {

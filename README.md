@@ -110,7 +110,11 @@ simply support an onEnd method
 
 | Name | Description | Parameters |
 | ----- | :-: | :-: |
-| onEnd | called after animation | index |
+| onInit | initial | index, current, main, elms |
+| onStart | start move | index, current, main, elms |
+| onMove | moving | index, current, main, elms |
+| onEnd | after move & before animation | index, current, main, elms |
+| onEndAnimation | after animation | index, current, main, elms |
 
 ## Todos
 * ~~performance~~
