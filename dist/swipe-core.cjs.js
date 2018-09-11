@@ -92,8 +92,6 @@ var FAST_INTERVAL = 250;
 var MAX_INTERVAL = 1000;
 var MAX_PART = MAX_INTERVAL * 2 / 3;
 var AUTO_TIMEOUT = 3000;
-
-var empty = function (_) {};
 var defaultOptions = {
   auto: false,
   cycle: true,
@@ -105,11 +103,12 @@ var defaultOptions = {
   height: 200,
   css: false,
   ease: 'cubic',
-  onInit: empty,
-  onStart: empty,
-  onMove: empty,
-  onEnd: empty,
-  onEndAnimation: empty
+  // onInit: empty,
+  // onStart: empty,
+  // onMove: empty,
+  // onEnd: empty,
+  // onEndAnimation: empty,
+  plugins: []
 };
 
 var hides = document.createElement('div');
@@ -120,6 +119,7 @@ function swipeIt (options) {
   var opts = Object.assign({}, defaultOptions,
     options);
 
+  // var {index, root, elms, width, height, cycle, expose, auto, css, ease, onInit, onStart, onMove, onEnd, onEndAnimation, plugins} = opts
   var index = opts.index;
   var root = opts.root;
   var elms = opts.elms;
@@ -130,11 +130,37 @@ function swipeIt (options) {
   var auto = opts.auto;
   var css = opts.css;
   var ease = opts.ease;
-  var onInit = opts.onInit;
-  var onStart = opts.onStart;
-  var onMove = opts.onMove;
-  var onEnd = opts.onEnd;
-  var onEndAnimation = opts.onEndAnimation;
+  var plugins = opts.plugins;
+  var onInit = function () {
+    var args = [], len = arguments.length;
+    while ( len-- ) args[ len ] = arguments[ len ];
+
+    return plugins.forEach(function (p) { return isFunction(p.init) && p.init.apply(null, args); });
+  };
+  var onStart = function () {
+    var args = [], len = arguments.length;
+    while ( len-- ) args[ len ] = arguments[ len ];
+
+    return plugins.forEach(function (p) { return isFunction(p.start) && p.start.apply(null, args); });
+  };
+  var onMove = function () {
+    var args = [], len = arguments.length;
+    while ( len-- ) args[ len ] = arguments[ len ];
+
+    return plugins.forEach(function (p) { return isFunction(p.move) && p.move.apply(null, args); });
+  };
+  var onEnd = function () {
+    var args = [], len = arguments.length;
+    while ( len-- ) args[ len ] = arguments[ len ];
+
+    return plugins.forEach(function (p) { return isFunction(p.end) && p.end.apply(null, args); });
+  };
+  var onEndAnimation = function () {
+    var args = [], len = arguments.length;
+    while ( len-- ) args[ len ] = arguments[ len ];
+
+    return plugins.forEach(function (p) { return isFunction(p.endAnimation) && p.endAnimation.apply(null, args); });
+  };
 
   if (!root) { return }
 

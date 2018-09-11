@@ -19,11 +19,12 @@ var defaultOptions = {
   height: 200,
   css: false,
   ease: 'cubic',
-  onInit: empty,
-  onStart: empty,
-  onMove: empty,
-  onEnd: empty,
-  onEndAnimation: empty
+  // onInit: empty,
+  // onStart: empty,
+  // onMove: empty,
+  // onEnd: empty,
+  // onEndAnimation: empty,
+  plugins: []
 }
 
 var hides = document.createElement('div')
@@ -36,7 +37,13 @@ function swipeIt (options) {
     ...options
   }
 
-  var {index, root, elms, width, height, cycle, expose, auto, css, ease, onInit, onStart, onMove, onEnd, onEndAnimation} = opts
+  // var {index, root, elms, width, height, cycle, expose, auto, css, ease, onInit, onStart, onMove, onEnd, onEndAnimation, plugins} = opts
+  var {index, root, elms, width, height, cycle, expose, auto, css, ease, plugins} = opts
+  var onInit = (...args) => plugins.forEach(p => isFunction(p.init) && p.init.apply(null, args))
+  var onStart = (...args) => plugins.forEach(p => isFunction(p.start) && p.start.apply(null, args))
+  var onMove = (...args) => plugins.forEach(p => isFunction(p.move) && p.move.apply(null, args))
+  var onEnd = (...args) => plugins.forEach(p => isFunction(p.end) && p.end.apply(null, args))
+  var onEndAnimation = (...args) => plugins.forEach(p => isFunction(p.endAnimation) && p.endAnimation.apply(null, args))
 
   if (!root) return
 
