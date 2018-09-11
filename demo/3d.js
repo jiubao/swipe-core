@@ -34,6 +34,33 @@ function swipeCoreTreedPlugin (options) {
 }
 // var plugins = [swipeCoreTreedPlugin()]
 
+function transparentPlugin (width) {
+  let threshold = 0.5
+  const opacity = (el, val) => el.style.opacity = val
+  const setTwo = (current, val) => {
+    if (current.next !== current) opacity(current.next, val)
+    if (current.prev !== current) opacity(current.prev, val)
+  }
+  const reset = current => {
+    opacity(current, 1)
+    setTwo(current, threshold)
+  }
+
+  return {
+    init: (_, current) => {
+      reset(current)
+    },
+    move: (_, current, main) => {
+      var gap = Math.abs(main.x + current.x)
+      opacity(current, 1 - (1 - threshold) * gap / width)
+      setTwo(current, threshold + (1 - threshold) * gap / width)
+    },
+    endAnimation: (_, current) => {
+      reset(current)
+    }
+  }
+}
+
 
 var expose = document.getElementById('expose')
 
@@ -47,7 +74,7 @@ window['swipe-core']({
   expose: true,
   css: true,
   index: 3,
-  plugins: [swipeCoreTreedPlugin()]
+  plugins: [swipeCoreTreedPlugin(), transparentPlugin(384)]
   // cycle: false,
   // auto: true,
   // onEnd: (index, current, main, all) => {
