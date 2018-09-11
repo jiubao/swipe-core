@@ -165,6 +165,7 @@ function swipeIt (options) {
       phase = 8
       animate(main, x, x - width, MAX_PART, onAutoAnimation, autoCallback)
       // animate(main, x, x - width, MAX_INTERVAL, onAutoAnimation, autoCallback)
+      onEnd(current.next.index, main)
     }, AUTO_TIMEOUT)
   }
 
@@ -222,7 +223,8 @@ function swipeIt (options) {
       root.style.width = width + 'px'
       root.style.height = height + 'px'
     }
-    if (elms.length === 2 && cycle) {
+    var needClone = elms.length === 2 && cycle
+    if (needClone) {
       elms.push(elms[0].cloneNode(true))
       show(elms[2])
       elms.push(elms[1].cloneNode(true))
@@ -230,7 +232,7 @@ function swipeIt (options) {
     }
     var one = elms.length === 1
     two = elms.length === 2
-    slides = new LinkList(elms)
+    slides = new LinkList(elms, needClone ? '0101' : null)
     moveEx(current, 0)
     one || two || moveEx(current.prev, -width)
     one || moveEx(current.next, width)

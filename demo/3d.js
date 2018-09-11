@@ -14,7 +14,7 @@ function setZ (current, main) {
     c = cs[i]
     var x = c.x
     if (c !== current) {
-      c.style.transform = `translate3d(${x}px, 0px, -${144 - gap / 3}px)`
+      c.style.transform = `translate3d(${x}px, 0px, -${140 - gap / 3}px)`
     }
   }
 }
@@ -24,7 +24,9 @@ window['swipe-core']({
   elms: Array.prototype.slice.apply(expose.children[0].children),
   expose: true,
   css: true,
-  // auto: true
+  index: 3,
+  // cycle: false,
+  auto: true,
   onEnd: (index, main) => {
     console.log(index)
   },

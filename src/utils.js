@@ -17,11 +17,11 @@ function newNode (item) {
   return item.next = item.prev = item
 }
 
-function LinkList (arr) {
+function LinkList (arr, indexes) {
   this.list = []
   // arr.forEach(item => this.append(item))
   arr.forEach((item, index) => {
-    item.index = index
+    item.index = indexes ? indexes[index] : index
     this.append(item)
   })
 }

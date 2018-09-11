@@ -19,13 +19,13 @@ function newNode (item) {
   return item.next = item.prev = item
 }
 
-function LinkList (arr) {
+function LinkList (arr, indexes) {
   var this$1 = this;
 
   this.list = [];
   // arr.forEach(item => this.append(item))
   arr.forEach(function (item, index) {
-    item.index = index;
+    item.index = indexes ? indexes[index] : index;
     this$1.append(item);
   });
 }
@@ -108,7 +108,8 @@ var defaultOptions = {
   onInit: empty,
   onStart: empty,
   onMove: empty,
-  onEnd: empty
+  onEnd: empty,
+  onEndAnimation: empty
 };
 
 var hides = document.createElement('div');
@@ -133,6 +134,7 @@ function swipeIt (options) {
   var onMove = opts.onMove;
   var onStart = opts.onStart;
   var onInit = opts.onInit;
+  var onEndAnimation = opts.onEndAnimation;
 
   if (!root) { return }
 
@@ -259,6 +261,7 @@ function swipeIt (options) {
       phase = 8;
       animate(main, x, x - width, MAX_PART, onAutoAnimation, autoCallback);
       // animate(main, x, x - width, MAX_INTERVAL, onAutoAnimation, autoCallback)
+      onEnd(current.next.index, main);
     }, AUTO_TIMEOUT);
   }
 
@@ -282,6 +285,8 @@ function swipeIt (options) {
 
     var t = Math.min(Math.max(MAX_INTERVAL * Math.abs(to - x) / width, FAST_INTERVAL), MAX_PART);
     animate(main, x, to, fast ? FAST_INTERVAL : t);
+
+    onEnd(current.index, main);
   }
 
   function animate (elm, from, to, interval, onAnimation, callback) {
@@ -295,7 +300,7 @@ function swipeIt (options) {
         // moveX(elm, to)
         moveEx(elm, to);
         phase !== 16 && isFunction(callback) && callback();
-        return isFunction(onEnd) && onEnd(current.index, main)
+        return onEndAnimation(current.index, main)
       }
       var distance = (to - from) * easing[ease](during / interval) + from;
       x = distance;
@@ -314,7 +319,8 @@ function swipeIt (options) {
       root.style.width = width + 'px';
       root.style.height = height + 'px';
     }
-    if (elms.length === 2 && cycle) {
+    var needClone = elms.length === 2 && cycle;
+    if (needClone) {
       elms.push(elms[0].cloneNode(true));
       show(elms[2]);
       elms.push(elms[1].cloneNode(true));
@@ -322,7 +328,7 @@ function swipeIt (options) {
     }
     var one = elms.length === 1;
     two = elms.length === 2;
-    slides = new LinkList(elms);
+    slides = new LinkList(elms, needClone ? '0101' : null);
     moveEx(current, 0);
     one || two || moveEx(current.prev, -width);
     one || moveEx(current.next, width);
