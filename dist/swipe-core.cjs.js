@@ -25,7 +25,7 @@ function LinkList (arr, indexes) {
   this.list = [];
   // arr.forEach(item => this.append(item))
   arr.forEach(function (item, index) {
-    item.index = indexes ? indexes[index] : index;
+    item.index = Number(indexes ? indexes[index] : index);
     this$1.append(item);
   });
 }

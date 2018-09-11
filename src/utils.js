@@ -21,7 +21,7 @@ function LinkList (arr, indexes) {
   this.list = []
   // arr.forEach(item => this.append(item))
   arr.forEach((item, index) => {
-    item.index = indexes ? indexes[index] : index
+    item.index = Number(indexes ? indexes[index] : index)
     this.append(item)
   })
 }
