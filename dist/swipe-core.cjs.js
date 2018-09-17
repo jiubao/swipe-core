@@ -338,7 +338,7 @@ function swipeIt (options) {
   }
 
   function init () {
-    if (elms.length === 0) { return }
+    if (elms.length === 0) { return onInit(-1) }
     // if (!expose) root.style.overflow = 'hidden'
     root.style.position = 'relative';
     if (!css) {
@@ -368,7 +368,7 @@ function swipeIt (options) {
       if (!two && !one && el !== current && el !== current.prev && el !== current.next) { hide(el); }
     });
 
-    if (one) { return }
+    if (one) { return onInit(current.index, current, main, elms) }
 
     if (!two && !cycle && index === 0) { hide(current.prev); }
     if (!two && !cycle && index === elms.length - 1) { hide(current.next); }
