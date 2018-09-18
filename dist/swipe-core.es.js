@@ -57,6 +57,41 @@ if (!raf || !caf) {
 // window.raf = raf
 // window.caf = caf
 
+function requestFrame (fn) {
+  var ticking = false;
+  return function () {
+    if (!ticking) {
+      raf(function () {
+        console.log('...');
+        fn();
+        ticking = false;
+      });
+      ticking = true;
+    }
+  }
+}
+
+function supportPassive () {
+  var passive = false;
+
+  function noop () {}
+
+  var options = Object.defineProperty({}, 'passive', {
+    get: function get () { passive = true; }
+  });
+
+  // https://github.com/rafrex/detect-passive-events
+  window.addEventListener('testPassive', noop, options);
+  window.removeEventListener('testPassive', noop, options);
+  return passive
+}
+
+function inViewport (item) {
+  var rect = item.getBoundingClientRect();
+  return (rect.top < window.innerHeight && rect.bottom > 0) &&
+    (rect.left < window.innerWidth && rect.right > 0)
+}
+
 var easing = {
   cubic: function (k) { return --k * k * k + 1; },
   // quart: k => 1 - Math.pow(1 - k, 4), // 1 - --k * k * k * k,
@@ -78,8 +113,10 @@ var computedProp = function (el, prop) { return window.getComputedStyle(el, null
 
 var options = { root: null, rootMargin: '0px', threshold: [0, 0.01] };
 
+var observable = !!window.IntersectionObserver;
+
 function observe (el, fn) {
-  if (!window.IntersectionObserver) { return fn() }
+  if (observable) { return fn() }
   var observer = new IntersectionObserver (fn, options);
   observer.observe(el);
   return function () { observer.unobserve(el); }
@@ -90,6 +127,9 @@ var FAST_INTERVAL = 250;
 var MAX_INTERVAL = 1000;
 var MAX_PART = MAX_INTERVAL * 2 / 3;
 var AUTO_TIMEOUT = 3000;
+
+var passive = supportPassive();
+var events = 'scroll,resize,touchmove';
 var defaultOptions = {
   auto: false,
   cycle: true,
@@ -101,6 +141,7 @@ var defaultOptions = {
   height: 200,
   css: false,
   ease: 'cubic',
+  stop: true,
   // onInit: empty,
   // onStart: empty,
   // onMove: empty,
@@ -129,6 +170,7 @@ function swipeIt (options) {
   var css = opts.css;
   var ease = opts.ease;
   var plugins = opts.plugins;
+  var stop = opts.stop;
   var onInit = function () {
     var args = [], len = arguments.length;
     while ( len-- ) args[ len ] = arguments[ len ];
@@ -197,8 +239,10 @@ function swipeIt (options) {
   var stopL = function (_) { return !cycle && currentX <= startX && current === slides.tail; };
 
   var clearAuto = function (_) { return clearTimeout(animations.auto); };
-  var clearMain = function (_) { return caf(animations.main); };
-  var clearAnimations = function (_) {clearAuto(); clearMain();};
+  // remove clearmain to finish each animation, try to fix stop on middle issue
+  // var clearMain = _ => caf(animations.main)
+  // var clearAnimations = _ => {clearAuto(); clearMain();}
+  var clearAnimations = function (_) { return clearAuto(); };
 
   init();
 
@@ -376,12 +420,22 @@ function swipeIt (options) {
     on(root, pointermove, onTouchMove);
     on(root, pointerup, onTouchEnd);
 
-    auto && raf(function () {
-      opts.unobserve = observe(root, function (entries) {
-        if (entries && entries[0].intersectionRatio === 0) { clearAuto(phase = 16); }
-        else { autoCallback(); }
-      });
-    });
+    // stop auto swipe when out of screen
+    if (auto && stop) {
+      if (observable) {
+        raf(function () {
+          opts.unobserve = observe(root, function (entries) {
+            if (entries && entries[0].intersectionRatio === 0) { clearAuto(phase = 16); }
+            else { autoCallback(); }
+          });
+        });
+      } else {
+        var evtOpt = passive ? {capture: true, passive: true} : true;
+        var toggleSwiper = function () { return inViewport(root) ? autoCallback() : clearAuto(phase = 16); };
+        events.split(',').forEach(function (evt) { return window.addEventListener(evt, requestFrame(toggleSwiper), evtOpt); });
+        toggleSwiper();
+      }
+    }
 
     main.x = 0;
     onInit(current.index, current, main, elms);

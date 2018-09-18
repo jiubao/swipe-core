@@ -11,6 +11,9 @@ Designed for mobile: compact, smooth and efficient
 * cubic bezier to simulate ease out
 * always move one element which contain current 3 slides
 * a compact link node implementation to loop slides
+* stop swipe when out of screen
+  - android: IntersectionObserver
+  - ios: throttle(requestAnimationFrame)
 
 ## Install
 ```sh
@@ -136,7 +139,7 @@ simply support an onEnd method
 * ~~vendor prefix for transition/transform/translate3d~~
 * ~~current index interface~~
 * ~~css width height~~
-* ~~stop auto swipe when out of screen~~
+* ~~stop auto swipe when out of screen (android & ios)~~
 * ~~onEnd~~
 * ~~onStart | onMove | onEnd~~
 * dynamic slides

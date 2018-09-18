@@ -1,11 +1,14 @@
-import {on, off, LinkList, raf, caf, easing, isFunction, pointerdown, pointermove, pointerup, computedProp} from './utils'
-import observe from './intersect'
+import {on, off, LinkList, raf, caf, easing, isFunction, pointerdown, pointermove, pointerup, computedProp, supportPassive, requestFrame, inViewport} from './utils'
+import observe, {observable} from './intersect'
 
 const FAST_THRESHOLD = 120
 const FAST_INTERVAL = 250
 const MAX_INTERVAL = 1000
 const MAX_PART = MAX_INTERVAL * 2 / 3
 const AUTO_TIMEOUT = 3000
+
+var passive = supportPassive()
+var events = 'scroll,resize,touchmove'
 
 const empty = _ => {}
 var defaultOptions = {
@@ -19,6 +22,7 @@ var defaultOptions = {
   height: 200,
   css: false,
   ease: 'cubic',
+  stop: true,
   // onInit: empty,
   // onStart: empty,
   // onMove: empty,
@@ -38,7 +42,7 @@ function swipeIt (options) {
   }
 
   // var {index, root, elms, width, height, cycle, expose, auto, css, ease, onInit, onStart, onMove, onEnd, onEndAnimation, plugins} = opts
-  var {index, root, elms, width, height, cycle, expose, auto, css, ease, plugins} = opts
+  var {index, root, elms, width, height, cycle, expose, auto, css, ease, plugins, stop} = opts
   var onInit = (...args) => plugins.forEach(p => isFunction(p.init) && p.init.apply(null, args))
   var onStart = (...args) => plugins.forEach(p => isFunction(p.start) && p.start.apply(null, args))
   var onMove = (...args) => plugins.forEach(p => isFunction(p.move) && p.move.apply(null, args))
@@ -84,8 +88,10 @@ function swipeIt (options) {
   const stopL = _ => !cycle && currentX <= startX && current === slides.tail
 
   var clearAuto = _ => clearTimeout(animations.auto)
-  var clearMain = _ => caf(animations.main)
-  var clearAnimations = _ => {clearAuto(); clearMain();}
+  // remove clearmain to finish each animation, try to fix stop on middle issue
+  // var clearMain = _ => caf(animations.main)
+  // var clearAnimations = _ => {clearAuto(); clearMain();}
+  var clearAnimations = _ => clearAuto()
 
   init()
 
@@ -263,12 +269,22 @@ function swipeIt (options) {
     on(root, pointermove, onTouchMove)
     on(root, pointerup, onTouchEnd)
 
-    auto && raf(() => {
-      opts.unobserve = observe(root, function (entries) {
-        if (entries && entries[0].intersectionRatio === 0) clearAuto(phase = 16);
-        else autoCallback();
-      })
-    })
+    // stop auto swipe when out of screen
+    if (auto && stop) {
+      if (observable) {
+        raf(() => {
+          opts.unobserve = observe(root, function (entries) {
+            if (entries && entries[0].intersectionRatio === 0) clearAuto(phase = 16);
+            else autoCallback();
+          })
+        })
+      } else {
+        var evtOpt = passive ? {capture: true, passive: true} : true
+        var toggleSwiper = () => inViewport(root) ? autoCallback() : clearAuto(phase = 16)
+        events.split(',').forEach(evt => window.addEventListener(evt, requestFrame(toggleSwiper), evtOpt))
+        toggleSwiper()
+      }
+    }
 
     main.x = 0
     onInit(current.index, current, main, elms)

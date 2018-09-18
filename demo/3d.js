@@ -68,13 +68,27 @@ var screenWidth = window.screen.width
 
 // const perspectiveX = x => document.documentElement.clientWidth * x / 750
 
+// alert('sf')
+
+var screen = document.getElementById('screen')
+// screen.innerHTML = '32sdfsdf'
+var g = window.g = s => {
+  screen.innerHTML += '.' + s
+}
+
+// alert(screen)
+g('ss')
+
 window['swipe-core']({
   root: expose,
   elms: Array.prototype.slice.apply(expose.children[0].children),
   expose: true,
   css: true,
+  auto: true,
   index: 3,
-  plugins: [swipeCoreTreedPlugin(), transparentPlugin(384)]
+  plugins: [swipeCoreTreedPlugin(), transparentPlugin(384), {
+    end: () => g('o.')
+  }],
   // cycle: false,
   // auto: true,
   // onEnd: (index, current, main, all) => {

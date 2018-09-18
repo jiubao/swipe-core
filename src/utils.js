@@ -55,6 +55,41 @@ if (!raf || !caf) {
 // window.raf = raf
 // window.caf = caf
 
+export function requestFrame (fn) {
+  var ticking = false
+  return () => {
+    if (!ticking) {
+      raf(() => {
+        console.log('...')
+        fn()
+        ticking = false
+      })
+      ticking = true
+    }
+  }
+}
+
+export function supportPassive () {
+  var passive = false
+
+  function noop () {}
+
+  const options = Object.defineProperty({}, 'passive', {
+    get () { passive = true }
+  })
+
+  // https://github.com/rafrex/detect-passive-events
+  window.addEventListener('testPassive', noop, options)
+  window.removeEventListener('testPassive', noop, options)
+  return passive
+}
+
+export function inViewport (item) {
+  var rect = item.getBoundingClientRect()
+  return (rect.top < window.innerHeight && rect.bottom > 0) &&
+    (rect.left < window.innerWidth && rect.right > 0)
+}
+
 export var easing = {
   cubic: k => --k * k * k + 1,
   // quart: k => 1 - Math.pow(1 - k, 4), // 1 - --k * k * k * k,
