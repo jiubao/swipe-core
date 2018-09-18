@@ -60,7 +60,6 @@ export function requestFrame (fn) {
   return () => {
     if (!ticking) {
       raf(() => {
-        console.log('...')
         fn()
         ticking = false
       })

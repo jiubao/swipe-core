@@ -68,7 +68,6 @@
     return function () {
       if (!ticking) {
         raf(function () {
-          console.log('...');
           fn();
           ticking = false;
         });
@@ -122,7 +121,7 @@
   var observable = !!window.IntersectionObserver;
 
   function observe (el, fn) {
-    if (observable) { return fn() }
+    if (!observable) { return fn() }
     var observer = new IntersectionObserver (fn, options);
     observer.observe(el);
     return function () { observer.unobserve(el); }

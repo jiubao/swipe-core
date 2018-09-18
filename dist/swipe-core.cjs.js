@@ -64,7 +64,6 @@ function requestFrame (fn) {
   return function () {
     if (!ticking) {
       raf(function () {
-        console.log('...');
         fn();
         ticking = false;
       });
@@ -118,7 +117,7 @@ var options = { root: null, rootMargin: '0px', threshold: [0, 0.01] };
 var observable = !!window.IntersectionObserver;
 
 function observe (el, fn) {
-  if (observable) { return fn() }
+  if (!observable) { return fn() }
   var observer = new IntersectionObserver (fn, options);
   observer.observe(el);
   return function () { observer.unobserve(el); }
