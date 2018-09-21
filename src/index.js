@@ -22,7 +22,6 @@ var defaultOptions = {
   height: 200,
   css: false,
   ease: 'cubic',
-  stop: true,
   // onInit: empty,
   // onStart: empty,
   // onMove: empty,
@@ -42,7 +41,7 @@ function swipeIt (options) {
   }
 
   // var {index, root, elms, width, height, cycle, expose, auto, css, ease, onInit, onStart, onMove, onEnd, onEndAnimation, plugins} = opts
-  var {index, root, elms, width, height, cycle, expose, auto, css, ease, plugins, stop} = opts
+  var {index, root, elms, width, height, cycle, expose, auto, css, ease, plugins} = opts
   var onInit = (...args) => plugins.forEach(p => isFunction(p.init) && p.init.apply(null, args))
   var onStart = (...args) => plugins.forEach(p => isFunction(p.start) && p.start.apply(null, args))
   var onMove = (...args) => plugins.forEach(p => isFunction(p.move) && p.move.apply(null, args))
@@ -88,10 +87,8 @@ function swipeIt (options) {
   const stopL = _ => !cycle && currentX <= startX && current === slides.tail
 
   var clearAuto = _ => clearTimeout(animations.auto)
-  // remove clearmain to finish each animation, try to fix stop on middle issue
-  // var clearMain = _ => caf(animations.main)
-  // var clearAnimations = _ => {clearAuto(); clearMain();}
-  var clearAnimations = _ => clearAuto()
+  var clearMain = _ => caf(animations.main)
+  var clearAnimations = _ => {clearAuto(); clearMain();}
 
   init()
 
@@ -171,19 +168,20 @@ function swipeIt (options) {
     }
   }
 
-  function autoCallback () {
+  function autoCallback (usex) {
     clearAuto()
     animations.auto = setTimeout(() => {
       autoPhase = 0
       phase = 8
-      animate(main, x, x - width, MAX_PART, onAutoAnimation, autoCallback)
+      var from = usex ? x : -current.x
+      animate(main, from, from - width, MAX_PART, onAutoAnimation, autoCallback)
       // animate(main, x, x - width, MAX_INTERVAL, onAutoAnimation, autoCallback)
       onEnd(current.next.index, current.next, main, elms)
     }, AUTO_TIMEOUT)
   }
 
   function onTouchEnd (evt) {
-    auto && autoCallback()
+    // auto && autoCallback()
     if (phase === 4) return
     phase = 2
     var right = currentX > restartX
@@ -201,7 +199,8 @@ function swipeIt (options) {
     var to = current.x * -1
 
     var t = Math.min(Math.max(MAX_INTERVAL * Math.abs(to - x) / width, FAST_INTERVAL), MAX_PART)
-    animate(main, x, to, fast ? FAST_INTERVAL : t)
+    animate(main, x, to, fast ? FAST_INTERVAL : t, null, auto ? () => autoCallback(true) : null)
+    // animate(main, x, to, fast ? FAST_INTERVAL : t)
 
     onEnd(current.index, current, main, elms)
   }
@@ -270,7 +269,7 @@ function swipeIt (options) {
     on(root, pointerup, onTouchEnd)
 
     // stop auto swipe when out of screen
-    if (auto && stop) {
+    if (auto) {
       if (observable) {
         raf(() => {
           opts.unobserve = observe(root, function (entries) {

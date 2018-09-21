@@ -75,9 +75,15 @@ var screen = document.getElementById('screen')
 var g = window.g = s => {
   screen.innerHTML += '.' + s
 }
+var g2 = window.g2 = s => {
+  screen.innerHTML = s
+}
 
 // alert(screen)
 g('ss')
+
+var endIndex = 0
+var startIndex = 0
 
 window['swipe-core']({
   root: expose,
@@ -86,9 +92,7 @@ window['swipe-core']({
   css: true,
   auto: true,
   index: 3,
-  plugins: [swipeCoreTreedPlugin(), transparentPlugin(384), {
-    end: () => g('o.')
-  }],
+  plugins: [swipeCoreTreedPlugin(), transparentPlugin(384), {end: () => g2(startIndex + ' | ' + endIndex++), start: () => g2(startIndex++ + ' | ' + endIndex)}],
   // cycle: false,
   // auto: true,
   // onEnd: (index, current, main, all) => {
