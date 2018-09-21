@@ -173,8 +173,7 @@ function swipeIt (options) {
     animations.auto = setTimeout(() => {
       autoPhase = 0
       phase = 8
-      var from = usex ? x : -current.x
-      animate(main, from, from - width, MAX_PART, onAutoAnimation, autoCallback)
+      animate(main, x, (usex ? x : -current.x) - width, MAX_PART, onAutoAnimation, autoCallback)
       // animate(main, x, x - width, MAX_INTERVAL, onAutoAnimation, autoCallback)
       onEnd(current.next.index, current.next, main, elms)
     }, AUTO_TIMEOUT)
