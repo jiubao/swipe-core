@@ -323,15 +323,24 @@
       }
     }
 
-    function autoCallback (usex) {
+    function autoSwipePostpone () {
       clearAuto();
       animations.auto = setTimeout(function () {
-        autoPhase = 0;
-        phase = 8;
-        animate(main, x, (usex ? x : -current.x) - width, MAX_PART, onAutoAnimation, autoCallback);
-        // animate(main, x, x - width, MAX_INTERVAL, onAutoAnimation, autoCallback)
-        onEnd(current.next.index, current.next, main, elms);
+        autoSwipeImmediate();
       }, AUTO_TIMEOUT);
+    }
+
+    function autoSwipeImmediate () {
+      autoPhase = 0;
+      phase = 8;
+      animate(main, x, -current.x - width, MAX_PART, onAutoAnimation, autoSwipePostpone);
+      // animate(main, x, x - width, MAX_INTERVAL, onAutoAnimation, autoCallback)
+      onEnd(current.next.index, current.next, main, elms);
+    }
+
+    function autoSwipe(usex) {
+      if (Math.abs(x + current.x) > 3) { autoSwipeImmediate(); }
+      else { autoSwipePostpone(); }
     }
 
     function onTouchEnd (evt) {
@@ -353,7 +362,7 @@
       var to = current.x * -1;
 
       var t = Math.min(Math.max(MAX_INTERVAL * Math.abs(to - x) / width, FAST_INTERVAL), MAX_PART);
-      animate(main, x, to, fast ? FAST_INTERVAL : t, null, auto ? function () { return autoCallback(true); } : null);
+      animate(main, x, to, fast ? FAST_INTERVAL : t, null, auto ? function () { return autoSwipe(); } : null);
       // animate(main, x, to, fast ? FAST_INTERVAL : t)
 
       onEnd(current.index, current, main, elms);
@@ -428,12 +437,12 @@
           raf(function () {
             opts.unobserve = observe(root, function (entries) {
               if (entries && entries[0].intersectionRatio === 0) { clearAuto(phase = 16); }
-              else { autoCallback(); }
+              else { autoSwipe(); }
             });
           });
         } else {
           var evtOpt = passive ? {capture: true, passive: true} : true;
-          var toggleSwiper = function () { return inViewport(root) ? autoCallback() : clearAuto(phase = 16); };
+          var toggleSwiper = function () { return inViewport(root) ? autoSwipe() : clearAuto(phase = 16); };
           events.split(',').forEach(function (evt) { return window.addEventListener(evt, requestFrame(toggleSwiper), evtOpt); });
           toggleSwiper();
         }
