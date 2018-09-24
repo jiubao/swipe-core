@@ -1,13 +1,64 @@
-function on (element, evt, handler) {
+var on = function (element, evt, handler) {
   element.addEventListener(evt, handler, false);
-}
+};
 
-function off (element, evt, handler) {
+var off = function (element, evt, handler) {
   element.removeEventListener(evt, handler, false);
-}
+};
 
-function isFunction (value) {
+var isFunction = function (value) {
   return typeof value === 'function'
+};
+
+var inViewport = function (item) {
+  var rect = item.getBoundingClientRect();
+  return (rect.top < window.innerHeight && rect.bottom > 0) &&
+    (rect.left < window.innerWidth && rect.right > 0)
+};
+
+var easing = {
+  cubic: function (k) { return --k * k * k + 1; },
+  // quart: k => 1 - Math.pow(1 - k, 4), // 1 - --k * k * k * k,
+  // quint: k => 1 - Math.pow(1 - k, 5),
+  // expo: k => k === 1 ? 1 : 1 - Math.pow(2, -10 * k),
+  circ: function (k) { return Math.sqrt(1 - Math.pow(k - 1, 2)); }
+};
+
+// TODO: desktop support, mouse / pointer events
+// var touch = 'ontouchstart' in window
+// export var pointerdown = touch ? 'touchstart' : 'mousedown'
+// export var pointermove = touch ? 'touchmove' : 'mousemove'
+// export var pointerup = touch ? 'touchend' : 'mouseup'
+var pointerdown = 'touchstart';
+var pointermove = 'touchmove';
+var pointerup = 'touchend';
+
+var computedProp = function (el, prop) { return window.getComputedStyle(el, null).getPropertyValue(prop); };
+
+var options = { root: null, rootMargin: '0px', threshold: [0, 0.01] };
+
+var observable = !!window.IntersectionObserver;
+
+var observe = function (el, fn) {
+  if (!observable) { return fn() }
+  var observer = new IntersectionObserver (fn, options);
+  observer.observe(el);
+  return function () { observer.unobserve(el); }
+};
+
+function supportPassive (_) {
+  var passive = false;
+
+  function noop () {}
+
+  var options = Object.defineProperty({}, 'passive', {
+    get: function get () { passive = true; }
+  });
+
+  // https://github.com/rafrex/detect-passive-events
+  window.addEventListener('testPassive', noop, options);
+  window.removeEventListener('testPassive', noop, options);
+  return passive
 }
 
 function newNode (item) {
@@ -54,10 +105,8 @@ if (!raf || !caf) {
   };
   caf = clearTimeout;
 }
-// window.raf = raf
-// window.caf = caf
 
-function requestFrame (fn) {
+var requestFrame = function (fn) {
   var ticking = false;
   return function () {
     if (!ticking) {
@@ -68,58 +117,7 @@ function requestFrame (fn) {
       ticking = true;
     }
   }
-}
-
-function supportPassive () {
-  var passive = false;
-
-  function noop () {}
-
-  var options = Object.defineProperty({}, 'passive', {
-    get: function get () { passive = true; }
-  });
-
-  // https://github.com/rafrex/detect-passive-events
-  window.addEventListener('testPassive', noop, options);
-  window.removeEventListener('testPassive', noop, options);
-  return passive
-}
-
-function inViewport (item) {
-  var rect = item.getBoundingClientRect();
-  return (rect.top < window.innerHeight && rect.bottom > 0) &&
-    (rect.left < window.innerWidth && rect.right > 0)
-}
-
-var easing = {
-  cubic: function (k) { return --k * k * k + 1; },
-  // quart: k => 1 - Math.pow(1 - k, 4), // 1 - --k * k * k * k,
-  // quint: k => 1 - Math.pow(1 - k, 5),
-  // expo: k => k === 1 ? 1 : 1 - Math.pow(2, -10 * k),
-  circ: function (k) { return Math.sqrt(1 - Math.pow(k - 1, 2)); }
 };
-
-// TODO: desktop support, mouse / pointer events
-// var touch = 'ontouchstart' in window
-// export var pointerdown = touch ? 'touchstart' : 'mousedown'
-// export var pointermove = touch ? 'touchmove' : 'mousemove'
-// export var pointerup = touch ? 'touchend' : 'mouseup'
-var pointerdown = 'touchstart';
-var pointermove = 'touchmove';
-var pointerup = 'touchend';
-
-var computedProp = function (el, prop) { return window.getComputedStyle(el, null).getPropertyValue(prop); };
-
-var options = { root: null, rootMargin: '0px', threshold: [0, 0.01] };
-
-var observable = !!window.IntersectionObserver;
-
-function observe (el, fn) {
-  if (!observable) { return fn() }
-  var observer = new IntersectionObserver (fn, options);
-  observer.observe(el);
-  return function () { observer.unobserve(el); }
-}
 
 var FAST_THRESHOLD = 120;
 var FAST_INTERVAL = 250;
@@ -129,6 +127,7 @@ var AUTO_TIMEOUT = 3000;
 
 var passive = supportPassive();
 var events = 'scroll,resize,touchmove';
+
 var defaultOptions = {
   auto: false,
   cycle: true,
@@ -140,12 +139,12 @@ var defaultOptions = {
   height: 200,
   css: false,
   ease: 'cubic',
-  // onInit: empty,
-  // onStart: empty,
-  // onMove: empty,
-  // onEnd: empty,
-  // onEndAnimation: empty,
-  plugins: []
+  plugins: [],
+  initHandlers: [],
+  startHandlers: [],
+  moveHandlers: [],
+  endHandlers: [],
+  endAnimationHandlers: []
 };
 
 var hides = document.createElement('div');
@@ -156,7 +155,6 @@ function swipeIt (options) {
   var opts = Object.assign({}, defaultOptions,
     options);
 
-  // var {index, root, elms, width, height, cycle, expose, auto, css, ease, onInit, onStart, onMove, onEnd, onEndAnimation, plugins} = opts
   var index = opts.index;
   var root = opts.root;
   var elms = opts.elms;
@@ -168,36 +166,20 @@ function swipeIt (options) {
   var css = opts.css;
   var ease = opts.ease;
   var plugins = opts.plugins;
-  var onInit = function () {
+
+  plugins.forEach(function (p) { return Object.keys(p).forEach(function (action) { return opts[action + 'Handlers'].push(p[action]); }); });
+
+  var onFn = function (action) { return function () {
     var args = [], len = arguments.length;
     while ( len-- ) args[ len ] = arguments[ len ];
 
-    return plugins.forEach(function (p) { return isFunction(p.init) && p.init.apply(null, args); });
-  };
-  var onStart = function () {
-    var args = [], len = arguments.length;
-    while ( len-- ) args[ len ] = arguments[ len ];
-
-    return plugins.forEach(function (p) { return isFunction(p.start) && p.start.apply(null, args); });
-  };
-  var onMove = function () {
-    var args = [], len = arguments.length;
-    while ( len-- ) args[ len ] = arguments[ len ];
-
-    return plugins.forEach(function (p) { return isFunction(p.move) && p.move.apply(null, args); });
-  };
-  var onEnd = function () {
-    var args = [], len = arguments.length;
-    while ( len-- ) args[ len ] = arguments[ len ];
-
-    return plugins.forEach(function (p) { return isFunction(p.end) && p.end.apply(null, args); });
-  };
-  var onEndAnimation = function () {
-    var args = [], len = arguments.length;
-    while ( len-- ) args[ len ] = arguments[ len ];
-
-    return plugins.forEach(function (p) { return isFunction(p.endAnimation) && p.endAnimation.apply(null, args); });
-  };
+    return opts[action + 'Handlers'].forEach(function (f) { return f.apply(null, args); });
+ }    };
+  var onInit = onFn('init');
+  var onStart = onFn('start');
+  var onMove = onFn('move');
+  var onEnd = onFn('end');
+  var onEndAnimation = onFn('endAnimation');
 
   if (!root) { return }
 
@@ -242,7 +224,13 @@ function swipeIt (options) {
   init();
 
   return {
-    destroy: destroy, index: function (_) { return current.index; }
+    destroy: destroy,
+    index: function (_) { return current.index; },
+    on: function (evt, callback) {
+      var fns = opts[evt + 'Handlers'];
+      fns.push(callback);
+      return function () { return fns.splice(fns.indexOf(callback), 1); }
+    }
   }
 
   function moveX (el, x) {

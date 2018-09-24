@@ -1,5 +1,8 @@
-import {on, off, LinkList, raf, caf, easing, isFunction, pointerdown, pointermove, pointerup, computedProp, supportPassive, requestFrame, inViewport} from './utils'
+import {on, off, easing, isFunction, pointerdown, pointermove, pointerup, computedProp, inViewport} from './utils'
 import observe, {observable} from './intersect'
+import supportPassive from './passive'
+import LinkList from './link-list'
+import {raf, caf, requestFrame} from './raf'
 
 const FAST_THRESHOLD = 120
 const FAST_INTERVAL = 250
@@ -10,7 +13,6 @@ const AUTO_TIMEOUT = 3000
 var passive = supportPassive()
 var events = 'scroll,resize,touchmove'
 
-const empty = _ => {}
 var defaultOptions = {
   auto: false,
   cycle: true,
@@ -22,12 +24,12 @@ var defaultOptions = {
   height: 200,
   css: false,
   ease: 'cubic',
-  // onInit: empty,
-  // onStart: empty,
-  // onMove: empty,
-  // onEnd: empty,
-  // onEndAnimation: empty,
-  plugins: []
+  plugins: [],
+  initHandlers: [],
+  startHandlers: [],
+  moveHandlers: [],
+  endHandlers: [],
+  endAnimationHandlers: []
 }
 
 var hides = document.createElement('div')
@@ -40,13 +42,16 @@ function swipeIt (options) {
     ...options
   }
 
-  // var {index, root, elms, width, height, cycle, expose, auto, css, ease, onInit, onStart, onMove, onEnd, onEndAnimation, plugins} = opts
   var {index, root, elms, width, height, cycle, expose, auto, css, ease, plugins} = opts
-  var onInit = (...args) => plugins.forEach(p => isFunction(p.init) && p.init.apply(null, args))
-  var onStart = (...args) => plugins.forEach(p => isFunction(p.start) && p.start.apply(null, args))
-  var onMove = (...args) => plugins.forEach(p => isFunction(p.move) && p.move.apply(null, args))
-  var onEnd = (...args) => plugins.forEach(p => isFunction(p.end) && p.end.apply(null, args))
-  var onEndAnimation = (...args) => plugins.forEach(p => isFunction(p.endAnimation) && p.endAnimation.apply(null, args))
+
+  plugins.forEach(p => Object.keys(p).forEach(action => opts[action + 'Handlers'].push(p[action])))
+
+  var onFn = action => (...args) => opts[action + 'Handlers'].forEach(f => f.apply(null, args))
+  var onInit = onFn('init')
+  var onStart = onFn('start')
+  var onMove = onFn('move')
+  var onEnd = onFn('end')
+  var onEndAnimation = onFn('endAnimation')
 
   if (!root) return
 
@@ -93,7 +98,13 @@ function swipeIt (options) {
   init()
 
   return {
-    destroy, index: _ => current.index
+    destroy,
+    index: _ => current.index,
+    on: (evt, callback) => {
+      var fns = opts[evt + 'Handlers']
+      fns.push(callback)
+      return () => fns.splice(fns.indexOf(callback), 1)
+    }
   }
 
   function moveX (el, x) {

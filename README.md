@@ -1,5 +1,5 @@
 # swipe-core
-* 4.0k before gzipped
+* 5.0k before gzipped
 
 ## Demo
 https://jiubao.github.io/swipe-core/
@@ -101,23 +101,37 @@ swiper({
 | height | slide height | Number | 200 | |
 | css | use css to control w/h | Boolean | false | `true` `false` |
 | ease | easing | String | cubic | `circ` `cubic` |
+| plugins | plugins | Array | [] | |
 
 ## Methods
 | Name | Description | Parameters | Return |
 | ----- | :-: | :-: | :-: |
 | destroy | destroy swipe | | |
 | index | get current index | | current index |
+| on | add a event handler | event name, event handler | unregister function |
 
 ## Events
-simply support an onEnd method
 
 | Name | Description | Parameters |
 | ----- | :-: | :-: |
-| onInit | initial | index, current, main, elms |
-| onStart | start move | index, current, main, elms |
-| onMove | moving | index, current, main, elms |
-| onEnd | after move & before animation | index, current, main, elms |
-| onEndAnimation | after animation | index, current, main, elms |
+| init | initial | index, current, main, elms |
+| start | start move | index, current, main, elms |
+| move | moving | index, current, main, elms |
+| end | after move & before animation | index, current, main, elms |
+| endAnimation | after animation | index, current, main, elms |
+
+## Event handler arguments
+| Name | Description |
+| ----- | :-: |
+| index | current index |
+| current | current slide |
+| main | main dom element |
+| elms | all elements' array |
+
+examples:
+```javascript
+swiperInstance.on('move', (index, current, main, elms) => console.log('moving...'))
+```
 
 ## Todos
 * ~~performance~~

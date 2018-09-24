@@ -2,7 +2,7 @@ const options = { root: null, rootMargin: '0px', threshold: [0, 0.01] }
 
 const observable = !!window.IntersectionObserver
 
-function observe (el, fn) {
+const observe = (el, fn) => {
   if (!observable) return fn()
   var observer = new IntersectionObserver (fn, options)
   observer.observe(el)

@@ -85,7 +85,7 @@ g('ss')
 var endIndex = 0
 var startIndex = 0
 
-window['swipe-core']({
+window.s3d = window['swipe-core']({
   root: expose,
   elms: Array.prototype.slice.apply(expose.children[0].children),
   expose: true,
