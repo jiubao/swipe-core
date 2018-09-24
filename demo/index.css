@@ -1,0 +1,27 @@
+* { margin: 0; padding: 0;}
+img {width: 100%;}
+
+body {
+  overflow-x: hidden;
+}
+
+.box {
+  padding: 0 5px;
+}
+
+#expose, #two {
+  margin-left: 30px;
+}
+
+.swipe-core-wh {
+  width: 315px;
+  height: 200px;
+}
+
+#autoCubic div div, #autoCirc div div, #one div div, #uncycle div div {
+  overflow: hidden;
+}
+
+.swipe-core-item {
+  overflow: hidden;
+}
