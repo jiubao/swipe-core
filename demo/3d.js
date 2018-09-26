@@ -90,7 +90,7 @@ window.s3d = window['swipe-core']({
   elms: Array.prototype.slice.apply(expose.children[0].children),
   expose: true,
   css: true,
-  auto: false,
+  auto: true,
   index: 3,
   plugins: [swipeCoreTreedPlugin(), transparentPlugin(384), {end: () => g2(startIndex + ' | ' + endIndex++), start: () => g2(startIndex++ + ' | ' + endIndex)}],
   // cycle: false,

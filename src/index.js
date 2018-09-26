@@ -2,7 +2,7 @@ import {on, off, easing, isFunction, pointerdown, pointermove, pointerup, comput
 import observe, {observable} from './intersect'
 import supportPassive from './passive'
 import LinkList from './link-list'
-import {raf, caf, requestFrame} from './raf'
+import {raf, caf} from './raf'
 
 const FAST_THRESHOLD = 120
 const FAST_INTERVAL = 250
@@ -194,7 +194,7 @@ function swipeIt (options) {
     onEnd(current.next.index, current.next, main, elms)
   }
 
-  function autoSwipe(usex) {
+  function autoSwipe() {
     if (Math.abs(x + current.x) > 3) autoSwipeImmediate()
     else autoSwipePostpone()
   }
@@ -298,8 +298,9 @@ function swipeIt (options) {
         })
       } else {
         var evtOpt = passive ? {capture: true, passive: true} : true
-        var toggleSwiper = () => inViewport(root) ? autoSwipe() : clearAuto(phase = 16)
-        events.split(',').forEach(evt => window.addEventListener(evt, requestFrame(toggleSwiper), evtOpt))
+        var toggleSwiper = () => inViewport(root) ? autoSwipePostpone() : clearAuto(phase = 16)
+        on(window, 'touchmove', () => clearAuto(phase = 16))
+        on(window, 'touchend', toggleSwiper)
         toggleSwiper()
       }
     }

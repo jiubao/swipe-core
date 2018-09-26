@@ -108,18 +108,18 @@ if (!raf || !caf) {
   caf = clearTimeout;
 }
 
-var requestFrame = function (fn) {
-  var ticking = false;
-  return function () {
-    if (!ticking) {
-      raf(function () {
-        fn();
-        ticking = false;
-      });
-      ticking = true;
-    }
-  }
-};
+// export const requestFrame = fn => {
+//   var ticking = false
+//   return () => {
+//     if (!ticking) {
+//       raf(() => {
+//         fn()
+//         ticking = false
+//       })
+//       ticking = true
+//     }
+//   }
+// }
 
 var FAST_THRESHOLD = 120;
 var FAST_INTERVAL = 250;
@@ -128,7 +128,6 @@ var MAX_PART = MAX_INTERVAL * 2 / 3;
 var AUTO_TIMEOUT = 3000;
 
 var passive = supportPassive();
-var events = 'scroll,resize,touchmove';
 
 var defaultOptions = {
   auto: false,
@@ -322,7 +321,7 @@ function swipeIt (options) {
     onEnd(current.next.index, current.next, main, elms);
   }
 
-  function autoSwipe(usex) {
+  function autoSwipe() {
     if (Math.abs(x + current.x) > 3) { autoSwipeImmediate(); }
     else { autoSwipePostpone(); }
   }
@@ -425,9 +424,9 @@ function swipeIt (options) {
           });
         });
       } else {
-        var evtOpt = passive ? {capture: true, passive: true} : true;
-        var toggleSwiper = function () { return inViewport(root) ? autoSwipe() : clearAuto(phase = 16); };
-        events.split(',').forEach(function (evt) { return window.addEventListener(evt, requestFrame(toggleSwiper), evtOpt); });
+        var toggleSwiper = function () { return inViewport(root) ? autoSwipePostpone() : clearAuto(phase = 16); };
+        on(window, 'touchmove', function () { return clearAuto(phase = 16); });
+        on(window, 'touchend', toggleSwiper);
         toggleSwiper();
       }
     }
