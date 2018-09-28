@@ -1,6 +1,6 @@
 'use strict';
 
-var raf_es_js = require('@jiubao/raf/dist/raf.es.js');
+var raf = require('@jiubao/raf');
 
 var on = function (element, evt, handler) {
   element.addEventListener(evt, handler, false);
@@ -38,6 +38,19 @@ var pointermove = 'touchmove';
 var pointerup = 'touchend';
 
 var computedProp = function (el, prop) { return window.getComputedStyle(el, null).getPropertyValue(prop); };
+
+// export const requestFrame = fn => {
+//   var ticking = false
+//   return () => {
+//     if (!ticking) {
+//       raf(() => {
+//         fn()
+//         ticking = false
+//       })
+//       ticking = true
+//     }
+//   }
+// }
 
 var options = { root: null, rootMargin: '0px', threshold: [0, 0.01] };
 
@@ -194,7 +207,7 @@ function swipeIt (options) {
   var stopL = function (_) { return !cycle && currentX <= startX && current === slides.tail; };
 
   var clearAuto = function (_) { return clearTimeout(animations.auto); };
-  var clearMain = function (_) { return raf_es_js.caf(animations.main); };
+  var clearMain = function (_) { return raf.caf(animations.main); };
   var clearAnimations = function (_) {clearAuto(); clearMain();};
 
   init();
@@ -343,7 +356,7 @@ function swipeIt (options) {
       x = distance;
       // moveX(elm, distance)
       moveEx(elm, distance);
-      animations.main = raf_es_js.raf(loop);
+      animations.main = raf.raf(loop);
     }
     loop();
   }
@@ -392,7 +405,7 @@ function swipeIt (options) {
     // stop auto swipe when out of screen
     if (auto) {
       if (observable) {
-        raf_es_js.raf(function () {
+        raf.raf(function () {
           opts.unobserve = observe(root, function (entries) {
             if (entries && entries[0].intersectionRatio === 0) { clearAuto(phase = 16); }
             else { autoSwipe(); }

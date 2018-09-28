@@ -1,4 +1,4 @@
-import { raf, caf } from '@jiubao/raf/dist/raf.es.js';
+import { raf, caf } from '@jiubao/raf';
 
 var on = function (element, evt, handler) {
   element.addEventListener(evt, handler, false);
@@ -36,6 +36,19 @@ var pointermove = 'touchmove';
 var pointerup = 'touchend';
 
 var computedProp = function (el, prop) { return window.getComputedStyle(el, null).getPropertyValue(prop); };
+
+// export const requestFrame = fn => {
+//   var ticking = false
+//   return () => {
+//     if (!ticking) {
+//       raf(() => {
+//         fn()
+//         ticking = false
+//       })
+//       ticking = true
+//     }
+//   }
+// }
 
 var options = { root: null, rootMargin: '0px', threshold: [0, 0.01] };
 

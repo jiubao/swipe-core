@@ -16,17 +16,14 @@ export default [{
     format: 'cjs'
   }],
   external: [
-    '@jiubao/raf/dist/raf.es.js'
+    '@jiubao/raf'
   ],
   plugins: [
     buble({
       objectAssign: 'Object.assign'
     }),
     resolve({
-      module: true,
-      jsnext: true,
-      main: true,
-      browser: true
+      module: true
     })
   ]
 }, {
@@ -41,10 +38,7 @@ export default [{
       objectAssign: 'Object.assign'
     }),
     resolve({
-      module: true,
-      jsnext: true,
-      main: true,
-      browser: true
+      module: true
     })
   ]
 }, {

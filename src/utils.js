@@ -34,3 +34,16 @@ export const pointermove = 'touchmove'
 export const pointerup = 'touchend'
 
 export const computedProp = (el, prop) => window.getComputedStyle(el, null).getPropertyValue(prop)
+
+// export const requestFrame = fn => {
+//   var ticking = false
+//   return () => {
+//     if (!ticking) {
+//       raf(() => {
+//         fn()
+//         ticking = false
+//       })
+//       ticking = true
+//     }
+//   }
+// }

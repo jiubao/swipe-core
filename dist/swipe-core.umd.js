@@ -41,6 +41,19 @@
 
   var computedProp = function (el, prop) { return window.getComputedStyle(el, null).getPropertyValue(prop); };
 
+  // export const requestFrame = fn => {
+  //   var ticking = false
+  //   return () => {
+  //     if (!ticking) {
+  //       raf(() => {
+  //         fn()
+  //         ticking = false
+  //       })
+  //       ticking = true
+  //     }
+  //   }
+  // }
+
   var options = { root: null, rootMargin: '0px', threshold: [0, 0.01] };
 
   var observable = !!window.IntersectionObserver;
