@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
+    <title>swipe core demo</title>
+    <link rel="stylesheet" href="style.css">
+  </head>
+  <body>
+
+    <h3>expose mode</h3>
+    <div id="expose" class="swipe-core swipe-core-wh">
+      <div class="swipe-core-main">
+        <div class="swipe-core-item swipe-core-wh">
+          <div class="series-item">
+            <div class="item-box curved_box">
+              <img src="../imgs/1.jpg" />
+            </div>
+          </div>
+        </div>
+        <div class="swipe-core-item swipe-core-wh">
+          <div class="series-item">
+            <div class="item-box curved_box">
+              <img src="../imgs/2.jpg" />
+            </div>
+          </div>
+        </div>
+        <div class="swipe-core-item swipe-core-wh">
+          <div class="series-item">
+            <div class="item-box curved_box">
+              <img src="../imgs/3.jpg" />
+            </div>
+          </div>
+        </div>
+        <div class="swipe-core-item swipe-core-wh">
+          <div class="series-item">
+            <div class="item-box curved_box">
+              <img src="../imgs/4.jpg" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="box1"> </div>
+    <div class="box2" id="screen"> </div>
+    <div class="box3"> </div>
+
+    <script type="text/javascript">
+    (function() {
+
+      var uedWidth = 750
+
+      function setRootFontSize(){
+        var pageWidth = window.innerWidth
+        var pixelPerRem = pageWidth * 100 / uedWidth
+        document.documentElement.style.fontSize = pixelPerRem + 'px'
+      }
+
+      window.setRootFontSize = setRootFontSize
+
+      setRootFontSize()
+
+      var tid;
+
+      window.addEventListener('resize', function() {
+        clearTimeout(tid);
+        tid = setTimeout(setRootFontSize, 300);
+      }, false)
+
+    })()
+    </script>
+
+    <script src="https://unpkg.com/swipe-core"></script>
+    <script src="https://unpkg.com/swipe-core/dist/plugins/swipe-core-plugin-3d.umd.js"></script>
+    <script src="https://unpkg.com/swipe-core/dist/plugins/swipe-core-plugin-transparent.umd.js"></script>
+    <script src="./index.js"></script>
+  </body>
+</html>

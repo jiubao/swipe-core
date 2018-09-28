@@ -17,3 +17,11 @@ body {
   width: 315px;
   height: 200px;
 }
+
+#autoCubic div div, #autoCirc div div, #one div div, #uncycle div div {
+  overflow: hidden;
+}
+
+.swipe-core-item {
+  overflow: hidden;
+}
