@@ -160,3 +160,4 @@ swiperInstance.on('move', (index, current, main, elms) => console.log('moving...
 * dynamic slides
 * init animation
 * desktop
+* inject version info into dist files
