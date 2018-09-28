@@ -2,7 +2,8 @@
 * 5.0k before gzipped
 
 ## Demo
-https://jiubao.github.io/swipe-core/
+* https://jiubao.github.io/swipe-core/
+* https://jiubao.github.io/swipe-core/3d/
 
 ## Features
 Designed for mobile: compact, smooth and efficient
