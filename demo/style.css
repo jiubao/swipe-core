@@ -7,12 +7,12 @@ body {
 }
 
 .series-item {
-  padding: 0 32px;
+  padding: 0 .64rem;
 }
 
 .item-box {
-  width: 320px;
-  height: 160px;
+  width: 6.4rem;
+  height: 3.2rem;
   overflow: hidden;
   filter: drop-shadow(0px 0px 3px rgba(0, 0, 0));
   /* box-shadow: 5px 5px 5px -5px #000,-5px 5px 5px -5px #000; */
@@ -22,12 +22,12 @@ body {
 }
 
 #expose, #two {
-  margin-left: -4.5px;
+  margin-left: -.09rem;
 }
 
 .swipe-core-wh {
-  width: 384px;
-  height: 160px;
+  width: 7.68rem;
+  height: 3.20rem;
 }
 
 .swipe-core-main {
