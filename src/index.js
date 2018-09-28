@@ -2,7 +2,8 @@ import {on, off, easing, isFunction, pointerdown, pointermove, pointerup, comput
 import observe, {observable} from './intersect'
 import supportPassive from './passive'
 import LinkList from './link-list'
-import {raf, caf} from './raf'
+// import {raf, caf} from './raf'
+import {raf, caf} from '@jiubao/raf/dist/raf.es.js'
 
 const FAST_THRESHOLD = 120
 const FAST_INTERVAL = 250

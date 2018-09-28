@@ -16,6 +16,10 @@
     esutils "^2.0.2"
     js-tokens "^3.0.0"
 
+"@jiubao/raf@^0.0.2":
+  version "0.0.2"
+  resolved "https://registry.yarnpkg.com/@jiubao/raf/-/raf-0.0.2.tgz#ec148af9faaaa9c571cdf002287a59a97e7ca261"
+
 "@types/acorn@^4.0.3":
   version "4.0.3"
   resolved "http://registry.npm.taobao.org/@types/acorn/download/@types/acorn-4.0.3.tgz#d1f3e738dde52536f9aad3d3380d14e448820afd"
@@ -848,6 +852,10 @@ buffer-from@^1.0.0:
 builtin-modules@^1.0.0:
   version "1.1.1"
   resolved "http://registry.npm.taobao.org/builtin-modules/download/builtin-modules-1.1.1.tgz#270f076c5a72c02f5b65a47df94c5fe3a278892f"
+
+builtin-modules@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/builtin-modules/-/builtin-modules-2.0.0.tgz#60b7ef5ae6546bd7deefa74b08b62a43a232648e"
 
 cache-base@^1.0.1:
   version "1.0.1"
@@ -2105,6 +2113,10 @@ is-glob@^2.0.0, is-glob@^2.0.1:
   resolved "http://registry.npm.taobao.org/is-glob/download/is-glob-2.0.1.tgz#d096f926a3ded5600f3fdfd91198cb0888c2d863"
   dependencies:
     is-extglob "^1.0.0"
+
+is-module@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/is-module/-/is-module-1.0.0.tgz#3258fb69f78c14d5b815d664336b4cffb6441591"
 
 is-number@^2.1.0:
   version "2.1.0"
@@ -3616,6 +3628,12 @@ resolve@1.1.7:
   version "1.1.7"
   resolved "http://registry.npm.taobao.org/resolve/download/resolve-1.1.7.tgz#203114d82ad2c5ed9e8e0411b3932875e889e97b"
 
+resolve@^1.1.6:
+  version "1.8.1"
+  resolved "https://registry.yarnpkg.com/resolve/-/resolve-1.8.1.tgz#82f1ec19a423ac1fbd080b0bab06ba36e84a7a26"
+  dependencies:
+    path-parse "^1.0.5"
+
 ret@~0.1.10:
   version "0.1.15"
   resolved "http://registry.npm.taobao.org/ret/download/ret-0.1.15.tgz#b8a4825d5bdb1fc3f6f53c2bc33f81388681c7bc"
@@ -3638,6 +3656,14 @@ rollup-plugin-buble@^0.19.2:
   dependencies:
     buble "^0.19.2"
     rollup-pluginutils "^2.0.1"
+
+rollup-plugin-node-resolve@^3.4.0:
+  version "3.4.0"
+  resolved "https://registry.yarnpkg.com/rollup-plugin-node-resolve/-/rollup-plugin-node-resolve-3.4.0.tgz#908585eda12e393caac7498715a01e08606abc89"
+  dependencies:
+    builtin-modules "^2.0.0"
+    is-module "^1.0.0"
+    resolve "^1.1.6"
 
 rollup-pluginutils@^2.0.1:
   version "2.0.1"

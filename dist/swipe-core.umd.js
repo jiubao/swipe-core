@@ -1,1 +1,440 @@
-!function(n,e){"object"==typeof exports&&"undefined"!=typeof module?module.exports=e():"function"==typeof define&&define.amd?define(e):n["swipe-core"]=e()}(this,function(){"use strict";var U=function(n,e,t){n.addEventListener(e,t,!1)},Z=function(n,e,t){n.removeEventListener(e,t,!1)},$=function(n){return"function"==typeof n},_={cubic:function(n){return--n*n*n+1},circ:function(n){return Math.sqrt(1-Math.pow(n-1,2))}},nn="touchstart",en="touchmove",tn="touchend",rn=function(n,e){return window.getComputedStyle(n,null).getPropertyValue(e)},on={root:null,rootMargin:"0px",threshold:[0,.01]},un=!!window.IntersectionObserver;function an(n,t){var i=this;this.list=[],n.forEach(function(n,e){n.index=Number(t?t[e]:e),i.append(n)})}an.prototype.append=function(n){var e,t=(e=n).next=e.prev=e;return this.list.push(t),this.tail?(t.prev=this.tail,t.next=this.tail.next,(this.tail.next=t).next.prev=t,this.tail=t):this.head=this.tail=t};var n=["webkit","moz","ms","o"],sn=n.reduce(function(n,e){return n||window[e+"RequestAnimationFrame"]},window.requestAnimationFrame),cn=n.reduce(function(n,e){return n||window[e+"CancelAnimationFrame"]},window.cancelAnimationFrame);if(!sn||!cn){var t=0;sn=function(n){var e=+new Date;return t=Math.max(e,t+16),setTimeout(n,t-e)},cn=clearTimeout}var fn=120,dn=250,ln=1e3,hn=2*ln/3,vn=3e3,pn=(function(n){function e(){}var t=Object.defineProperty({},"passive",{get:function(){!0}});window.addEventListener("testPassive",e,t),window.removeEventListener("testPassive",e,t)}(),{auto:!1,cycle:!0,expose:!1,root:null,elms:[],index:0,width:window.screen.width,height:200,css:!1,ease:"cubic",plugins:[],initHandlers:[],startHandlers:[],moveHandlers:[],endHandlers:[],endAnimationHandlers:[]}),xn=document.createElement("div");return xn.style.display="none",document.body.appendChild(xn),function(n){var i=Object.assign({},pn,n),r=i.index,o=i.root,f=i.elms,u=i.width,a=i.height,s=i.cycle,c=(i.expose,i.auto),d=i.css,l=i.ease;i.plugins.forEach(function(e){return Object.keys(e).forEach(function(n){return i[n+"Handlers"].push(e[n])})});var e=function(t){return function(){for(var e=[],n=arguments.length;n--;)e[n]=arguments[n];return i[t+"Handlers"].forEach(function(n){return n.apply(null,e)})}},h=e("init"),t=e("start"),v=e("move"),p=e("end"),x=e("endAnimation");if(o){d&&(u=Number(rn(o,"width").slice(0,-2)),a=Number(rn(o,"height").slice(0,-2)));var w=o.children[0],m={main:-1,auto:-1},b=u/3,y=0,g=0,E=0,M=0,H=0,D=0,A=0,C=0,O=0,T=[],N=!1;c=s&&c;var j=f[r],k=function(n,e){var t,i;i=n.x=e,(t=n)&&(t.style.transition=t.style.webkitTransition="",t.style.transform=t.style.webkitTransform="translate3d("+i+"px, 0, 0)",v(j.index,j,w,f))},F=function(n){return xn.appendChild(n)},L=function(n){return w.appendChild(n)},P=function(n){return!s&&A<C&&j===T.head},q=function(n){return!s&&C<=A&&j===T.tail},R=function(n){return clearTimeout(m.auto)},X=function(n){R(),cn(m.main)};return function(){if(0===f.length)return h(-1);o.style.position="relative",d||(o.style.width=u+"px",o.style.height=a+"px");var n=2===f.length&&s;n&&(f.push(f[0].cloneNode(!0)),L(f[2]),f.push(f[1].cloneNode(!0)),L(f[3]));var e=1===f.length;if(N=2===f.length,T=new an(f,n?"0101":null),k(j,0),e||N||k(j.prev,-u),e||k(j.next,u),f.forEach(function(n){n.style.position="absolute",d||(n.style.width=u+"px",n.style.height=a+"px"),N||e||n===j||n===j.prev||n===j.next||F(n)}),e)return h(j.index,j,w,f);if(N||s||0!==r||F(j.prev),N||s||r!==f.length-1||F(j.next),Q(),U(o,nn,I),U(o,en,Y),U(o,tn,J),c)if(un)sn(function(){i.unobserve=function(n,e){if(!un)return e();var t=new IntersectionObserver(e,on);return t.observe(n),function(){t.unobserve(n)}}(o,function(n){n&&0===n[0].intersectionRatio?R(y=16):G()})});else{var t=function(){return(n=o.getBoundingClientRect()).top<window.innerHeight&&0<n.bottom&&n.left<window.innerWidth&&0<n.right?V():R(y=16);var n};U(window,"touchmove",function(){return R(y=16)}),U(window,"touchend",t),t()}w.x=0,h(j.index,j,w,f)}(),{destroy:Q,index:function(n){return j.index},on:function(n,e){var t=i[n+"Handlers"];return t.push(e),function(){return t.splice(t.indexOf(e),1)}}}}function I(n){X(),M=y=0;var e=n.touches[0];D=Date.now(),E=C=A=e.pageX,O=e.clientY,t(j.index,j,w,f)}function Y(n){if(2!==y&&4!==y){var e=n.touches[0],t=e.pageX-C;if(0===y&&2*Math.abs(t)<Math.abs(e.clientY-O))y=4;else{var i=0<t?1:-1;M!==i&&(E=C,D=Date.now(),M=i),y=1,C=e.pageX,k(w,H+=t),n.preventDefault()}}}function z(){N||F(j.next),j=j.prev,P()||(k(j.prev,j.x-u),L(j.prev))}function B(){N||F(j.prev),j=j.next,q()||(k(j.next,j.x+u),L(j.next))}function S(){0===g&&-j.x-H>u/2&&(g=1,B())}function V(){R(),m.auto=setTimeout(function(){W()},vn)}function W(){g=0,y=8,K(w,H,-j.x-u,hn,S,V),p(j.next.index,j.next,w,f)}function G(){3<Math.abs(H+j.x)?W():V()}function J(n){if(4!==y){y=2;var e=E<C,t=Date.now()-D<fn;if(!P()&&!q()){var i=j.x+H;t?e&&0<i?z():!e&&i<0&&B():b<i?z():i<-b&&B()}var r=-1*j.x,o=Math.min(Math.max(ln*Math.abs(r-H)/u,dn),hn);K(w,H,r,t?dn:o,null,c?function(){return G()}:null),p(j.index,j,w,f)}}function K(i,r,o,u,a,s){var c=Date.now();!function n(){$(a)&&a();var e=Date.now()-c;if(u<=e)return k(i,o),16!==y&&$(s)&&s(),x(j.index,j,w,f);var t=(o-r)*_[l](e/u)+r;k(i,H=t),m.main=sn(n)}()}function Q(){X(),$(i.unobserve)&&i.unobserve(),Z(o,nn,I),Z(o,en,Y),Z(o,tn,J)}}});
+(function (global, factory) {
+  typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
+  typeof define === 'function' && define.amd ? define(factory) :
+  (global['swipe-core'] = factory());
+}(this, (function () { 'use strict';
+
+  var on = function (element, evt, handler) {
+    element.addEventListener(evt, handler, false);
+  };
+
+  var off = function (element, evt, handler) {
+    element.removeEventListener(evt, handler, false);
+  };
+
+  var isFunction = function (value) {
+    return typeof value === 'function'
+  };
+
+  var inViewport = function (item) {
+    var rect = item.getBoundingClientRect();
+    return (rect.top < window.innerHeight && rect.bottom > 0) &&
+      (rect.left < window.innerWidth && rect.right > 0)
+  };
+
+  var easing = {
+    cubic: function (k) { return --k * k * k + 1; },
+    // quart: k => 1 - Math.pow(1 - k, 4), // 1 - --k * k * k * k,
+    // quint: k => 1 - Math.pow(1 - k, 5),
+    // expo: k => k === 1 ? 1 : 1 - Math.pow(2, -10 * k),
+    circ: function (k) { return Math.sqrt(1 - Math.pow(k - 1, 2)); }
+  };
+
+  // TODO: desktop support, mouse / pointer events
+  // var touch = 'ontouchstart' in window
+  // export var pointerdown = touch ? 'touchstart' : 'mousedown'
+  // export var pointermove = touch ? 'touchmove' : 'mousemove'
+  // export var pointerup = touch ? 'touchend' : 'mouseup'
+  var pointerdown = 'touchstart';
+  var pointermove = 'touchmove';
+  var pointerup = 'touchend';
+
+  var computedProp = function (el, prop) { return window.getComputedStyle(el, null).getPropertyValue(prop); };
+
+  var options = { root: null, rootMargin: '0px', threshold: [0, 0.01] };
+
+  var observable = !!window.IntersectionObserver;
+
+  var observe = function (el, fn) {
+    if (!observable) { return fn() }
+    var observer = new IntersectionObserver (fn, options);
+    observer.observe(el);
+    return function () { observer.unobserve(el); }
+  };
+
+  function supportPassive (_) {
+    var passive = false;
+
+    function noop () {}
+
+    var options = Object.defineProperty({}, 'passive', {
+      get: function get () { passive = true; }
+    });
+
+    // https://github.com/rafrex/detect-passive-events
+    window.addEventListener('testPassive', noop, options);
+    window.removeEventListener('testPassive', noop, options);
+    return passive
+  }
+
+  function newNode (item) {
+    // var node = Object.create(null)
+    // node.item = item
+    // return node.next = node.prev = node
+    return item.next = item.prev = item
+  }
+
+  function LinkList (arr, indexes) {
+    var this$1 = this;
+
+    this.list = [];
+    // arr.forEach(item => this.append(item))
+    arr.forEach(function (item, index) {
+      item.index = Number(indexes ? indexes[index] : index);
+      this$1.append(item);
+    });
+  }
+
+  LinkList.prototype.append = function (item) {
+    var node = newNode(item);
+    this.list.push(node);
+    if (!this.tail) {
+      return this.head = this.tail = node
+    }
+    node.prev = this.tail;
+    node.next = this.tail.next;
+    this.tail.next = node;
+    node.next.prev = node;
+    return this.tail = node
+  };
+
+  // for a 60Hz monitor, requestAnimationFrame will trigger the callback every 16.67ms (1000 / 60 == 16.66...)
+  var vendorPrefixes = ['webkit','moz','ms','o'];
+  var raf = vendorPrefixes.reduce(function (result, next) { return result || window[(next + "RequestAnimationFrame")]; }, window.requestAnimationFrame).bind(window);
+  var caf = vendorPrefixes.reduce(function (result, next) { return result || window[(next + "CancelAnimationFrame")]; }, window.cancelAnimationFrame).bind(window);
+  if (!raf || !caf) {
+    var last = 0;
+    raf = function (fn) {
+      var now = +new Date();
+      last = Math.max(now, last + 16);
+      return setTimeout(fn, last - now)
+    };
+    caf = clearTimeout;
+  }
+
+  var FAST_THRESHOLD = 120;
+  var FAST_INTERVAL = 250;
+  var MAX_INTERVAL = 1000;
+  var MAX_PART = MAX_INTERVAL * 2 / 3;
+  var AUTO_TIMEOUT = 3000;
+
+  var passive = supportPassive();
+
+  var defaultOptions = {
+    auto: false,
+    cycle: true,
+    expose: false,
+    root: null, // required
+    elms: [], // required
+    index: 0,
+    width: window.screen.width, // if css is false, need width & height
+    height: 200,
+    css: false,
+    ease: 'cubic',
+    plugins: [],
+    initHandlers: [],
+    startHandlers: [],
+    moveHandlers: [],
+    endHandlers: [],
+    endAnimationHandlers: []
+  };
+
+  var hides = document.createElement('div');
+  hides.style.display = 'none';
+  document.body.appendChild(hides);
+
+  function swipeIt (options) {
+    var opts = Object.assign({}, defaultOptions,
+      options);
+
+    var index = opts.index;
+    var root = opts.root;
+    var elms = opts.elms;
+    var width = opts.width;
+    var height = opts.height;
+    var cycle = opts.cycle;
+    var expose = opts.expose;
+    var auto = opts.auto;
+    var css = opts.css;
+    var ease = opts.ease;
+    var plugins = opts.plugins;
+
+    plugins.forEach(function (p) { return Object.keys(p).forEach(function (action) { return opts[action + 'Handlers'].push(p[action]); }); });
+
+    var onFn = function (action) { return function () {
+      var args = [], len = arguments.length;
+      while ( len-- ) args[ len ] = arguments[ len ];
+
+      return opts[action + 'Handlers'].forEach(function (f) { return f.apply(null, args); });
+   }    };
+    var onInit = onFn('init');
+    var onStart = onFn('start');
+    var onMove = onFn('move');
+    var onEnd = onFn('end');
+    var onEndAnimation = onFn('endAnimation');
+
+    if (!root) { return }
+
+    if (css) {
+      width = Number(computedProp(root, 'width').slice(0, -2));
+      height = Number(computedProp(root, 'height').slice(0, -2));
+    }
+    var main = root.children[0], animations = {main: -1, auto: -1}, threshold = width / 3;
+
+    /* phase
+     * 0000: start
+     * 0001: dragging
+     * 0010: animating
+     * 0100: vertical scrolling
+     * 1000: auto animating
+     * 10000: cancel auto animating
+     */
+    var phase = 0;
+
+    /* autoPhase
+     * 0: distance <= width / 2
+     * 1: distance > width / 2
+     */
+    var autoPhase = 0;
+    var restartX = 0, direction = 0; // -1: left, 0: na, 1: right
+    var x = 0, startTime = 0, startX = 0, currentX = 0, startY = 0, slides = [];
+    var two = false;
+    auto = cycle && auto;
+
+    var current = elms[index];
+    var moveEx = function (el, x) { el.x = x; moveX(el, x); };
+    var hide = function (el) { return hides.appendChild(el); };
+
+    var show = function (el) { return main.appendChild(el); };
+    var stopR = function (_) { return !cycle && currentX > startX && current === slides.head; };
+    var stopL = function (_) { return !cycle && currentX <= startX && current === slides.tail; };
+
+    var clearAuto = function (_) { return clearTimeout(animations.auto); };
+    var clearMain = function (_) { return caf(animations.main); };
+    var clearAnimations = function (_) {clearAuto(); clearMain();};
+
+    init();
+
+    return {
+      destroy: destroy,
+      index: function (_) { return current.index; },
+      on: function (evt, callback) {
+        var fns = opts[evt + 'Handlers'];
+        fns.push(callback);
+        return function () { return fns.splice(fns.indexOf(callback), 1); }
+      }
+    }
+
+    function moveX (el, x) {
+      if (!el) { return }
+      el.style.transition = el.style.webkitTransition = '';
+      el.style.transform = el.style.webkitTransform = "translate3d(" + x + "px, 0, 0)";
+      onMove(current.index, current, main, elms);
+    }
+
+    function onTouchStart (evt) {
+      clearAnimations();
+      phase = 0;
+      direction = 0;
+
+      var touch = evt.touches[0];
+      startTime = Date.now();
+      restartX = currentX = startX = touch.pageX;
+      startY = touch.clientY;
+      onStart(current.index, current, main, elms);
+    }
+
+    function onTouchMove (evt) {
+      if (phase === 2 || phase === 4) { return }
+
+      var touch = evt.touches[0];
+      var gap = touch.pageX - currentX;
+
+      if (phase === 0 && Math.abs(gap) * 2 < Math.abs(touch.clientY - startY)) {
+        phase = 4;
+        return
+      }
+
+      var _d = gap > 0 ? 1 : -1;
+      if (direction !== _d) {
+        restartX = currentX;
+        startTime = Date.now();
+        direction = _d;
+      }
+
+      phase = 1;
+      currentX = touch.pageX;
+
+      x = x + gap;
+      // moveX(main, x)
+      moveEx(main, x);
+
+      evt.preventDefault();
+    }
+
+    function moveRight () {
+      two || hide(current.next);
+      current = current.prev;
+      if (!stopR()) {
+        moveEx(current.prev, current.x - width);
+        show(current.prev);
+      }
+    }
+
+    function moveLeft () {
+      two || hide(current.prev);
+      current = current.next;
+      if (!stopL()) {
+        moveEx(current.next, current.x + width);
+        show(current.next);
+      }
+    }
+
+    function onAutoAnimation () {
+      if (autoPhase === 0 && -current.x - x > width / 2) {
+        autoPhase = 1;
+        moveLeft();
+      }
+    }
+
+    function autoSwipePostpone () {
+      clearAuto();
+      animations.auto = setTimeout(function () {
+        autoSwipeImmediate();
+      }, AUTO_TIMEOUT);
+    }
+
+    function autoSwipeImmediate () {
+      autoPhase = 0;
+      phase = 8;
+      animate(main, x, -current.x - width, MAX_PART, onAutoAnimation, autoSwipePostpone);
+      // animate(main, x, x - width, MAX_INTERVAL, onAutoAnimation, autoCallback)
+      onEnd(current.next.index, current.next, main, elms);
+    }
+
+    function autoSwipe() {
+      if (Math.abs(x + current.x) > 3) { autoSwipeImmediate(); }
+      else { autoSwipePostpone(); }
+    }
+
+    function onTouchEnd (evt) {
+      // auto && autoCallback()
+      if (phase === 4) { return }
+      phase = 2;
+      var right = currentX > restartX;
+      var fast = (Date.now() - startTime) < FAST_THRESHOLD;
+
+      if (!stopR() && !stopL()) {
+        var cx = current.x + x;
+        if (fast) {
+          if (right && cx > 0) { moveRight(); }
+          else if (!right && cx < 0) { moveLeft(); }
+        } else if (cx > threshold) { moveRight(); }
+        else if (cx < -threshold) { moveLeft(); }
+      }
+
+      var to = current.x * -1;
+
+      var t = Math.min(Math.max(MAX_INTERVAL * Math.abs(to - x) / width, FAST_INTERVAL), MAX_PART);
+      animate(main, x, to, fast ? FAST_INTERVAL : t, null, auto ? function () { return autoSwipe(); } : null);
+      // animate(main, x, to, fast ? FAST_INTERVAL : t)
+
+      onEnd(current.index, current, main, elms);
+    }
+
+    function animate (elm, from, to, interval, onAnimation, callback) {
+      var start = Date.now();
+      function loop () {
+        // console.log(elm.parentElement.id)
+        isFunction(onAnimation) && onAnimation();
+        var now = Date.now();
+        var during = now - start;
+        if (during >= interval) {
+          // moveX(elm, to)
+          moveEx(elm, to);
+          phase !== 16 && isFunction(callback) && callback();
+          return onEndAnimation(current.index, current, main, elms)
+        }
+        var distance = (to - from) * easing[ease](during / interval) + from;
+        x = distance;
+        // moveX(elm, distance)
+        moveEx(elm, distance);
+        animations.main = raf(loop);
+      }
+      loop();
+    }
+
+    function init () {
+      if (elms.length === 0) { return onInit(-1) }
+      // if (!expose) root.style.overflow = 'hidden'
+      root.style.position = 'relative';
+      if (!css) {
+        root.style.width = width + 'px';
+        root.style.height = height + 'px';
+      }
+      var needClone = elms.length === 2 && cycle;
+      if (needClone) {
+        elms.push(elms[0].cloneNode(true));
+        show(elms[2]);
+        elms.push(elms[1].cloneNode(true));
+        show(elms[3]);
+      }
+      var one = elms.length === 1;
+      two = elms.length === 2;
+      slides = new LinkList(elms, needClone ? '0101' : null);
+      moveEx(current, 0);
+      one || two || moveEx(current.prev, -width);
+      one || moveEx(current.next, width);
+      elms.forEach(function (el) {
+        el.style.position = 'absolute';
+        if (!css) {
+          el.style.width = width + 'px';
+          el.style.height = height + 'px';
+        }
+        // el.style.overflow = 'hidden'
+        if (!two && !one && el !== current && el !== current.prev && el !== current.next) { hide(el); }
+      });
+
+      if (one) { return onInit(current.index, current, main, elms) }
+
+      if (!two && !cycle && index === 0) { hide(current.prev); }
+      if (!two && !cycle && index === elms.length - 1) { hide(current.next); }
+
+      destroy();
+      on(root, pointerdown, onTouchStart);
+      on(root, pointermove, onTouchMove);
+      on(root, pointerup, onTouchEnd);
+
+      // stop auto swipe when out of screen
+      if (auto) {
+        if (observable) {
+          raf(function () {
+            opts.unobserve = observe(root, function (entries) {
+              if (entries && entries[0].intersectionRatio === 0) { clearAuto(phase = 16); }
+              else { autoSwipe(); }
+            });
+          });
+        } else {
+          var toggleSwiper = function () { return inViewport(root) ? autoSwipePostpone() : clearAuto(phase = 16); };
+          on(window, 'touchmove', function () { return clearAuto(phase = 16); });
+          on(window, 'touchend', toggleSwiper);
+          toggleSwiper();
+        }
+      }
+
+      main.x = 0;
+      onInit(current.index, current, main, elms);
+    }
+
+    function destroy () {
+      clearAnimations();
+      isFunction(opts.unobserve) && opts.unobserve();
+      off(root, pointerdown, onTouchStart);
+      off(root, pointermove, onTouchMove);
+      off(root, pointerup, onTouchEnd);
+    }
+  }
+
+  return swipeIt;
+
+})));

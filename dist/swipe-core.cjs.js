@@ -1,5 +1,7 @@
 'use strict';
 
+var raf_es_js = require('@jiubao/raf/dist/raf.es.js');
+
 var on = function (element, evt, handler) {
   element.addEventListener(evt, handler, false);
 };
@@ -93,33 +95,6 @@ LinkList.prototype.append = function (item) {
   node.next.prev = node;
   return this.tail = node
 };
-
-// for a 60Hz monitor, requestAnimationFrame will trigger the callback every 16.67ms (1000 / 60 == 16.66...)
-var vendorPrefixes = ['webkit','moz','ms','o'];
-var raf = vendorPrefixes.reduce(function (result, next) { return result || window[(next + "RequestAnimationFrame")]; }, window.requestAnimationFrame);
-var caf = vendorPrefixes.reduce(function (result, next) { return result || window[(next + "CancelAnimationFrame")]; }, window.cancelAnimationFrame);
-if (!raf || !caf) {
-  var last = 0;
-  raf = function (fn) {
-    var now = +new Date();
-    last = Math.max(now, last + 16);
-    return setTimeout(fn, last - now)
-  };
-  caf = clearTimeout;
-}
-
-// export const requestFrame = fn => {
-//   var ticking = false
-//   return () => {
-//     if (!ticking) {
-//       raf(() => {
-//         fn()
-//         ticking = false
-//       })
-//       ticking = true
-//     }
-//   }
-// }
 
 var FAST_THRESHOLD = 120;
 var FAST_INTERVAL = 250;
@@ -219,7 +194,7 @@ function swipeIt (options) {
   var stopL = function (_) { return !cycle && currentX <= startX && current === slides.tail; };
 
   var clearAuto = function (_) { return clearTimeout(animations.auto); };
-  var clearMain = function (_) { return caf(animations.main); };
+  var clearMain = function (_) { return raf_es_js.caf(animations.main); };
   var clearAnimations = function (_) {clearAuto(); clearMain();};
 
   init();
@@ -368,7 +343,7 @@ function swipeIt (options) {
       x = distance;
       // moveX(elm, distance)
       moveEx(elm, distance);
-      animations.main = raf(loop);
+      animations.main = raf_es_js.raf(loop);
     }
     loop();
   }
@@ -417,7 +392,7 @@ function swipeIt (options) {
     // stop auto swipe when out of screen
     if (auto) {
       if (observable) {
-        raf(function () {
+        raf_es_js.raf(function () {
           opts.unobserve = observe(root, function (entries) {
             if (entries && entries[0].intersectionRatio === 0) { clearAuto(phase = 16); }
             else { autoSwipe(); }
