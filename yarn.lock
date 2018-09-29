@@ -16,6 +16,10 @@
     esutils "^2.0.2"
     js-tokens "^3.0.0"
 
+"@jiubao/passive@^0.0.1":
+  version "0.0.1"
+  resolved "https://registry.yarnpkg.com/@jiubao/passive/-/passive-0.0.1.tgz#ab0edd7dc36af50f2be48ddeb04867be7457a778"
+
 "@jiubao/raf@^0.0.2":
   version "0.0.2"
   resolved "https://registry.yarnpkg.com/@jiubao/raf/-/raf-0.0.2.tgz#ec148af9faaaa9c571cdf002287a59a97e7ca261"

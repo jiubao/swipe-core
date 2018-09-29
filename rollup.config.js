@@ -16,7 +16,8 @@ export default [{
     format: 'cjs'
   }],
   external: [
-    '@jiubao/raf'
+    '@jiubao/raf',
+    '@jiubao/passive'
   ],
   plugins: [
     buble({

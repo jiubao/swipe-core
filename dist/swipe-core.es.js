@@ -1,3 +1,4 @@
+import supportPassive from '@jiubao/passive';
 import { raf, caf } from '@jiubao/raf';
 
 var on = function (element, evt, handler) {
@@ -60,21 +61,6 @@ var observe = function (el, fn) {
   observer.observe(el);
   return function () { observer.unobserve(el); }
 };
-
-function supportPassive (_) {
-  var passive = false;
-
-  function noop () {}
-
-  var options = Object.defineProperty({}, 'passive', {
-    get: function get () { passive = true; }
-  });
-
-  // https://github.com/rafrex/detect-passive-events
-  window.addEventListener('testPassive', noop, options);
-  window.removeEventListener('testPassive', noop, options);
-  return passive
-}
 
 function newNode (item) {
   // var node = Object.create(null)

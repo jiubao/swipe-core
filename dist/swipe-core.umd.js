@@ -65,7 +65,7 @@
     return function () { observer.unobserve(el); }
   };
 
-  function supportPassive (_) {
+  function index (_) {
     var passive = false;
 
     function noop () {}
@@ -74,7 +74,6 @@
       get: function get () { passive = true; }
     });
 
-    // https://github.com/rafrex/detect-passive-events
     window.addEventListener('testPassive', noop, options);
     window.removeEventListener('testPassive', noop, options);
     return passive
@@ -131,7 +130,7 @@
   var MAX_PART = MAX_INTERVAL * 2 / 3;
   var AUTO_TIMEOUT = 3000;
 
-  var passive = supportPassive();
+  var passive = index();
 
   var defaultOptions = {
     auto: false,
@@ -160,7 +159,7 @@
     var opts = Object.assign({}, defaultOptions,
       options);
 
-    var index = opts.index;
+    var index$$1 = opts.index;
     var root = opts.root;
     var elms = opts.elms;
     var width = opts.width;
@@ -214,7 +213,7 @@
     var two = false;
     auto = cycle && auto;
 
-    var current = elms[index];
+    var current = elms[index$$1];
     var moveEx = function (el, x) { el.x = x; moveX(el, x); };
     var hide = function (el) { return hides.appendChild(el); };
 
@@ -410,8 +409,8 @@
 
       if (one) { return onInit(current.index, current, main, elms) }
 
-      if (!two && !cycle && index === 0) { hide(current.prev); }
-      if (!two && !cycle && index === elms.length - 1) { hide(current.next); }
+      if (!two && !cycle && index$$1 === 0) { hide(current.prev); }
+      if (!two && !cycle && index$$1 === elms.length - 1) { hide(current.next); }
 
       destroy();
       on(root, pointerdown, onTouchStart);

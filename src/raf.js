@@ -15,16 +15,3 @@ if (!raf || !caf) {
 // window.caf = caf
 
 export {raf, caf}
-
-// export const requestFrame = fn => {
-//   var ticking = false
-//   return () => {
-//     if (!ticking) {
-//       raf(() => {
-//         fn()
-//         ticking = false
-//       })
-//       ticking = true
-//     }
-//   }
-// }

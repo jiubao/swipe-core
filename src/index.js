@@ -1,6 +1,7 @@
 import {on, off, easing, isFunction, pointerdown, pointermove, pointerup, computedProp, inViewport} from './utils'
 import observe, {observable} from './intersect'
-import supportPassive from './passive'
+// import supportPassive from './passive'
+import supportPassive from '@jiubao/passive'
 import LinkList from './link-list'
 // import {raf, caf} from './raf'
 import {raf, caf} from '@jiubao/raf'
