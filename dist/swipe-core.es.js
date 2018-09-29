@@ -62,35 +62,20 @@ var observe = function (el, fn) {
   return function () { observer.unobserve(el); }
 };
 
-function newNode (item) {
-  // var node = Object.create(null)
-  // node.item = item
-  // return node.next = node.prev = node
-  return item.next = item.prev = item
-}
-
-function LinkList (arr, indexes) {
+function LinkList (arr) {
   var this$1 = this;
 
-  this.list = [];
-  // arr.forEach(item => this.append(item))
-  arr.forEach(function (item, index) {
-    item.index = Number(indexes ? indexes[index] : index);
-    this$1.append(item);
-  });
+  arr.forEach(function (item) { return this$1.append(item); });
 }
 
 LinkList.prototype.append = function (item) {
-  var node = newNode(item);
-  this.list.push(node);
-  if (!this.tail) {
-    return this.head = this.tail = node
-  }
-  node.prev = this.tail;
-  node.next = this.tail.next;
-  this.tail.next = node;
-  node.next.prev = node;
-  return this.tail = node
+  var node = item.$next = item.$prev = item;
+  if (!this.$tail) { return this.$head = this.$tail = node }
+  node.$prev = this.$tail;
+  node.$next = this.$tail.$next;
+  this.$tail.$next = node;
+  node.$next.$prev = node;
+  return this.$tail = node
 };
 
 var FAST_THRESHOLD = 120;
@@ -187,8 +172,8 @@ function swipeIt (options) {
   var hide = function (el) { return hides.appendChild(el); };
 
   var show = function (el) { return main.appendChild(el); };
-  var stopR = function (_) { return !cycle && currentX > startX && current === slides.head; };
-  var stopL = function (_) { return !cycle && currentX <= startX && current === slides.tail; };
+  var stopR = function (_) { return !cycle && currentX > startX && current === slides.$head; };
+  var stopL = function (_) { return !cycle && currentX <= startX && current === slides.$tail; };
 
   var clearAuto = function (_) { return clearTimeout(animations.auto); };
   var clearMain = function (_) { return caf(animations.main); };
@@ -198,7 +183,7 @@ function swipeIt (options) {
 
   return {
     destroy: destroy,
-    index: function (_) { return current.index; },
+    index: function (_) { return current.$index; },
     on: function (evt, callback) {
       var fns = opts[evt + 'Handlers'];
       fns.push(callback);
@@ -210,7 +195,7 @@ function swipeIt (options) {
     if (!el) { return }
     el.style.transition = el.style.webkitTransition = '';
     el.style.transform = el.style.webkitTransform = "translate3d(" + x + "px, 0, 0)";
-    onMove(current.index, current, main, elms);
+    onMove(current.$index, current, main, elms);
   }
 
   function onTouchStart (evt) {
@@ -222,7 +207,7 @@ function swipeIt (options) {
     startTime = Date.now();
     restartX = currentX = startX = touch.pageX;
     startY = touch.clientY;
-    onStart(current.index, current, main, elms);
+    onStart(current.$index, current, main, elms);
   }
 
   function onTouchMove (evt) {
@@ -254,20 +239,20 @@ function swipeIt (options) {
   }
 
   function moveRight () {
-    two || hide(current.next);
-    current = current.prev;
+    two || hide(current.$next);
+    current = current.$prev;
     if (!stopR()) {
-      moveEx(current.prev, current.x - width);
-      show(current.prev);
+      moveEx(current.$prev, current.x - width);
+      show(current.$prev);
     }
   }
 
   function moveLeft () {
-    two || hide(current.prev);
-    current = current.next;
+    two || hide(current.$prev);
+    current = current.$next;
     if (!stopL()) {
-      moveEx(current.next, current.x + width);
-      show(current.next);
+      moveEx(current.$next, current.x + width);
+      show(current.$next);
     }
   }
 
@@ -290,7 +275,7 @@ function swipeIt (options) {
     phase = 8;
     animate(main, x, -current.x - width, MAX_PART, onAutoAnimation, autoSwipePostpone);
     // animate(main, x, x - width, MAX_INTERVAL, onAutoAnimation, autoCallback)
-    onEnd(current.next.index, current.next, main, elms);
+    onEnd(current.$next.$index, current.$next, main, elms);
   }
 
   function autoSwipe() {
@@ -320,7 +305,7 @@ function swipeIt (options) {
     animate(main, x, to, fast ? FAST_INTERVAL : t, null, auto ? function () { return autoSwipe(); } : null);
     // animate(main, x, to, fast ? FAST_INTERVAL : t)
 
-    onEnd(current.index, current, main, elms);
+    onEnd(current.$index, current, main, elms);
   }
 
   function animate (elm, from, to, interval, onAnimation, callback) {
@@ -334,7 +319,7 @@ function swipeIt (options) {
         // moveX(elm, to)
         moveEx(elm, to);
         phase !== 16 && isFunction(callback) && callback();
-        return onEndAnimation(current.index, current, main, elms)
+        return onEndAnimation(current.$index, current, main, elms)
       }
       var distance = (to - from) * easing[ease](during / interval) + from;
       x = distance;
@@ -359,13 +344,18 @@ function swipeIt (options) {
       show(elms[2]);
       elms.push(elms[1].cloneNode(true));
       show(elms[3]);
+      elms[0].$index = elms[2].$index = 0;
+      elms[1].$index = elms[3].$index = 1;
     }
     var one = elms.length === 1;
     two = elms.length === 2;
-    slides = new LinkList(elms, needClone ? '0101' : null);
+    // slides = new LinkList(elms, needClone ? '0101' : null)
+    slides = new LinkList(elms);
+    needClone || elms.forEach(function (e, i) { return e.$index = i; });
+
     moveEx(current, 0);
-    one || two || moveEx(current.prev, -width);
-    one || moveEx(current.next, width);
+    one || two || moveEx(current.$prev, -width);
+    one || moveEx(current.$next, width);
     elms.forEach(function (el) {
       el.style.position = 'absolute';
       if (!css) {
@@ -373,13 +363,13 @@ function swipeIt (options) {
         el.style.height = height + 'px';
       }
       // el.style.overflow = 'hidden'
-      if (!two && !one && el !== current && el !== current.prev && el !== current.next) { hide(el); }
+      if (!two && !one && el !== current && el !== current.$prev && el !== current.$next) { hide(el); }
     });
 
-    if (one) { return onInit(current.index, current, main, elms) }
+    if (one) { return onInit(current.$index, current, main, elms) }
 
-    if (!two && !cycle && index === 0) { hide(current.prev); }
-    if (!two && !cycle && index === elms.length - 1) { hide(current.next); }
+    if (!two && !cycle && index === 0) { hide(current.$prev); }
+    if (!two && !cycle && index === elms.length - 1) { hide(current.$next); }
 
     destroy();
     on(root, pointerdown, onTouchStart);
@@ -404,7 +394,7 @@ function swipeIt (options) {
     }
 
     main.x = 0;
-    onInit(current.index, current, main, elms);
+    onInit(current.$index, current, main, elms);
   }
 
   function destroy () {
