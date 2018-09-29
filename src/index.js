@@ -2,7 +2,7 @@ import {on, off, easing, isFunction, pointerdown, pointermove, pointerup, comput
 import observe, {observable} from './intersect'
 // import supportPassive from './passive'
 import supportPassive from '@jiubao/passive'
-import LinkList from './link-list'
+import Link from './link'
 // import {raf, caf} from './raf'
 import {raf, caf} from '@jiubao/raf'
 
@@ -267,8 +267,8 @@ function swipeIt (options) {
     }
     var one = elms.length === 1
     two = elms.length === 2
-    // slides = new LinkList(elms, needClone ? '0101' : null)
-    slides = new LinkList(elms)
+    // slides = new Link(elms, needClone ? '0101' : null)
+    slides = new Link(elms)
     needClone || elms.forEach((e, i) => e.$index = i)
 
     moveEx(current, 0)

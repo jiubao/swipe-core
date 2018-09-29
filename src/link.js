@@ -1,8 +1,8 @@
-function LinkList (arr) {
+function Link (arr) {
   arr.forEach(item => this.append(item))
 }
 
-LinkList.prototype.append = function (item) {
+Link.prototype.append = function (item) {
   var node = item.$next = item.$prev = item
   if (!this.$tail) return this.$head = this.$tail = node
   node.$prev = this.$tail
@@ -12,4 +12,4 @@ LinkList.prototype.append = function (item) {
   return this.$tail = node
 }
 
-export default LinkList
+export default Link

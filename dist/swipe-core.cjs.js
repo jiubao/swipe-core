@@ -66,13 +66,13 @@ var observe = function (el, fn) {
   return function () { observer.unobserve(el); }
 };
 
-function LinkList (arr) {
+function Link (arr) {
   var this$1 = this;
 
   arr.forEach(function (item) { return this$1.append(item); });
 }
 
-LinkList.prototype.append = function (item) {
+Link.prototype.append = function (item) {
   var node = item.$next = item.$prev = item;
   if (!this.$tail) { return this.$head = this.$tail = node }
   node.$prev = this.$tail;
@@ -353,8 +353,8 @@ function swipeIt (options) {
     }
     var one = elms.length === 1;
     two = elms.length === 2;
-    // slides = new LinkList(elms, needClone ? '0101' : null)
-    slides = new LinkList(elms);
+    // slides = new Link(elms, needClone ? '0101' : null)
+    slides = new Link(elms);
     needClone || elms.forEach(function (e, i) { return e.$index = i; });
 
     moveEx(current, 0);
