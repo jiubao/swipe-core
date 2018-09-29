@@ -91,7 +91,7 @@ var defaultOptions = {
   startHandlers: [],
   moveHandlers: [],
   endHandlers: [],
-  endAnimationHandlers: []
+  animationEndHandlers: []
 };
 
 var hides = document.createElement('div');
@@ -126,7 +126,7 @@ function swipeIt (options) {
   var onStart = onFn('start');
   var onMove = onFn('move');
   var onEnd = onFn('end');
-  var onEndAnimation = onFn('endAnimation');
+  var onanimationEnd = onFn('animationEnd');
 
   if (!root) { return }
 
@@ -308,7 +308,7 @@ function swipeIt (options) {
         // moveX(elm, to)
         moveEx(elm, to);
         phase !== 16 && isFunction(callback) && callback();
-        return onEndAnimation(current.$index, current, main, elms)
+        return onanimationEnd(current.$index, current, main, elms)
       }
       var distance = (to - from) * easing[ease](during / interval) + from;
       x = distance;

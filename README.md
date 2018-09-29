@@ -119,7 +119,7 @@ swiper({
 | start | start move | index, current, main, elms |
 | move | moving | index, current, main, elms |
 | end | after move & before animation | index, current, main, elms |
-| endAnimation | after animation | index, current, main, elms |
+| animationEnd | after animation | index, current, main, elms |
 
 ## Event handler arguments
 | Name | Description |

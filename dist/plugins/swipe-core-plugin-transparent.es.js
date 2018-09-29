@@ -20,7 +20,7 @@ var transparent = width => {
       opacity(current, 1 - (1 - threshold) * gap / width);
       setTwo(current, threshold + (1 - threshold) * gap / width);
     },
-    endAnimation: (_, current) => {
+    animationEnd: (_, current) => {
       reset(current);
     }
   }
