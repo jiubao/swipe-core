@@ -9,8 +9,8 @@
     let threshold = 0.6;
     const opacity = (el, val) => el.style.opacity = val;
     const setTwo = (current, val) => {
-      if (current.next !== current) opacity(current.next, val);
-      if (current.prev !== current) opacity(current.prev, val);
+      if (current.$next !== current) opacity(current.$next, val);
+      if (current.$prev !== current) opacity(current.$prev, val);
     };
     const reset = current => {
       opacity(current, 1);

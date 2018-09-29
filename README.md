@@ -129,9 +129,22 @@ swiper({
 | main | main dom element |
 | elms | all elements' array |
 
+## element interface
+| Name | Description |
+| ----- | :-: |
+| $index | current index |
+| $prev | previous element |
+| $next | next element |
+
 examples:
 ```javascript
-swiperInstance.on('move', (index, current, main, elms) => console.log('moving...'))
+// bind 'move'
+var off = swiperInstance.on('move', (index, current, main, elms) => {
+  // next slide
+  console.log(current.$next)
+})
+// unbind 'move'
+off()
 ```
 
 ## Todos
