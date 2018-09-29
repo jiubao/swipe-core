@@ -3,6 +3,7 @@
 function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
 
 var supportPassive = _interopDefault(require('@jiubao/passive'));
+var Link = _interopDefault(require('@jiubao/link'));
 var raf = require('@jiubao/raf');
 
 var on = function (element, evt, handler) {
@@ -64,22 +65,6 @@ var observe = function (el, fn) {
   var observer = new IntersectionObserver (fn, options);
   observer.observe(el);
   return function () { observer.unobserve(el); }
-};
-
-function Link (arr) {
-  var this$1 = this;
-
-  arr.forEach(function (item) { return this$1.append(item); });
-}
-
-Link.prototype.append = function (item) {
-  var node = item.$next = item.$prev = item;
-  if (!this.$tail) { return this.$head = this.$tail = node }
-  node.$prev = this.$tail;
-  node.$next = this.$tail.$next;
-  this.$tail.$next = node;
-  node.$next.$prev = node;
-  return this.$tail = node
 };
 
 var FAST_THRESHOLD = 120;

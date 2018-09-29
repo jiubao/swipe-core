@@ -1,9 +1,7 @@
 import {on, off, easing, isFunction, pointerdown, pointermove, pointerup, computedProp, inViewport} from './utils'
 import observe, {observable} from './intersect'
-// import supportPassive from './passive'
 import supportPassive from '@jiubao/passive'
-import Link from './link'
-// import {raf, caf} from './raf'
+import Link from '@jiubao/link'
 import {raf, caf} from '@jiubao/raf'
 
 const FAST_THRESHOLD = 120
