@@ -1,3 +1,5 @@
+[![npm][npm]][npm-url]
+
 # swipe-core
 * 5.0k before gzipped
 
@@ -174,3 +176,7 @@ off()
 * init animation
 * desktop
 * inject version info into dist files
+
+
+[npm]: https://img.shields.io/npm/v/swipe-core.svg
+[npm-url]: https://npmjs.com/package/swipe-core
