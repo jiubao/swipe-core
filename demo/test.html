@@ -2,17 +2,42 @@
 <html>
   <head>
     <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
     <title></title>
-    <style media="screen">
-      * {padding: 0; margin: 0;}
-      .box {width: 375px; overflow: hidden;}
-      img {width: 100%;}
+    <style>
+      #expose { margin-left: 20px; }
+      #expose img {width: 100%;}
+      .box { padding: 0 5px; overflow: hidden; height: 200px;}
+      .swipe-core-wh { width: 315px; height: 200px; }
     </style>
   </head>
   <body>
-    <div class="box">
-      <img src="./imgs/1.jpg" />
+    <div id="expose" class="swipe-core-wh">
+      <div>
+        <div class="swipe-core-wh">
+          <div class="box"> <img src="./imgs/1.jpg" /> </div>
+        </div>
+        <div class="swipe-core-wh">
+          <div class="box"> <img src="./imgs/2.jpg" /> </div>
+        </div>
+        <div class="swipe-core-wh">
+          <div class="box"> <img src="./imgs/3.jpg" /> </div>
+        </div>
+      </div>
     </div>
 
+    <script src="../dist/swipe-core.umd.js"></script>
+    <script type="text/javascript">
+    var expose = document.getElementById('expose')
+    window.sc = window['swipe-core']({
+      root: expose,
+      expose: true,
+      css: true,
+      elms: Array.prototype.slice.apply(expose.children[0].children),
+      auto: true,
+      onEnd: index => console.log(index)
+    })
+
+    </script>
   </body>
 </html>

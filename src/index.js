@@ -227,10 +227,10 @@ function swipeIt (options) {
   function animate (elm, from, to, interval, onAnimation, callback) {
     var start = Date.now()
     function loop () {
-      // console.log(elm.parentElement.id)
-      isFunction(onAnimation) && onAnimation()
       var now = Date.now()
       var during = now - start
+      if (during >= interval) x = to
+      isFunction(onAnimation) && onAnimation()
       if (during >= interval) {
         // moveX(elm, to)
         moveEx(elm, to)
@@ -240,7 +240,7 @@ function swipeIt (options) {
       var distance = (to - from) * easing[ease](during / interval) + from
       x = distance
       // moveX(elm, distance)
-      moveEx(elm, distance)
+      moveEx(elm, x)
       animations.main = raf(loop)
     }
     loop()

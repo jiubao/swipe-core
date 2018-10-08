@@ -52,6 +52,34 @@ var computedProp = function (el, prop) { return window.getComputedStyle(el, null
 //   }
 // }
 
+// // Set the name of the hidden property and the change event for visibility
+// var hidden, visibilityChange;
+// if (typeof document.hidden !== "undefined") { // Opera 12.10 and Firefox 18 and later support
+//   hidden = "hidden";
+//   visibilityChange = "visibilitychange";
+// } else if (typeof document.msHidden !== "undefined") {
+//   hidden = "msHidden";
+//   visibilityChange = "msvisibilitychange";
+// } else if (typeof document.webkitHidden !== "undefined") {
+//   hidden = "webkitHidden";
+//   visibilityChange = "webkitvisibilitychange";
+// }
+
+// export {hidden, visibilityChange}
+
+// // If the page is hidden, pause the video;
+// // if the page is shown, play the video
+// function handleVisibilityChange() {
+//   if (document[hidden]) {
+//     clearAuto(phase = 16)
+//   } else {
+//     autoSwipePostpone()
+//   }
+// }
+//
+// // Handle page visibility change
+// document.addEventListener(visibilityChange, handleVisibilityChange, false);
+
 var options = { root: null, rootMargin: '0px', threshold: [0, 0.01] };
 
 var observable = !!window.IntersectionObserver;
@@ -296,10 +324,10 @@ function swipeIt (options) {
   function animate (elm, from, to, interval, onAnimation, callback) {
     var start = Date.now();
     function loop () {
-      // console.log(elm.parentElement.id)
-      isFunction(onAnimation) && onAnimation();
       var now = Date.now();
       var during = now - start;
+      if (during >= interval) { x = to; }
+      isFunction(onAnimation) && onAnimation();
       if (during >= interval) {
         // moveX(elm, to)
         moveEx(elm, to);
@@ -309,7 +337,7 @@ function swipeIt (options) {
       var distance = (to - from) * easing[ease](during / interval) + from;
       x = distance;
       // moveX(elm, distance)
-      moveEx(elm, distance);
+      moveEx(elm, x);
       animations.main = raf(loop);
     }
     loop();
