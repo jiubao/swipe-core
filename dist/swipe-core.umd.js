@@ -376,7 +376,7 @@
 
     function onTouchEnd (evt) {
       // auto && autoCallback()
-      if (phase.is(phaseEnum.vscrolling) && !phase.is(phaseEnum.animating)) { return }
+      if (phase.is(phaseEnum.vscrolling) && !phase.is(phaseEnum.animating) && !phase.is(phaseEnum.autoanimating)) { return }
       phase.assign(phaseEnum.animating);
       var right = currentX > restartX;
       var fast = (Date.now() - startTime) < FAST_THRESHOLD;
