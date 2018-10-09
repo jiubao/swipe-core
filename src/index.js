@@ -14,6 +14,7 @@ var passive = supportPassive()
 var events = 'scroll,resize,touchmove'
 
 var bitIs = (a, b) => a & b
+// var bitRm = (a, b) => a & ~b
 // var bitAssign = (a, b) => {a = a | b}
 
 var defaultOptions = {
@@ -139,8 +140,8 @@ function swipeIt (options) {
 
   function onTouchStart (evt) {
     clearAnimations()
-    // phase = phase | phaseEnum.start
-    phase = phaseEnum.start
+    phase = (phase | phaseEnum.start) & ~phaseEnum.vscrolling
+    // phase = phaseEnum.start
     direction = 0
 
     var touch = evt.touches[0]
@@ -151,14 +152,15 @@ function swipeIt (options) {
   }
 
   function onTouchMove (evt) {
-    if (bitIs(phase, (phaseEnum.animating | phaseEnum.vscrolling))) return
+    if (bitIs(phase, phaseEnum.vscrolling)) return
 
     var touch = evt.touches[0]
     var gap = touch.pageX - currentX
 
     if (bitIs(phase, phaseEnum.start) && Math.abs(gap) * 2 < Math.abs(touch.clientY - startY)) {
-      // phase = phase | phaseEnum.vscrolling
-      phase = phaseEnum.vscrolling
+      phase = (phase | phaseEnum.vscrolling) & ~phaseEnum.start
+      console.log('move.phase: ', phase)
+      // phase = phaseEnum.vscrolling
       return
     }
 
@@ -226,7 +228,8 @@ function swipeIt (options) {
 
   function onTouchEnd (evt) {
     // auto && autoCallback()
-    if (bitIs(phase, phaseEnum.vscrolling)) return
+    console.log('end.phase: ', phase)
+    if (bitIs(phase, phaseEnum.vscrolling) && !bitIs(phase, phaseEnum.animating)) return
     phase = phaseEnum.animating
     var right = currentX > restartX
     var fast = (Date.now() - startTime) < FAST_THRESHOLD

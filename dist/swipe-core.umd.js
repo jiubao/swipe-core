@@ -82,6 +82,29 @@
   // // Handle page visibility change
   // document.addEventListener(visibilityChange, handleVisibilityChange, false);
 
+  // function bitEnum () {
+  //   this.value = 0
+  // }
+  // bitEnum.prototype = {
+  //   is: function (a) {
+  //     return this.value & a
+  //   },
+  //   and: function (a) {
+  //     this.value = this.value & a
+  //     return this
+  //   },
+  //   or: function (a) {
+  //     this.value = this.value | a
+  //     return this
+  //   },
+  //   rm: function (a) {
+  //     this.value = this.value & ~a
+  //     return this
+  //   }
+  // }
+  //
+  // export {bitEnum}
+
   var options = { root: null, rootMargin: '0px', threshold: [0, 0.01] };
 
   var observable = !!window.IntersectionObserver;
@@ -146,6 +169,7 @@
   var passive = index();
 
   var bitIs = function (a, b) { return a & b; };
+  // var bitRm = (a, b) => a & ~b
   // var bitAssign = (a, b) => {a = a | b}
 
   var defaultOptions = {
@@ -282,8 +306,8 @@
 
     function onTouchStart (evt) {
       clearAnimations();
-      // phase = phase | phaseEnum.start
-      phase = phaseEnum.start;
+      phase = (phase | phaseEnum.start) & ~phaseEnum.vscrolling;
+      // phase = phaseEnum.start
       direction = 0;
 
       var touch = evt.touches[0];
@@ -294,14 +318,15 @@
     }
 
     function onTouchMove (evt) {
-      if (bitIs(phase, (phaseEnum.animating | phaseEnum.vscrolling))) { return }
+      if (bitIs(phase, phaseEnum.vscrolling)) { return }
 
       var touch = evt.touches[0];
       var gap = touch.pageX - currentX;
 
       if (bitIs(phase, phaseEnum.start) && Math.abs(gap) * 2 < Math.abs(touch.clientY - startY)) {
-        // phase = phase | phaseEnum.vscrolling
-        phase = phaseEnum.vscrolling;
+        phase = (phase | phaseEnum.vscrolling) & ~phaseEnum.start;
+        console.log('move.phase: ', phase);
+        // phase = phaseEnum.vscrolling
         return
       }
 
@@ -369,7 +394,8 @@
 
     function onTouchEnd (evt) {
       // auto && autoCallback()
-      if (bitIs(phase, phaseEnum.vscrolling)) { return }
+      console.log('end.phase: ', phase);
+      if (bitIs(phase, phaseEnum.vscrolling) && !bitIs(phase, phaseEnum.animating)) { return }
       phase = phaseEnum.animating;
       var right = currentX > restartX;
       var fast = (Date.now() - startTime) < FAST_THRESHOLD;

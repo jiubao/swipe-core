@@ -75,3 +75,26 @@ export const computedProp = (el, prop) => window.getComputedStyle(el, null).getP
 //
 // // Handle page visibility change
 // document.addEventListener(visibilityChange, handleVisibilityChange, false);
+
+// function bitEnum () {
+//   this.value = 0
+// }
+// bitEnum.prototype = {
+//   is: function (a) {
+//     return this.value & a
+//   },
+//   and: function (a) {
+//     this.value = this.value & a
+//     return this
+//   },
+//   or: function (a) {
+//     this.value = this.value | a
+//     return this
+//   },
+//   rm: function (a) {
+//     this.value = this.value & ~a
+//     return this
+//   }
+// }
+//
+// export {bitEnum}
