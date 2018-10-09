@@ -80,28 +80,26 @@ var computedProp = function (el, prop) { return window.getComputedStyle(el, null
 // // Handle page visibility change
 // document.addEventListener(visibilityChange, handleVisibilityChange, false);
 
-// function bitEnum () {
-//   this.value = 0
-// }
-// bitEnum.prototype = {
-//   is: function (a) {
-//     return this.value & a
-//   },
-//   and: function (a) {
-//     this.value = this.value & a
-//     return this
-//   },
-//   or: function (a) {
-//     this.value = this.value | a
-//     return this
-//   },
-//   rm: function (a) {
-//     this.value = this.value & ~a
-//     return this
-//   }
-// }
-//
-// export {bitEnum}
+function bitEnum () {
+  this.value = 0;
+}
+bitEnum.prototype = {
+  is: function (v) {
+    return this.value & v
+  },
+  or: function (v) {
+    this.value = this.value | v;
+    return this
+  },
+  rm: function (v) {
+    this.value = this.value & ~v;
+    return this
+  },
+  assign: function (v) {
+    this.value = v;
+    return this
+  }
+};
 
 var options = { root: null, rootMargin: '0px', threshold: [0, 0.01] };
 
@@ -121,10 +119,6 @@ var MAX_PART = MAX_INTERVAL * 2 / 3;
 var AUTO_TIMEOUT = 3000;
 
 var passive = supportPassive();
-
-var bitIs = function (a, b) { return a & b; };
-// var bitRm = (a, b) => a & ~b
-// var bitAssign = (a, b) => {a = a | b}
 
 var defaultOptions = {
   auto: false,
@@ -188,15 +182,6 @@ function swipeIt (options) {
   var main = root.children[0], animations = {main: -1, auto: -1}, threshold = width / 3;
 
   /* phase
-   * 0000: start [0]
-   * 0001: dragging [1]
-   * 0010: animating [2]
-   * 0100: vertical scrolling [4]
-   * 1000: auto animating [8]
-   * 10000: cancel auto animating [16]
-   */
-
-  /* phase
    * 0000 0000: idle
    * 0000 0001: start
    * 0000 0010: dragging
@@ -215,7 +200,7 @@ function swipeIt (options) {
     autoanimating:  16,
     cancelauto:     32
   };
-  var phase = phaseEnum.idle;
+  var phase = new bitEnum();
 
   /* autoPhase
    * 0: distance <= width / 2
@@ -260,8 +245,7 @@ function swipeIt (options) {
 
   function onTouchStart (evt) {
     clearAnimations();
-    phase = (phase | phaseEnum.start) & ~phaseEnum.vscrolling;
-    // phase = phaseEnum.start
+    phase.or(phaseEnum.start).rm(phaseEnum.vscrolling);
     direction = 0;
 
     var touch = evt.touches[0];
@@ -272,15 +256,13 @@ function swipeIt (options) {
   }
 
   function onTouchMove (evt) {
-    if (bitIs(phase, phaseEnum.vscrolling)) { return }
+    if (phase.is(phaseEnum.vscrolling)) { return }
 
     var touch = evt.touches[0];
     var gap = touch.pageX - currentX;
 
-    if (bitIs(phase, phaseEnum.start) && Math.abs(gap) * 2 < Math.abs(touch.clientY - startY)) {
-      phase = (phase | phaseEnum.vscrolling) & ~phaseEnum.start;
-      console.log('move.phase: ', phase);
-      // phase = phaseEnum.vscrolling
+    if (phase.is(phaseEnum.start) && Math.abs(gap) * 2 < Math.abs(touch.clientY - startY)) {
+      phase.or(phaseEnum.vscrolling).rm(phaseEnum.start);
       return
     }
 
@@ -291,7 +273,7 @@ function swipeIt (options) {
       direction = _d;
     }
 
-    phase = phaseEnum.dragging;
+    phase.assign(phaseEnum.dragging);
     currentX = touch.pageX;
 
     x = x + gap;
@@ -335,7 +317,7 @@ function swipeIt (options) {
 
   function autoSwipeImmediate () {
     autoPhase = 0;
-    phase = phaseEnum.autoanimating;
+    phase.assign(phaseEnum.autoanimating);
     animate(main, x, -current.x - width, MAX_PART, onAutoAnimation, autoSwipePostpone);
     // animate(main, x, x - width, MAX_INTERVAL, onAutoAnimation, autoCallback)
     onEnd(current.$next.$index, current.$next, main, elms);
@@ -348,9 +330,8 @@ function swipeIt (options) {
 
   function onTouchEnd (evt) {
     // auto && autoCallback()
-    console.log('end.phase: ', phase);
-    if (bitIs(phase, phaseEnum.vscrolling) && !bitIs(phase, phaseEnum.animating)) { return }
-    phase = phaseEnum.animating;
+    if (phase.is(phaseEnum.vscrolling) && !phase.is(phaseEnum.animating)) { return }
+    phase.assign(phaseEnum.animating);
     var right = currentX > restartX;
     var fast = (Date.now() - startTime) < FAST_THRESHOLD;
 
@@ -382,8 +363,8 @@ function swipeIt (options) {
       if (during >= interval) {
         // moveX(elm, to)
         moveEx(elm, to);
-        !bitIs(phase, phaseEnum.cancelauto) && isFunction(callback) && callback();
-        phase = phaseEnum.idle;
+        !phase.is(phaseEnum.cancelauto) && isFunction(callback) && callback();
+        phase.assign(phaseEnum.idle);
         return onanimationEnd(current.$index, current, main, elms)
       }
       var distance = (to - from) * easing[ease](during / interval) + from;
@@ -446,13 +427,13 @@ function swipeIt (options) {
       if (observable) {
         raf(function () {
           opts.unobserve = observe(root, function (entries) {
-            if (entries && entries[0].intersectionRatio === 0) { clearAuto(phase = phaseEnum.cancelauto); }
+            if (entries && entries[0].intersectionRatio === 0) { clearAuto(phase.assign(phaseEnum.cancelauto)); }
             else { autoSwipe(); }
           });
         });
       } else {
-        var toggleSwiper = function () { return inViewport(root) ? autoSwipePostpone() : clearAuto(phase = phaseEnum.cancelauto); };
-        on(window, 'touchmove', function () { return clearAuto(phase = phaseEnum.cancelauto); });
+        var toggleSwiper = function () { return inViewport(root) ? autoSwipePostpone() : clearAuto(phase.assign(phaseEnum.cancelauto)); };
+        on(window, 'touchmove', function () { return clearAuto(phase.assign(phaseEnum.cancelauto)); });
         on(window, 'touchend', toggleSwiper);
         toggleSwiper();
       }

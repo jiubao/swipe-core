@@ -76,25 +76,45 @@ export const computedProp = (el, prop) => window.getComputedStyle(el, null).getP
 // // Handle page visibility change
 // document.addEventListener(visibilityChange, handleVisibilityChange, false);
 
-// function bitEnum () {
-//   this.value = 0
-// }
-// bitEnum.prototype = {
-//   is: function (a) {
-//     return this.value & a
-//   },
-//   and: function (a) {
-//     this.value = this.value & a
-//     return this
-//   },
-//   or: function (a) {
-//     this.value = this.value | a
-//     return this
-//   },
-//   rm: function (a) {
-//     this.value = this.value & ~a
-//     return this
+function bitEnum () {
+  this.value = 0
+}
+bitEnum.prototype = {
+  is: function (v) {
+    return this.value & v
+  },
+  or: function (v) {
+    this.value = this.value | v
+    return this
+  },
+  rm: function (v) {
+    this.value = this.value & ~v
+    return this
+  },
+  assign: function (v) {
+    this.value = v
+    return this
+  }
+}
+
+// function bitEnum2 () {
+//   var value = 0
+//   var obj = {
+//     is: v => value & v,
+//     or: v => {
+//       value = value | v
+//       return obj
+//     },
+//     rm: v => {
+//       value = value & ~v
+//       return obj
+//     },
+//     assign: v => {
+//       value = v
+//       return obj
+//     }
 //   }
+//   return obj
 // }
-//
-// export {bitEnum}
+
+export {bitEnum}
