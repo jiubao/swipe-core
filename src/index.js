@@ -103,6 +103,7 @@ function swipeIt (options) {
   const stopL = _ => !cycle && currentX <= startX && current === slides.$tail
 
   var clearAuto = _ => clearTimeout(animations.auto)
+  var clearAndCancel = _ => clearAuto(phase.set(phaseEnum.cancel))
   var clearMain = _ => caf(animations.main)
   var clearAnimations = _ => {clearAuto(); clearMain();}
 
@@ -309,17 +310,22 @@ function swipeIt (options) {
       if (observable) {
         raf(() => {
           opts.unobserve = observe(root, function (entries) {
-            if (entries && entries[0].intersectionRatio === 0) clearAuto(phase.set(phaseEnum.cancel));
-            else autoSwipe();
+            if (entries && entries[0].intersectionRatio === 0) clearAndCancel()
+            else autoSwipe()
           })
         })
       } else {
         var evtOpt = passive ? {capture: true, passive: true} : true
-        var toggleSwiper = () => inViewport(root) ? autoSwipePostpone() : clearAuto(phase.set(phaseEnum.cancel))
-        on(window, 'touchmove', () => inViewport(root) || clearAuto(phase.set(phaseEnum.cancel)))
+        var toggleSwiper = () => inViewport(root) ? autoSwipePostpone() : clearAndCancel()
+        on(window, 'touchmove', () => inViewport(root) || clearAndCancel())
         on(window, 'touchend', toggleSwiper)
         toggleSwiper()
       }
+
+      // Set the name of the hidden property and the change event for visibility
+      var docHidden = ['ms', 'moz', 'webkit'].reduce((result, current) => typeof document[result[0]] !== 'undefined' ? result : [current + 'Hidden', current + 'visibilitychange'] , ['hidden', 'visibilitychange'])
+      // Handle page visibility change
+      document.addEventListener(docHidden[1], () => document[docHidden[0]] ? clearAndCancel() : autoSwipePostpone() , false);
     }
 
     main.x = 0

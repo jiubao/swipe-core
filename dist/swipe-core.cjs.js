@@ -56,34 +56,6 @@ var computedProp = function (el, prop) { return window.getComputedStyle(el, null
 //   }
 // }
 
-// // Set the name of the hidden property and the change event for visibility
-// var hidden, visibilityChange;
-// if (typeof document.hidden !== "undefined") { // Opera 12.10 and Firefox 18 and later support
-//   hidden = "hidden";
-//   visibilityChange = "visibilitychange";
-// } else if (typeof document.msHidden !== "undefined") {
-//   hidden = "msHidden";
-//   visibilityChange = "msvisibilitychange";
-// } else if (typeof document.webkitHidden !== "undefined") {
-//   hidden = "webkitHidden";
-//   visibilityChange = "webkitvisibilitychange";
-// }
-
-// export {hidden, visibilityChange}
-
-// // If the page is hidden, pause the video;
-// // if the page is shown, play the video
-// function handleVisibilityChange() {
-//   if (document[hidden]) {
-//     clearAuto(phase = 16)
-//   } else {
-//     autoSwipePostpone()
-//   }
-// }
-//
-// // Handle page visibility change
-// document.addEventListener(visibilityChange, handleVisibilityChange, false);
-
 function bitEnum () {
   this.value = 0;
 }
@@ -108,8 +80,6 @@ bitEnum.prototype = {
 var options = { 'root': null, 'rootMargin': '0px', 'threshold': [0, 0.01] };
 
 var observable = !!window['IntersectionObserver'];
-
-observable = false;
 
 var observe = function (el, fn) {
   if (!observable) { return fn() }
@@ -227,6 +197,7 @@ function swipeIt (options) {
   var stopL = function (_) { return !cycle && currentX <= startX && current === slides.$tail; };
 
   var clearAuto = function (_) { return clearTimeout(animations.auto); };
+  var clearAndCancel = function (_) { return clearAuto(phase.set(phaseEnum.cancel)); };
   var clearMain = function (_) { return raf.caf(animations.main); };
   var clearAnimations = function (_) {clearAuto(); clearMain();};
 
@@ -239,8 +210,7 @@ function swipeIt (options) {
       var fns = opts[evt + 'Handlers'];
       fns.push(callback);
       return function () { return fns.splice(fns.indexOf(callback), 1); }
-    },
-    'phase': function () { return phase; }
+    }
   }
 
   function moveX (el, x) {
@@ -254,7 +224,6 @@ function swipeIt (options) {
     clearAnimations();
     phase.or(phaseEnum.start).rm(phaseEnum.scroll);
     direction = 0;
-    console.log('start: ', phase);
 
     var touch = evt.touches[0];
     startTime = Date.now();
@@ -264,7 +233,6 @@ function swipeIt (options) {
   }
 
   function onTouchMove (evt) {
-    console.log('move.0: ', phase);
     if (phase.is(phaseEnum.scroll)) { return }
 
     var touch = evt.touches[0];
@@ -272,7 +240,6 @@ function swipeIt (options) {
 
     if (phase.is(phaseEnum.start) && Math.abs(gap) * 2 < Math.abs(touch.clientY - startY)) {
       phase.or(phaseEnum.scroll).rm(phaseEnum.start);
-      console.log('move.v: ', phase);
       return
     }
 
@@ -285,7 +252,6 @@ function swipeIt (options) {
 
     phase.set(phaseEnum.drag);
     currentX = touch.pageX;
-    console.log('move.1: ', phase);
 
     x = x + gap;
     // moveX(main, x)
@@ -438,16 +404,21 @@ function swipeIt (options) {
       if (observable) {
         raf.raf(function () {
           opts.unobserve = observe(root, function (entries) {
-            if (entries && entries[0].intersectionRatio === 0) { clearAuto(phase.set(phaseEnum.cancel)); }
+            if (entries && entries[0].intersectionRatio === 0) { clearAndCancel(); }
             else { autoSwipe(); }
           });
         });
       } else {
-        var toggleSwiper = function () { return inViewport(root) ? autoSwipePostpone() : clearAuto(phase.set(phaseEnum.cancel)); };
-        on(window, 'touchmove', function () { return inViewport(root) || clearAuto(phase.set(phaseEnum.cancel)); });
+        var toggleSwiper = function () { return inViewport(root) ? autoSwipePostpone() : clearAndCancel(); };
+        on(window, 'touchmove', function () { return inViewport(root) || clearAndCancel(); });
         on(window, 'touchend', toggleSwiper);
         toggleSwiper();
       }
+
+      // Set the name of the hidden property and the change event for visibility
+      var docHidden = ['ms', 'moz', 'webkit'].reduce(function (result, current) { return typeof document[result[0]] !== 'undefined' ? result : [current + 'Hidden', current + 'visibilitychange']; } , ['hidden', 'visibilitychange']);
+      // Handle page visibility change
+      document.addEventListener(docHidden[1], function () { return document[docHidden[0]] ? clearAndCancel() : autoSwipePostpone(); } , false);
     }
 
     main.x = 0;
