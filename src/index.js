@@ -4,15 +4,16 @@ import supportPassive from '@jiubao/passive'
 import Link from '@jiubao/link'
 import {raf, caf} from '@jiubao/raf'
 
-const FAST_THRESHOLD = 120
-const FAST_INTERVAL = 250
-const MAX_INTERVAL = 1000
+const FAST_THRESHOLD = 120 // threshold to identify fast swipe
+const FAST_INTERVAL = 250 // swipe duration in fast mode
+const MAX_INTERVAL = 1000 // total swipe duration
 const MAX_PART = MAX_INTERVAL * 2 / 3
-const AUTO_TIMEOUT = 3000
+const AUTO_TIMEOUT = 3000 // auto swipe interval
 
 var passive = supportPassive()
 var events = 'scroll,resize,touchmove'
 
+// quote property name to pervent mangling
 var defaultOptions = {
   'auto': false,
   'cycle': true,
@@ -32,6 +33,7 @@ var defaultOptions = {
   'animationEndHandlers': []
 }
 
+// hidden div to store swipe elements which are out of current three
 var hides = document.createElement('div')
 hides.style.display = 'none'
 document.body.appendChild(hides)
@@ -305,8 +307,8 @@ function swipeIt (options) {
     on(root, pointermove, onTouchMove)
     on(root, pointerup, onTouchEnd)
 
-    // stop auto swipe when out of screen
     if (auto) {
+      // stop auto swipe when out of screen
       if (observable) {
         raf(() => {
           opts.unobserve = observe(root, function (entries) {
@@ -322,6 +324,7 @@ function swipeIt (options) {
         toggleSwiper()
       }
 
+      // stop auto swipe when invisible
       // Set the name of the hidden property and the change event for visibility
       var docHidden = ['ms', 'moz', 'webkit'].reduce((result, current) => typeof document[result[0]] !== 'undefined' ? result : [current + 'Hidden', current + 'visibilitychange'] , ['hidden', 'visibilitychange'])
       // Handle page visibility change
