@@ -14,9 +14,10 @@ Designed for mobile: compact, smooth and efficient
 * cubic bezier to simulate ease out
 * always move one element which contain current 3 slides
 * a compact link node implementation to loop slides
-* stop swipe when out of screen
+* stop auto swipe when out of screen
   - android: IntersectionObserver
   - ios: throttle(requestAnimationFrame)
+* stop auto swipe when tab invisible
 
 ## Install
 ```sh
