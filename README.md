@@ -9,15 +9,15 @@
 
 ## Features
 Designed for mobile: compact, smooth and efficient
-* css transition has limitations, use js to simulate animation
-* use requestAnimationFrame and have a compact polyfill
-* cubic bezier to simulate ease out
+* animation: css animation has limitations, use js to simulate animation
+  - use requestAnimationFrame and have a compact polyfill
+  - use cubic bezier to simulate ease out
 * always move one element which contain current 3 slides
-* a compact link node implementation to loop slides
+* a compact link implementation to loop slides
 * stop auto swipe when out of screen
   - android: IntersectionObserver
   - ios: throttle(requestAnimationFrame)
-* stop auto swipe when tab invisible
+* listen visibilitychange to stop auto swipe when page invisible
 
 ## Install
 ```sh
