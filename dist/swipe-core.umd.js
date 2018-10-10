@@ -107,6 +107,8 @@
 
   var observable = !!window['IntersectionObserver'];
 
+  observable = false;
+
   var observe = function (el, fn) {
     if (!observable) { return fn() }
     var observer = new IntersectionObserver (fn, options);
@@ -279,8 +281,8 @@
         var fns = opts[evt + 'Handlers'];
         fns.push(callback);
         return function () { return fns.splice(fns.indexOf(callback), 1); }
-      }
-      // 'phase': () => phase
+      },
+      'phase': function () { return phase; }
     }
 
     function moveX (el, x) {
@@ -294,7 +296,7 @@
       clearAnimations();
       phase.or(phaseEnum.start).rm(phaseEnum.scroll);
       direction = 0;
-      // console.log('start: ', phase)
+      console.log('start: ', phase);
 
       var touch = evt.touches[0];
       startTime = Date.now();
@@ -304,7 +306,7 @@
     }
 
     function onTouchMove (evt) {
-      // console.log('move.0: ', phase)
+      console.log('move.0: ', phase);
       if (phase.is(phaseEnum.scroll)) { return }
 
       var touch = evt.touches[0];
@@ -312,7 +314,7 @@
 
       if (phase.is(phaseEnum.start) && Math.abs(gap) * 2 < Math.abs(touch.clientY - startY)) {
         phase.or(phaseEnum.scroll).rm(phaseEnum.start);
-        // console.log('move.v: ', phase)
+        console.log('move.v: ', phase);
         return
       }
 
@@ -325,7 +327,7 @@
 
       phase.set(phaseEnum.drag);
       currentX = touch.pageX;
-      // console.log('move.1: ', phase)
+      console.log('move.1: ', phase);
 
       x = x + gap;
       // moveX(main, x)
@@ -484,7 +486,7 @@
           });
         } else {
           var toggleSwiper = function () { return inViewport(root) ? autoSwipePostpone() : clearAuto(phase.set(phaseEnum.cancel)); };
-          on(window, 'touchmove', function () { return clearAuto(phase.set(phaseEnum.cancel)); });
+          on(window, 'touchmove', function () { return inViewport(root) || clearAuto(phase.set(phaseEnum.cancel)); });
           on(window, 'touchend', toggleSwiper);
           toggleSwiper();
         }

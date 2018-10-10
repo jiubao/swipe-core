@@ -116,7 +116,6 @@ function swipeIt (options) {
       fns.push(callback)
       return () => fns.splice(fns.indexOf(callback), 1)
     }
-    // 'phase': () => phase
   }
 
   function moveX (el, x) {
@@ -130,7 +129,6 @@ function swipeIt (options) {
     clearAnimations()
     phase.or(phaseEnum.start).rm(phaseEnum.scroll)
     direction = 0
-    // console.log('start: ', phase)
 
     var touch = evt.touches[0]
     startTime = Date.now()
@@ -140,7 +138,6 @@ function swipeIt (options) {
   }
 
   function onTouchMove (evt) {
-    // console.log('move.0: ', phase)
     if (phase.is(phaseEnum.scroll)) return
 
     var touch = evt.touches[0]
@@ -148,7 +145,6 @@ function swipeIt (options) {
 
     if (phase.is(phaseEnum.start) && Math.abs(gap) * 2 < Math.abs(touch.clientY - startY)) {
       phase.or(phaseEnum.scroll).rm(phaseEnum.start)
-      // console.log('move.v: ', phase)
       return
     }
 
@@ -161,7 +157,6 @@ function swipeIt (options) {
 
     phase.set(phaseEnum.drag)
     currentX = touch.pageX
-    // console.log('move.1: ', phase)
 
     x = x + gap
     // moveX(main, x)
@@ -321,7 +316,7 @@ function swipeIt (options) {
       } else {
         var evtOpt = passive ? {capture: true, passive: true} : true
         var toggleSwiper = () => inViewport(root) ? autoSwipePostpone() : clearAuto(phase.set(phaseEnum.cancel))
-        on(window, 'touchmove', () => clearAuto(phase.set(phaseEnum.cancel)))
+        on(window, 'touchmove', () => inViewport(root) || clearAuto(phase.set(phaseEnum.cancel)))
         on(window, 'touchend', toggleSwiper)
         toggleSwiper()
       }
