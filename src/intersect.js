@@ -1,6 +1,6 @@
-const options = { root: null, rootMargin: '0px', threshold: [0, 0.01] }
+const options = { 'root': null, 'rootMargin': '0px', 'threshold': [0, 0.01] }
 
-const observable = !!window.IntersectionObserver
+const observable = !!window['IntersectionObserver']
 
 const observe = (el, fn) => {
   if (!observable) return fn()

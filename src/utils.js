@@ -17,11 +17,11 @@ export const inViewport = item => {
 }
 
 export const easing = {
-  cubic: k => --k * k * k + 1,
+  'cubic': k => --k * k * k + 1,
   // quart: k => 1 - Math.pow(1 - k, 4), // 1 - --k * k * k * k,
   // quint: k => 1 - Math.pow(1 - k, 5),
   // expo: k => k === 1 ? 1 : 1 - Math.pow(2, -10 * k),
-  circ: k => Math.sqrt(1 - Math.pow(k - 1, 2))
+  'circ': k => Math.sqrt(1 - Math.pow(k - 1, 2))
 }
 
 // TODO: desktop support, mouse / pointer events
@@ -91,7 +91,7 @@ bitEnum.prototype = {
     this.value = this.value & ~v
     return this
   },
-  assign: function (v) {
+  set: function (v) {
     this.value = v
     return this
   }
@@ -109,7 +109,7 @@ bitEnum.prototype = {
 //       value = value & ~v
 //       return obj
 //     },
-//     assign: v => {
+//     set: v => {
 //       value = v
 //       return obj
 //     }
