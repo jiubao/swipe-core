@@ -116,13 +116,13 @@ swiper({
 
 ## Events
 
-| Name | Description | Parameters |
-| ----- | :-: | :-: |
-| init | initial | index, current, main, elms |
-| start | start move | index, current, main, elms |
-| move | moving | index, current, main, elms |
-| end | after move & before animation | index, current, main, elms |
-| animationEnd | after animation | index, current, main, elms |
+| Name | Description | trigger | Parameters |
+| ----- | :-: | :-: | :-: |
+| init | initial | - | index, current, main, elms |
+| start | start touch move | touch | index, current, main, elms |
+| move | slides moving | - | index, current, main, elms |
+| end | after touch move & before animation | touch | index, current, main, elms |
+| animationEnd | after animation | - | index, current, main, elms |
 
 ## Event handler arguments
 | Name | Description |

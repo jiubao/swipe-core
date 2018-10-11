@@ -191,7 +191,7 @@
     var onStart = onFn('start');
     var onMove = onFn('move');
     var onEnd = onFn('end');
-    var onanimationEnd = onFn('animationEnd');
+    var onAnimationEnd = onFn('animationEnd');
 
     if (!root) { return }
 
@@ -233,6 +233,8 @@
     auto = cycle && auto;
 
     var current = elms[index$$1];
+
+    // const moveE = el => moveX(el, el.x)
     var moveEx = function (el, x) { el.x = x; moveX(el, x); };
     var hide = function (el) { return hides.appendChild(el); };
 
@@ -342,7 +344,7 @@
       phase.set(phaseEnum.auto);
       animate(main, x, -current.x - width, MAX_PART, onAutoAnimation, autoSwipePostpone);
       // animate(main, x, x - width, MAX_INTERVAL, onAutoAnimation, autoCallback)
-      onEnd(current.$next.$index, current.$next, main, elms);
+      // onEnd(current.$next.$index, current.$next, main, elms)
     }
 
     function autoSwipe() {
@@ -387,7 +389,7 @@
           moveEx(elm, to);
           !phase.is(phaseEnum.cancel) && isFunction(callback) && callback();
           phase.set(phaseEnum.idle);
-          return onanimationEnd(current.$index, current, main, elms)
+          return onAnimationEnd(current.$index, current, main, elms)
         }
         var distance = (to - from) * easing[ease](during / interval) + from;
         x = distance;
@@ -462,9 +464,11 @@
 
         // stop auto swipe when invisible
         // Set the name of the hidden property and the change event for visibility
-        var docHidden = ['ms', 'moz', 'webkit'].reduce(function (result, current) { return typeof document[result[0]] !== 'undefined' ? result : [current + 'Hidden', current + 'visibilitychange']; } , ['hidden', 'visibilitychange']);
+        var ref = ['webkit', 'moz', 'ms', '-'].reduce(function (result, current) { return typeof document[result[0]] !== 'undefined' ? result : [current + 'Hidden', current + 'visibilitychange']; }, ['hidden', 'visibilitychange']);
+        var hidden = ref[0];
+        var visibilitychange = ref[1];
         // Handle page visibility change
-        document.addEventListener(docHidden[1], function () { return document[docHidden[0]] ? clearAndCancel() : autoSwipePostpone(); } , false);
+        hidden[0] !== '-' && document.addEventListener(visibilitychange, function () { return document[hidden] ? clearAndCancel() : autoSwipePostpone(); }, false);
       }
 
       main.x = 0;
