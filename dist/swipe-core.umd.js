@@ -191,7 +191,7 @@
     var onStart = onFn('start');
     var onMove = onFn('move');
     var onEnd = onFn('end');
-    var onAnimationEnd = onFn('animationEnd');
+    // var onAnimationEnd = onFn('animationEnd')
 
     if (!root) { return }
 
@@ -342,6 +342,7 @@
     function autoSwipeImmediate () {
       autoPhase = 0;
       phase.set(phaseEnum.auto);
+      onStart(current.$index, current, main, elms);
       animate(main, x, -current.x - width, MAX_PART, onAutoAnimation, autoSwipePostpone);
       // animate(main, x, x - width, MAX_INTERVAL, onAutoAnimation, autoCallback)
       // onEnd(current.$next.$index, current.$next, main, elms)
@@ -374,7 +375,7 @@
       animate(main, x, to, fast ? FAST_INTERVAL : t, null, auto ? function () { return autoSwipe(); } : null);
       // animate(main, x, to, fast ? FAST_INTERVAL : t)
 
-      onEnd(current.$index, current, main, elms);
+      // onEnd(current.$index, current, main, elms)
     }
 
     function animate (elm, from, to, interval, onAnimation, callback) {
@@ -389,7 +390,8 @@
           moveEx(elm, to);
           !phase.is(phaseEnum.cancel) && isFunction(callback) && callback();
           phase.set(phaseEnum.idle);
-          return onAnimationEnd(current.$index, current, main, elms)
+          // return onAnimationEnd(current.$index, current, main, elms)
+          return onEnd(current.$index, current, main, elms)
         }
         var distance = (to - from) * easing[ease](during / interval) + from;
         x = distance;

@@ -30,13 +30,16 @@
     <script src="../dist/swipe-core.umd.js"></script>
     <script type="text/javascript">
     var expose = document.getElementById('expose')
-    window.sc = window['swipe-core']({
+    var sc = window.sc = window['swipe-core']({
       root: expose,
       expose: true,
       css: true,
       elms: Array.prototype.slice.apply(expose.children[0].children),
       auto: true
-    }).on('end', (index) => console.log(index))
+    })
+    // sc.on('end', index => console.log('end: ', index))
+    // sc.on('start', i => console.log('start: ', i))
+    // sc.on('move', i => console.log('move: ', i))
 
     </script>
   </body>

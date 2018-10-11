@@ -26,7 +26,7 @@
         opacity(current, 1 - (1 - threshold) * gap / width);
         setTwo(current, threshold + (1 - threshold) * gap / width);
       },
-      animationEnd: (_, current) => {
+      end: (_, current) => {
         reset(current);
       }
     }
