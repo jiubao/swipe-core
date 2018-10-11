@@ -35,9 +35,8 @@
       expose: true,
       css: true,
       elms: Array.prototype.slice.apply(expose.children[0].children),
-      auto: true,
-      onEnd: index => console.log(index)
-    })
+      auto: true
+    }).on('end', (index) => console.log(index))
 
     </script>
   </body>

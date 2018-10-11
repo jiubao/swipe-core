@@ -240,6 +240,7 @@ function swipeIt (options) {
     var touch = evt.touches[0];
     var gap = touch.pageX - currentX;
 
+    // identify vertical scrolling
     if (phase.is(phaseEnum.start) && Math.abs(gap) * 2 < Math.abs(touch.clientY - startY)) {
       phase.or(phaseEnum.scroll).rm(phaseEnum.start);
       return
