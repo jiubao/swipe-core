@@ -1,7 +1,7 @@
 [![npm][npm]][npm-url]
 
 # swipe-core
-* 6k before gzipped
+* 6k before gzip
 
 ## Demo
 * https://jiubao.github.io/swipe-core/
