@@ -252,6 +252,8 @@
     var clearMain = function (_) { return caf(animations.main); };
     var clearAnimations = function (_) {clearAuto(); clearMain();};
 
+    var running = true;
+
     init();
 
     return {
@@ -261,7 +263,9 @@
         var fns = opts[evt + 'Handlers'];
         fns.push(callback);
         return function () { return fns.splice(fns.indexOf(callback), 1); }
-      }
+      },
+      stop: function () { return running = false; },
+      start: function () { return running = true; }
     }
 
     function moveX (el, x) {
@@ -272,6 +276,7 @@
     }
 
     function onTouchStart (evt) {
+      if (!running) { return }
       clearAnimations();
       phase.or(phaseEnum.start).rm(phaseEnum.scroll);
       direction = 0;
@@ -284,6 +289,7 @@
     }
 
     function onTouchMove (evt) {
+      if (!running) { return }
       if (phase.is(phaseEnum.scroll)) { return }
 
       var touch = evt.touches[0];
@@ -340,6 +346,7 @@
     function autoSwipePostpone () {
       clearAuto();
       animations.auto = setTimeout(function () {
+        if (!running) { return }
         autoSwipeImmediate();
       }, AUTO_TIMEOUT);
     }
@@ -359,6 +366,7 @@
     }
 
     function onTouchEnd (evt) {
+      if (!running) { return }
       // auto && autoCallback()
       if (phase.is(phaseEnum.scroll) && !phase.is(phaseEnum.animate) && !phase.is(phaseEnum.auto)) { return auto && autoSwipe(); }
       phase.set(phaseEnum.animate);
