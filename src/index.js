@@ -1,6 +1,5 @@
 import {on, off, easing, isFunction, pointerdown, pointermove, pointerup, computedProp, inViewport, bitEnum} from './utils'
 import observe, {observable} from './intersect'
-import supportPassive from '@jiubao/passive'
 import Link from '@jiubao/link'
 import {raf, caf} from '@jiubao/raf'
 
@@ -10,7 +9,6 @@ const MAX_INTERVAL = 1000 // total swipe duration
 const MAX_PART = MAX_INTERVAL * 2 / 3
 const AUTO_TIMEOUT = 3000 // auto swipe interval
 
-var passive = supportPassive()
 var events = 'scroll,resize,touchmove'
 
 // quote property name to pervent mangling
@@ -166,7 +164,7 @@ function swipeIt (options) {
     // moveX(main, x)
     moveEx(main, x)
 
-    evt.preventDefault();
+    // evt.preventDefault();
   }
 
   function moveRight () {
@@ -320,7 +318,6 @@ function swipeIt (options) {
           })
         })
       } else {
-        var evtOpt = passive ? {capture: true, passive: true} : true
         var toggleSwiper = () => inViewport(root) ? autoSwipePostpone() : clearAndCancel()
         on(window, 'touchmove', () => inViewport(root) || clearAndCancel())
         on(window, 'touchend', toggleSwiper)

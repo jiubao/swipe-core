@@ -6,12 +6,19 @@ var supportPassive = _interopDefault(require('@jiubao/passive'));
 var Link = _interopDefault(require('@jiubao/link'));
 var raf = require('@jiubao/raf');
 
-var on = function (element, evt, handler) {
-  element.addEventListener(evt, handler, false);
+var passive = supportPassive();
+var defaultEventOptions = passive ? {capture: false, passive: true} : false;
+
+var on = function (element, evt, handler, options) {
+  if ( options === void 0 ) options = defaultEventOptions;
+
+  element.addEventListener(evt, handler, options);
 };
 
-var off = function (element, evt, handler) {
-  element.removeEventListener(evt, handler, false);
+var off = function (element, evt, handler, options) {
+  if ( options === void 0 ) options = defaultEventOptions;
+
+  element.removeEventListener(evt, handler, options);
 };
 
 var isFunction = function (value) {
@@ -93,8 +100,6 @@ var FAST_INTERVAL = 250; // swipe duration in fast mode
 var MAX_INTERVAL = 1000; // total swipe duration
 var MAX_PART = MAX_INTERVAL * 2 / 3;
 var AUTO_TIMEOUT = 3000; // auto swipe interval
-
-var passive = supportPassive();
 
 // quote property name to pervent mangling
 var defaultOptions = {
@@ -262,7 +267,7 @@ function swipeIt (options) {
     // moveX(main, x)
     moveEx(main, x);
 
-    evt.preventDefault();
+    // evt.preventDefault();
   }
 
   function moveRight () {

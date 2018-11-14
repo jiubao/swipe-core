@@ -1,9 +1,13 @@
-export const on = (element, evt, handler) => {
-  element.addEventListener(evt, handler, false)
+import supportPassive from '@jiubao/passive'
+var passive = supportPassive()
+var defaultEventOptions = passive ? {capture: false, passive: true} : false
+
+export const on = (element, evt, handler, options = defaultEventOptions) => {
+  element.addEventListener(evt, handler, options)
 }
 
-export const off = (element, evt, handler) => {
-  element.removeEventListener(evt, handler, false)
+export const off = (element, evt, handler, options = defaultEventOptions) => {
+  element.removeEventListener(evt, handler, options)
 }
 
 export const isFunction = value => {
