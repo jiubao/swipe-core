@@ -109,6 +109,9 @@ function swipeIt (options) {
 
   var running = true
 
+  var offStack = []
+  const on2 = (...args) => offStack.push(on.apply(null, args))
+
   init()
 
   return {
@@ -311,10 +314,10 @@ function swipeIt (options) {
     if (!two && !cycle && index === 0) hide(current.$prev)
     if (!two && !cycle && index === elms.length - 1) hide(current.$next)
 
-    destroy()
-    on(root, pointerdown, onTouchStart)
-    on(root, pointermove, onTouchMove)
-    on(root, pointerup, onTouchEnd)
+    // destroy()
+    on2(root, pointerdown, onTouchStart)
+    on2(root, pointermove, onTouchMove)
+    on2(root, pointerup, onTouchEnd)
 
     if (auto) {
       // stop auto swipe when out of screen
@@ -327,8 +330,8 @@ function swipeIt (options) {
         })
       } else {
         var toggleSwiper = () => inViewport(root) ? autoSwipePostpone() : clearAndCancel()
-        on(window, 'touchmove', () => inViewport(root) || clearAndCancel())
-        on(window, 'touchend', toggleSwiper)
+        on2(window, 'touchmove', () => inViewport(root) || clearAndCancel())
+        on2(window, 'touchend', toggleSwiper)
         toggleSwiper()
       }
 
@@ -336,7 +339,7 @@ function swipeIt (options) {
       // Set the name of the hidden property and the change event for visibility
       var [hidden, visibilitychange] = ['webkit', 'moz', 'ms', '-'].reduce((result, current) => typeof document[result[0]] !== 'undefined' ? result : [current + 'Hidden', current + 'visibilitychange'], ['hidden', 'visibilitychange']);
       // Handle page visibility change
-      hidden[0] !== '-' && document.addEventListener(visibilitychange, () => document[hidden] ? clearAndCancel() : autoSwipePostpone(), false);
+      hidden[0] !== '-' && on2(document, 'visibilitychange', () => {document[hidden] ? clearAndCancel() : autoSwipePostpone()}, false)
     }
 
     main.x = 0
@@ -346,9 +349,8 @@ function swipeIt (options) {
   function destroy () {
     clearAnimations()
     isFunction(opts.unobserve) && opts.unobserve()
-    off(root, pointerdown, onTouchStart)
-    off(root, pointermove, onTouchMove)
-    off(root, pointerup, onTouchEnd)
+    offStack.forEach(fn => fn())
+    document.body.removeChild(hides)
   }
 }
 

@@ -9,6 +9,7 @@ var on = function (element, evt, handler, options) {
   if ( options === void 0 ) options = defaultEventOptions;
 
   element.addEventListener(evt, handler, options);
+  return function () { return off(element, evt, handler, options); }
 };
 
 var off = function (element, evt, handler, options) {
@@ -207,6 +208,14 @@ function swipeIt (options) {
   var clearAnimations = function (_) {clearAuto(); clearMain();};
 
   var running = true;
+
+  var offStack = [];
+  var on2 = function () {
+    var args = [], len = arguments.length;
+    while ( len-- ) args[ len ] = arguments[ len ];
+
+    return offStack.push(on.apply(null, args));
+  };
 
   init();
 
@@ -410,10 +419,10 @@ function swipeIt (options) {
     if (!two && !cycle && index === 0) { hide(current.$prev); }
     if (!two && !cycle && index === elms.length - 1) { hide(current.$next); }
 
-    destroy();
-    on(root, pointerdown, onTouchStart);
-    on(root, pointermove, onTouchMove);
-    on(root, pointerup, onTouchEnd);
+    // destroy()
+    on2(root, pointerdown, onTouchStart);
+    on2(root, pointermove, onTouchMove);
+    on2(root, pointerup, onTouchEnd);
 
     if (auto) {
       // stop auto swipe when out of screen
@@ -426,8 +435,8 @@ function swipeIt (options) {
         });
       } else {
         var toggleSwiper = function () { return inViewport(root) ? autoSwipePostpone() : clearAndCancel(); };
-        on(window, 'touchmove', function () { return inViewport(root) || clearAndCancel(); });
-        on(window, 'touchend', toggleSwiper);
+        on2(window, 'touchmove', function () { return inViewport(root) || clearAndCancel(); });
+        on2(window, 'touchend', toggleSwiper);
         toggleSwiper();
       }
 
@@ -437,7 +446,7 @@ function swipeIt (options) {
       var hidden = ref[0];
       var visibilitychange = ref[1];
       // Handle page visibility change
-      hidden[0] !== '-' && document.addEventListener(visibilitychange, function () { return document[hidden] ? clearAndCancel() : autoSwipePostpone(); }, false);
+      hidden[0] !== '-' && on2(document, 'visibilitychange', function () {document[hidden] ? clearAndCancel() : autoSwipePostpone();}, false);
     }
 
     main.x = 0;
@@ -447,9 +456,8 @@ function swipeIt (options) {
   function destroy () {
     clearAnimations();
     isFunction(opts.unobserve) && opts.unobserve();
-    off(root, pointerdown, onTouchStart);
-    off(root, pointermove, onTouchMove);
-    off(root, pointerup, onTouchEnd);
+    offStack.forEach(function (fn) { return fn(); });
+    document.body.removeChild(hides);
   }
 }
 
