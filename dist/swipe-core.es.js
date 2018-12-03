@@ -118,12 +118,12 @@ var defaultOptions = {
   'animationEndHandlers': []
 };
 
-// hidden div to store swipe elements which are out of current three
-var hides = document.createElement('div');
-hides.style.display = 'none';
-document.body.appendChild(hides);
-
 function swipeIt (options) {
+  // hidden div to store swipe elements which are out of current three
+  var hides = document.createElement('div');
+  hides.style.display = 'none';
+  document.body.appendChild(hides);
+
   var opts = Object.assign({}, defaultOptions,
     options);
 
