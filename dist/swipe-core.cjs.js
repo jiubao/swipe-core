@@ -461,7 +461,7 @@ function swipeIt (options) {
     clearAnimations();
     isFunction(opts.unobserve) && opts.unobserve();
     offStack.forEach(function (fn) { return fn(); });
-    document.body.removeChild(hides);
+    hides.parentNode && hides.parentNode.removeChild(hides);
   }
 }
 

@@ -350,7 +350,7 @@ function swipeIt (options) {
     clearAnimations()
     isFunction(opts.unobserve) && opts.unobserve()
     offStack.forEach(fn => fn())
-    document.body.removeChild(hides)
+    hides.parentNode && hides.parentNode.removeChild(hides)
   }
 }
 
