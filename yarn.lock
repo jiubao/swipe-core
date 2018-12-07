@@ -16,6 +16,10 @@
     esutils "^2.0.2"
     js-tokens "^3.0.0"
 
+"@jiubao/hook@^0.0.2":
+  version "0.0.2"
+  resolved "https://registry.yarnpkg.com/@jiubao/hook/-/hook-0.0.2.tgz#3e1c9571827d385d85704db4d6d7c57bbf8df82a"
+
 "@jiubao/link@^0.0.1":
   version "0.0.1"
   resolved "https://registry.yarnpkg.com/@jiubao/link/-/link-0.0.1.tgz#888a87cd2b052ec9fa1ecd9cba602aff49fc9124"

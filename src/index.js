@@ -2,6 +2,7 @@ import {on, off, easing, isFunction, pointerdown, pointermove, pointerup, comput
 import observe, {observable} from './intersect'
 import Link from '@jiubao/link'
 import {raf, caf} from '@jiubao/raf'
+import hook from '@jiubao/hook'
 
 const FAST_THRESHOLD = 120 // threshold to identify fast swipe
 const FAST_INTERVAL = 250 // swipe duration in fast mode
@@ -24,14 +25,15 @@ var defaultOptions = {
   'css': false,
   'ease': 'cubic',
   'plugins': [],
-  'initHandlers': [],
-  'startHandlers': [],
-  'moveHandlers': [],
-  'endHandlers': [],
-  'animationEndHandlers': []
+  // 'initHandlers': [],
+  // 'startHandlers': [],
+  // 'moveHandlers': [],
+  // 'endHandlers': [],
+  // 'animationEndHandlers': []
 }
 
 function swipeIt (options) {
+  var instance = Object.create(new hook())
   // hidden div to store swipe elements which are out of current three
   var hides = document.createElement('div')
   hides.style.display = 'none'
@@ -44,13 +46,14 @@ function swipeIt (options) {
 
   var {index, root, elms, width, height, cycle, expose, auto, css, ease, plugins} = opts
 
-  plugins.forEach(p => Object.keys(p).forEach(action => opts[action + 'Handlers'].push(p[action])))
+  // plugins.forEach(p => Object.keys(p).forEach(action => opts[action + 'Handlers'].push(p[action])))
+  plugins.forEach(p => Object.keys(p).forEach(evt => instance.on(evt, p[evt])))
 
-  var onFn = action => (...args) => opts[action + 'Handlers'].forEach(f => f.apply(null, args))
-  var onInit = onFn('init')
-  var onStart = onFn('start')
-  var onMove = onFn('move')
-  var onEnd = onFn('end')
+  // var onFn = action => (...args) => opts[action + 'Handlers'].forEach(f => f.apply(null, args))
+  // var onInit = onFn('init')
+  // var onStart = onFn('start')
+  // var onMove = onFn('move')
+  // var onEnd = onFn('end')
   // var onAnimationEnd = onFn('animationEnd')
 
   if (!root) return
@@ -94,6 +97,8 @@ function swipeIt (options) {
 
   var current = elms[index]
 
+  const trigger = evt => instance.trigger(evt, current.$index, current, main, elms)
+
   // const moveE = el => moveX(el, el.x)
   const moveEx = (el, x) => { el.x = x; moveX(el, x); }
   const hide = el => hides.appendChild(el)
@@ -114,23 +119,31 @@ function swipeIt (options) {
 
   init()
 
-  return {
-    'destroy': destroy,
-    'index': _ => current.$index,
-    'on': (evt, callback) => {
-      var fns = opts[evt + 'Handlers']
-      fns.push(callback)
-      return () => fns.splice(fns.indexOf(callback), 1)
-    },
-    stop: () => running = false,
-    start: () => running = true
-  }
+  instance.destroy = destroy
+  instance.index = () => current.$index
+  instance.stop = () => {running = false}
+  instance.start = () => {running = true}
+
+  // return {
+  //   'destroy': destroy,
+  //   'index': _ => current.$index,
+  //   'on': (evt, callback) => {
+  //     var fns = opts[evt + 'Handlers']
+  //     fns.push(callback)
+  //     return () => fns.splice(fns.indexOf(callback), 1)
+  //   },
+  //   stop: () => running = false,
+  //   start: () => running = true
+  // }
+
+  return instance
 
   function moveX (el, x) {
     if (!el) return
     el.style.transition = el.style.webkitTransition = ''
     el.style.transform = el.style.webkitTransform = `translate3d(${x}px, 0, 0)`
-    onMove(current.$index, current, main, elms)
+    // onMove(current.$index, current, main, elms)
+    trigger('move')
   }
 
   function onTouchStart (evt) {
@@ -143,7 +156,8 @@ function swipeIt (options) {
     startTime = Date.now()
     restartX = currentX = startX = touch.pageX
     startY = touch.clientY
-    onStart(current.$index, current, main, elms)
+    // onStart(current.$index, current, main, elms)
+    trigger('start')
   }
 
   function onTouchMove (evt) {
@@ -212,7 +226,8 @@ function swipeIt (options) {
   function autoSwipeImmediate () {
     autoPhase = 0
     phase.set(phaseEnum.auto)
-    onStart(current.$index, current, main, elms)
+    // onStart(current.$index, current, main, elms)
+    trigger('start')
     animate(main, x, -current.x - width, MAX_PART, onAutoAnimation, autoSwipePostpone)
     // animate(main, x, x - width, MAX_INTERVAL, onAutoAnimation, autoCallback)
     // onEnd(current.$next.$index, current.$next, main, elms)
@@ -262,7 +277,8 @@ function swipeIt (options) {
         !phase.is(phaseEnum.cancel) && isFunction(callback) && callback()
         phase.set(phaseEnum.idle)
         // return onAnimationEnd(current.$index, current, main, elms)
-        return onEnd(current.$index, current, main, elms)
+        // return onEnd(current.$index, current, main, elms)
+        return trigger('end')
       }
       var distance = (to - from) * easing[ease](during / interval) + from
       x = distance
@@ -274,7 +290,9 @@ function swipeIt (options) {
   }
 
   function init () {
-    if (elms.length === 0) return onInit(-1)
+    // if (elms.length === 0) return onInit(-1)
+    if (elms.length === 0) return instance.trigger('init', -1)
+
     // if (!expose) root.style.overflow = 'hidden'
     root.style.position = 'relative'
     if (!css) {
@@ -309,7 +327,8 @@ function swipeIt (options) {
       if (!two && !one && el !== current && el !== current.$prev && el !== current.$next) hide(el)
     })
 
-    if (one) return onInit(current.$index, current, main, elms)
+    // if (one) return onInit(current.$index, current, main, elms)
+    if (one) return trigger('init')
 
     if (!two && !cycle && index === 0) hide(current.$prev)
     if (!two && !cycle && index === elms.length - 1) hide(current.$next)
@@ -343,7 +362,8 @@ function swipeIt (options) {
     }
 
     main.x = 0
-    onInit(current.$index, current, main, elms)
+    // onInit(current.$index, current, main, elms)
+    trigger('init')
   }
 
   function destroy () {
@@ -351,6 +371,7 @@ function swipeIt (options) {
     isFunction(opts.unobserve) && opts.unobserve()
     offStack.forEach(fn => fn())
     hides.parentNode && hides.parentNode.removeChild(hides)
+    instance.$destroy()
   }
 }
 

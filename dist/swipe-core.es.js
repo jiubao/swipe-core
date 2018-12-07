@@ -92,6 +92,33 @@ var observe = function (el, fn) {
   return function () { observer.unobserve(el); }
 };
 
+function index () {
+  var handlers = Object.create(null);
+  var get = function (evt) {
+    if (!handlers[evt]) { handlers[evt] = []; }
+    return handlers[evt]
+  };
+  var trigger = function (evt) {
+  var arguments$1 = arguments;
+
+  var args = [], len = arguments.length - 1;
+  while ( len-- > 0 ) { args[ len ] = arguments$1[ len + 1 ]; }
+get(evt).forEach(function (fn) { return fn.apply(null, args); });};
+
+  var off = function (evt, fn) {
+    if (fn) { get(evt).splice(get(evt).indexOf(fn), 1); }
+    else { delete handlers[evt]; }
+  };
+  var on = function (evt, fn) {
+    get(evt).push(fn);
+    return function () { return off(evt, fn); }
+  };
+
+  return {
+    on: on, off: off, trigger: trigger, $get: get, $destroy: function () {Object.keys(handlers).forEach(function (evt) {off(evt);});}
+  }
+}
+
 var FAST_THRESHOLD = 120; // threshold to identify fast swipe
 var FAST_INTERVAL = 250; // swipe duration in fast mode
 var MAX_INTERVAL = 1000; // total swipe duration
@@ -111,14 +138,15 @@ var defaultOptions = {
   'css': false,
   'ease': 'cubic',
   'plugins': [],
-  'initHandlers': [],
-  'startHandlers': [],
-  'moveHandlers': [],
-  'endHandlers': [],
-  'animationEndHandlers': []
+  // 'initHandlers': [],
+  // 'startHandlers': [],
+  // 'moveHandlers': [],
+  // 'endHandlers': [],
+  // 'animationEndHandlers': []
 };
 
 function swipeIt (options) {
+  var instance = Object.create(new index());
   // hidden div to store swipe elements which are out of current three
   var hides = document.createElement('div');
   hides.style.display = 'none';
@@ -127,7 +155,7 @@ function swipeIt (options) {
   var opts = Object.assign({}, defaultOptions,
     options);
 
-  var index = opts.index;
+  var index$$1 = opts.index;
   var root = opts.root;
   var elms = opts.elms;
   var width = opts.width;
@@ -139,18 +167,14 @@ function swipeIt (options) {
   var ease = opts.ease;
   var plugins = opts.plugins;
 
-  plugins.forEach(function (p) { return Object.keys(p).forEach(function (action) { return opts[action + 'Handlers'].push(p[action]); }); });
+  // plugins.forEach(p => Object.keys(p).forEach(action => opts[action + 'Handlers'].push(p[action])))
+  plugins.forEach(function (p) { return Object.keys(p).forEach(function (evt) { return instance.on(evt, p[evt]); }); });
 
-  var onFn = function (action) { return function () {
-    var args = [], len = arguments.length;
-    while ( len-- ) args[ len ] = arguments[ len ];
-
-    return opts[action + 'Handlers'].forEach(function (f) { return f.apply(null, args); });
- }    };
-  var onInit = onFn('init');
-  var onStart = onFn('start');
-  var onMove = onFn('move');
-  var onEnd = onFn('end');
+  // var onFn = action => (...args) => opts[action + 'Handlers'].forEach(f => f.apply(null, args))
+  // var onInit = onFn('init')
+  // var onStart = onFn('start')
+  // var onMove = onFn('move')
+  // var onEnd = onFn('end')
   // var onAnimationEnd = onFn('animationEnd')
 
   if (!root) { return }
@@ -192,7 +216,9 @@ function swipeIt (options) {
   var two = false;
   auto = cycle && auto;
 
-  var current = elms[index];
+  var current = elms[index$$1];
+
+  var trigger = function (evt) { return instance.trigger(evt, current.$index, current, main, elms); };
 
   // const moveE = el => moveX(el, el.x)
   var moveEx = function (el, x) { el.x = x; moveX(el, x); };
@@ -219,23 +245,31 @@ function swipeIt (options) {
 
   init();
 
-  return {
-    'destroy': destroy,
-    'index': function (_) { return current.$index; },
-    'on': function (evt, callback) {
-      var fns = opts[evt + 'Handlers'];
-      fns.push(callback);
-      return function () { return fns.splice(fns.indexOf(callback), 1); }
-    },
-    stop: function () { return running = false; },
-    start: function () { return running = true; }
-  }
+  instance.destroy = destroy;
+  instance.index = function () { return current.$index; };
+  instance.stop = function () {running = false;};
+  instance.start = function () {running = true;};
+
+  // return {
+  //   'destroy': destroy,
+  //   'index': _ => current.$index,
+  //   'on': (evt, callback) => {
+  //     var fns = opts[evt + 'Handlers']
+  //     fns.push(callback)
+  //     return () => fns.splice(fns.indexOf(callback), 1)
+  //   },
+  //   stop: () => running = false,
+  //   start: () => running = true
+  // }
+
+  return instance
 
   function moveX (el, x) {
     if (!el) { return }
     el.style.transition = el.style.webkitTransition = '';
     el.style.transform = el.style.webkitTransform = "translate3d(" + x + "px, 0, 0)";
-    onMove(current.$index, current, main, elms);
+    // onMove(current.$index, current, main, elms)
+    trigger('move');
   }
 
   function onTouchStart (evt) {
@@ -248,7 +282,8 @@ function swipeIt (options) {
     startTime = Date.now();
     restartX = currentX = startX = touch.pageX;
     startY = touch.clientY;
-    onStart(current.$index, current, main, elms);
+    // onStart(current.$index, current, main, elms)
+    trigger('start');
   }
 
   function onTouchMove (evt) {
@@ -317,7 +352,8 @@ function swipeIt (options) {
   function autoSwipeImmediate () {
     autoPhase = 0;
     phase.set(phaseEnum.auto);
-    onStart(current.$index, current, main, elms);
+    // onStart(current.$index, current, main, elms)
+    trigger('start');
     animate(main, x, -current.x - width, MAX_PART, onAutoAnimation, autoSwipePostpone);
     // animate(main, x, x - width, MAX_INTERVAL, onAutoAnimation, autoCallback)
     // onEnd(current.$next.$index, current.$next, main, elms)
@@ -367,7 +403,8 @@ function swipeIt (options) {
         !phase.is(phaseEnum.cancel) && isFunction(callback) && callback();
         phase.set(phaseEnum.idle);
         // return onAnimationEnd(current.$index, current, main, elms)
-        return onEnd(current.$index, current, main, elms)
+        // return onEnd(current.$index, current, main, elms)
+        return trigger('end')
       }
       var distance = (to - from) * easing[ease](during / interval) + from;
       x = distance;
@@ -379,7 +416,9 @@ function swipeIt (options) {
   }
 
   function init () {
-    if (elms.length === 0) { return onInit(-1) }
+    // if (elms.length === 0) return onInit(-1)
+    if (elms.length === 0) { return instance.trigger('init', -1) }
+
     // if (!expose) root.style.overflow = 'hidden'
     root.style.position = 'relative';
     if (!css) {
@@ -414,10 +453,11 @@ function swipeIt (options) {
       if (!two && !one && el !== current && el !== current.$prev && el !== current.$next) { hide(el); }
     });
 
-    if (one) { return onInit(current.$index, current, main, elms) }
+    // if (one) return onInit(current.$index, current, main, elms)
+    if (one) { return trigger('init') }
 
-    if (!two && !cycle && index === 0) { hide(current.$prev); }
-    if (!two && !cycle && index === elms.length - 1) { hide(current.$next); }
+    if (!two && !cycle && index$$1 === 0) { hide(current.$prev); }
+    if (!two && !cycle && index$$1 === elms.length - 1) { hide(current.$next); }
 
     // destroy()
     on2(root, pointerdown, onTouchStart);
@@ -450,7 +490,8 @@ function swipeIt (options) {
     }
 
     main.x = 0;
-    onInit(current.$index, current, main, elms);
+    // onInit(current.$index, current, main, elms)
+    trigger('init');
   }
 
   function destroy () {
@@ -458,6 +499,7 @@ function swipeIt (options) {
     isFunction(opts.unobserve) && opts.unobserve();
     offStack.forEach(function (fn) { return fn(); });
     hides.parentNode && hides.parentNode.removeChild(hides);
+    instance.$destroy();
   }
 }
 
