@@ -1,6 +1,7 @@
 import supportPassive from '@jiubao/passive';
 import Link from '@jiubao/link';
 import { raf, caf } from '@jiubao/raf';
+import hook from '@jiubao/hook';
 
 var passive = supportPassive();
 var defaultEventOptions = passive ? {capture: false, passive: true} : false;
@@ -92,33 +93,6 @@ var observe = function (el, fn) {
   return function () { observer.unobserve(el); }
 };
 
-function index () {
-  var handlers = Object.create(null);
-  var get = function (evt) {
-    if (!handlers[evt]) { handlers[evt] = []; }
-    return handlers[evt]
-  };
-  var trigger = function (evt) {
-  var arguments$1 = arguments;
-
-  var args = [], len = arguments.length - 1;
-  while ( len-- > 0 ) { args[ len ] = arguments$1[ len + 1 ]; }
-get(evt).forEach(function (fn) { return fn.apply(null, args); });};
-
-  var off = function (evt, fn) {
-    if (fn) { get(evt).splice(get(evt).indexOf(fn), 1); }
-    else { delete handlers[evt]; }
-  };
-  var on = function (evt, fn) {
-    get(evt).push(fn);
-    return function () { return off(evt, fn); }
-  };
-
-  return {
-    on: on, off: off, trigger: trigger, $get: get, $destroy: function () {Object.keys(handlers).forEach(function (evt) {off(evt);});}
-  }
-}
-
 var FAST_THRESHOLD = 120; // threshold to identify fast swipe
 var FAST_INTERVAL = 250; // swipe duration in fast mode
 var MAX_INTERVAL = 1000; // total swipe duration
@@ -146,7 +120,7 @@ var defaultOptions = {
 };
 
 function swipeIt (options) {
-  var instance = Object.create(new index());
+  var instance = Object.create(new hook());
   // hidden div to store swipe elements which are out of current three
   var hides = document.createElement('div');
   hides.style.display = 'none';
@@ -155,7 +129,7 @@ function swipeIt (options) {
   var opts = Object.assign({}, defaultOptions,
     options);
 
-  var index$$1 = opts.index;
+  var index = opts.index;
   var root = opts.root;
   var elms = opts.elms;
   var width = opts.width;
@@ -216,7 +190,7 @@ function swipeIt (options) {
   var two = false;
   auto = cycle && auto;
 
-  var current = elms[index$$1];
+  var current = elms[index];
 
   var trigger = function (evt) { return instance.trigger(evt, current.$index, current, main, elms); };
 
@@ -456,8 +430,8 @@ function swipeIt (options) {
     // if (one) return onInit(current.$index, current, main, elms)
     if (one) { return trigger('init') }
 
-    if (!two && !cycle && index$$1 === 0) { hide(current.$prev); }
-    if (!two && !cycle && index$$1 === elms.length - 1) { hide(current.$next); }
+    if (!two && !cycle && index === 0) { hide(current.$prev); }
+    if (!two && !cycle && index === elms.length - 1) { hide(current.$next); }
 
     // destroy()
     on2(root, pointerdown, onTouchStart);
