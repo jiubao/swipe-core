@@ -1,4 +1,5 @@
-import {on, off, easing, isFunction, pointerdown, pointermove, pointerup, computedProp, inViewport, bitEnum} from './utils'
+import {easing, pointerdown, pointermove, pointerup, computedProp, bitEnum} from './utils'
+import {on, off, isFunction, inViewport} from '@jiubao/utils'
 import observe, {observable} from './intersect'
 import Link from '@jiubao/link'
 import {raf, caf} from '@jiubao/raf'

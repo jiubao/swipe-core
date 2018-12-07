@@ -2,36 +2,33 @@
 
 function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
 
-var supportPassive = _interopDefault(require('@jiubao/passive'));
+var utils = require('@jiubao/utils');
 var Link = _interopDefault(require('@jiubao/link'));
 var raf = require('@jiubao/raf');
 var hook = _interopDefault(require('@jiubao/hook'));
 
-var passive = supportPassive();
-var defaultEventOptions = passive ? {capture: false, passive: true} : false;
+// import supportPassive from '@jiubao/passive'
+// var passive = supportPassive()
+// var defaultEventOptions = passive ? {capture: false, passive: true} : false
 
-var on = function (element, evt, handler, options) {
-  if ( options === void 0 ) options = defaultEventOptions;
-
-  element.addEventListener(evt, handler, options);
-  return function () { return off(element, evt, handler, options); }
-};
-
-var off = function (element, evt, handler, options) {
-  if ( options === void 0 ) options = defaultEventOptions;
-
-  element.removeEventListener(evt, handler, options);
-};
-
-var isFunction = function (value) {
-  return typeof value === 'function'
-};
-
-var inViewport = function (item) {
-  var rect = item.getBoundingClientRect();
-  return (rect.top < window.innerHeight && rect.bottom > 0) &&
-    (rect.left < window.innerWidth && rect.right > 0)
-};
+// export const on = (element, evt, handler, options = defaultEventOptions) => {
+//   element.addEventListener(evt, handler, options)
+//   return () => off(element, evt, handler, options)
+// }
+//
+// export const off = (element, evt, handler, options = defaultEventOptions) => {
+//   element.removeEventListener(evt, handler, options)
+// }
+//
+// export const isFunction = value => {
+//   return typeof value === 'function'
+// }
+//
+// export const inViewport = item => {
+//   var rect = item.getBoundingClientRect()
+//   return (rect.top < window.innerHeight && rect.bottom > 0) &&
+//     (rect.left < window.innerWidth && rect.right > 0)
+// }
 
 var easing = {
   'cubic': function (k) { return --k * k * k + 1; },
@@ -206,7 +203,7 @@ function swipeIt (options) {
     var args = [], len = arguments.length;
     while ( len-- ) args[ len ] = arguments[ len ];
 
-    return offStack.push(on.apply(null, args));
+    return offStack.push(utils.on.apply(null, args));
   };
 
   init();
@@ -344,11 +341,11 @@ function swipeIt (options) {
       var now = Date.now();
       var during = now - start;
       if (during >= interval) { x = to; }
-      isFunction(onAnimation) && onAnimation();
+      utils.isFunction(onAnimation) && onAnimation();
       if (during >= interval) {
         // moveX(elm, to)
         moveEx(elm, to);
-        !phase.is(phaseEnum.cancel) && isFunction(callback) && callback();
+        !phase.is(phaseEnum.cancel) && utils.isFunction(callback) && callback();
         phase.set(phaseEnum.idle);
         // return onAnimationEnd(current.$index, current, main, elms)
         return trigger('end')
@@ -419,8 +416,8 @@ function swipeIt (options) {
           });
         });
       } else {
-        var toggleSwiper = function () { return inViewport(root) ? autoSwipePostpone() : clearAndCancel(); };
-        on2(window, 'touchmove', function () { return inViewport(root) || clearAndCancel(); });
+        var toggleSwiper = function () { return utils.inViewport(root) ? autoSwipePostpone() : clearAndCancel(); };
+        on2(window, 'touchmove', function () { return utils.inViewport(root) || clearAndCancel(); });
         on2(window, 'touchend', toggleSwiper);
         toggleSwiper();
       }
@@ -440,7 +437,7 @@ function swipeIt (options) {
 
   function destroy () {
     clearAnimations();
-    isFunction(opts.unobserve) && opts.unobserve();
+    utils.isFunction(opts.unobserve) && opts.unobserve();
     offStack.forEach(function (fn) { return fn(); });
     hides.parentNode && hides.parentNode.removeChild(hides);
     instance.$destroy();

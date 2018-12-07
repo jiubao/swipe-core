@@ -4,45 +4,28 @@
   (global['swipe-core'] = factory());
 }(this, (function () { 'use strict';
 
-  function index (_) {
-    var passive = false;
+  // import supportPassive from '@jiubao/passive'
+  // var passive = supportPassive()
+  // var defaultEventOptions = passive ? {capture: false, passive: true} : false
 
-    function noop () {}
-
-    var options = Object.defineProperty({}, 'passive', {
-      get: function get () { passive = true; }
-    });
-
-    window.addEventListener('testPassive', noop, options);
-    window.removeEventListener('testPassive', noop, options);
-    return passive
-  }
-
-  var passive = index();
-  var defaultEventOptions = passive ? {capture: false, passive: true} : false;
-
-  var on = function (element, evt, handler, options) {
-    if ( options === void 0 ) options = defaultEventOptions;
-
-    element.addEventListener(evt, handler, options);
-    return function () { return off(element, evt, handler, options); }
-  };
-
-  var off = function (element, evt, handler, options) {
-    if ( options === void 0 ) options = defaultEventOptions;
-
-    element.removeEventListener(evt, handler, options);
-  };
-
-  var isFunction = function (value) {
-    return typeof value === 'function'
-  };
-
-  var inViewport = function (item) {
-    var rect = item.getBoundingClientRect();
-    return (rect.top < window.innerHeight && rect.bottom > 0) &&
-      (rect.left < window.innerWidth && rect.right > 0)
-  };
+  // export const on = (element, evt, handler, options = defaultEventOptions) => {
+  //   element.addEventListener(evt, handler, options)
+  //   return () => off(element, evt, handler, options)
+  // }
+  //
+  // export const off = (element, evt, handler, options = defaultEventOptions) => {
+  //   element.removeEventListener(evt, handler, options)
+  // }
+  //
+  // export const isFunction = value => {
+  //   return typeof value === 'function'
+  // }
+  //
+  // export const inViewport = item => {
+  //   var rect = item.getBoundingClientRect()
+  //   return (rect.top < window.innerHeight && rect.bottom > 0) &&
+  //     (rect.left < window.innerWidth && rect.right > 0)
+  // }
 
   var easing = {
     'cubic': function (k) { return --k * k * k + 1; },
@@ -95,6 +78,44 @@
       this.value = v;
       return this
     }
+  };
+
+  function index (_) {
+    var passive = false;
+
+    function noop () {}
+
+    var options = Object.defineProperty({}, 'passive', {
+      get: function get () { passive = true; }
+    });
+
+    window.addEventListener('testPassive', noop, options);
+    window.removeEventListener('testPassive', noop, options);
+    return passive
+  }
+
+  var passive = index();
+  var defaultEventOptions = passive ? {capture: false, passive: true} : false;
+
+  var on = function (element, evt, handler, options) {
+    if ( options === void 0 ) { options = defaultEventOptions; }
+
+    element.addEventListener(evt, handler, options);
+    return function () { return off(element, evt, handler, options); }
+  };
+
+  var off = function (element, evt, handler, options) {
+    if ( options === void 0 ) { options = defaultEventOptions; }
+
+    element.removeEventListener(evt, handler, options);
+  };
+
+  var isFunction = function (value) { return typeof value === 'function'; };
+
+  var inViewport = function (item) {
+    var rect = item.getBoundingClientRect();
+    return (rect.top < window.innerHeight && rect.bottom > 0) &&
+      (rect.left < window.innerWidth && rect.right > 0)
   };
 
   var options = { 'root': null, 'rootMargin': '0px', 'threshold': [0, 0.01] };

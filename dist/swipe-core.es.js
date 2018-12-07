@@ -1,33 +1,30 @@
-import supportPassive from '@jiubao/passive';
+import { on, isFunction, inViewport } from '@jiubao/utils';
 import Link from '@jiubao/link';
 import { raf, caf } from '@jiubao/raf';
 import hook from '@jiubao/hook';
 
-var passive = supportPassive();
-var defaultEventOptions = passive ? {capture: false, passive: true} : false;
+// import supportPassive from '@jiubao/passive'
+// var passive = supportPassive()
+// var defaultEventOptions = passive ? {capture: false, passive: true} : false
 
-var on = function (element, evt, handler, options) {
-  if ( options === void 0 ) options = defaultEventOptions;
-
-  element.addEventListener(evt, handler, options);
-  return function () { return off(element, evt, handler, options); }
-};
-
-var off = function (element, evt, handler, options) {
-  if ( options === void 0 ) options = defaultEventOptions;
-
-  element.removeEventListener(evt, handler, options);
-};
-
-var isFunction = function (value) {
-  return typeof value === 'function'
-};
-
-var inViewport = function (item) {
-  var rect = item.getBoundingClientRect();
-  return (rect.top < window.innerHeight && rect.bottom > 0) &&
-    (rect.left < window.innerWidth && rect.right > 0)
-};
+// export const on = (element, evt, handler, options = defaultEventOptions) => {
+//   element.addEventListener(evt, handler, options)
+//   return () => off(element, evt, handler, options)
+// }
+//
+// export const off = (element, evt, handler, options = defaultEventOptions) => {
+//   element.removeEventListener(evt, handler, options)
+// }
+//
+// export const isFunction = value => {
+//   return typeof value === 'function'
+// }
+//
+// export const inViewport = item => {
+//   var rect = item.getBoundingClientRect()
+//   return (rect.top < window.innerHeight && rect.bottom > 0) &&
+//     (rect.left < window.innerWidth && rect.right > 0)
+// }
 
 var easing = {
   'cubic': function (k) { return --k * k * k + 1; },

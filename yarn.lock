@@ -32,6 +32,12 @@
   version "0.0.2"
   resolved "https://registry.yarnpkg.com/@jiubao/raf/-/raf-0.0.2.tgz#ec148af9faaaa9c571cdf002287a59a97e7ca261"
 
+"@jiubao/utils@0.0.5":
+  version "0.0.5"
+  resolved "https://registry.yarnpkg.com/@jiubao/utils/-/utils-0.0.5.tgz#3e3c1a91c7068fccd77987989117b84d65564f1c"
+  dependencies:
+    "@jiubao/passive" "^0.0.1"
+
 "@types/acorn@^4.0.3":
   version "4.0.3"
   resolved "http://registry.npm.taobao.org/@types/acorn/download/@types/acorn-4.0.3.tgz#d1f3e738dde52536f9aad3d3380d14e448820afd"

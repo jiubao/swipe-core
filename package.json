@@ -39,6 +39,7 @@
     "@jiubao/hook": "^0.0.2",
     "@jiubao/link": "^0.0.1",
     "@jiubao/passive": "^0.0.1",
-    "@jiubao/raf": "^0.0.2"
+    "@jiubao/raf": "^0.0.2",
+    "@jiubao/utils": "0.0.5"
   }
 }
