@@ -24,12 +24,7 @@ var defaultOptions = {
   'height': 200,
   'css': false,
   'ease': 'cubic',
-  'plugins': [],
-  // 'initHandlers': [],
-  // 'startHandlers': [],
-  // 'moveHandlers': [],
-  // 'endHandlers': [],
-  // 'animationEndHandlers': []
+  'plugins': []
 }
 
 function swipeIt (options) {
@@ -48,13 +43,6 @@ function swipeIt (options) {
 
   // plugins.forEach(p => Object.keys(p).forEach(action => opts[action + 'Handlers'].push(p[action])))
   plugins.forEach(p => Object.keys(p).forEach(evt => instance.on(evt, p[evt])))
-
-  // var onFn = action => (...args) => opts[action + 'Handlers'].forEach(f => f.apply(null, args))
-  // var onInit = onFn('init')
-  // var onStart = onFn('start')
-  // var onMove = onFn('move')
-  // var onEnd = onFn('end')
-  // var onAnimationEnd = onFn('animationEnd')
 
   if (!root) return
 
@@ -124,25 +112,12 @@ function swipeIt (options) {
   instance.stop = () => {running = false}
   instance.start = () => {running = true}
 
-  // return {
-  //   'destroy': destroy,
-  //   'index': _ => current.$index,
-  //   'on': (evt, callback) => {
-  //     var fns = opts[evt + 'Handlers']
-  //     fns.push(callback)
-  //     return () => fns.splice(fns.indexOf(callback), 1)
-  //   },
-  //   stop: () => running = false,
-  //   start: () => running = true
-  // }
-
   return instance
 
   function moveX (el, x) {
     if (!el) return
     el.style.transition = el.style.webkitTransition = ''
     el.style.transform = el.style.webkitTransform = `translate3d(${x}px, 0, 0)`
-    // onMove(current.$index, current, main, elms)
     trigger('move')
   }
 
@@ -156,7 +131,6 @@ function swipeIt (options) {
     startTime = Date.now()
     restartX = currentX = startX = touch.pageX
     startY = touch.clientY
-    // onStart(current.$index, current, main, elms)
     trigger('start')
   }
 
@@ -226,11 +200,9 @@ function swipeIt (options) {
   function autoSwipeImmediate () {
     autoPhase = 0
     phase.set(phaseEnum.auto)
-    // onStart(current.$index, current, main, elms)
     trigger('start')
     animate(main, x, -current.x - width, MAX_PART, onAutoAnimation, autoSwipePostpone)
     // animate(main, x, x - width, MAX_INTERVAL, onAutoAnimation, autoCallback)
-    // onEnd(current.$next.$index, current.$next, main, elms)
   }
 
   function autoSwipe() {
@@ -260,8 +232,6 @@ function swipeIt (options) {
     var t = Math.min(Math.max(MAX_INTERVAL * Math.abs(to - x) / width, FAST_INTERVAL), MAX_PART)
     animate(main, x, to, fast ? FAST_INTERVAL : t, null, auto ? () => autoSwipe() : null)
     // animate(main, x, to, fast ? FAST_INTERVAL : t)
-
-    // onEnd(current.$index, current, main, elms)
   }
 
   function animate (elm, from, to, interval, onAnimation, callback) {
@@ -277,7 +247,6 @@ function swipeIt (options) {
         !phase.is(phaseEnum.cancel) && isFunction(callback) && callback()
         phase.set(phaseEnum.idle)
         // return onAnimationEnd(current.$index, current, main, elms)
-        // return onEnd(current.$index, current, main, elms)
         return trigger('end')
       }
       var distance = (to - from) * easing[ease](during / interval) + from
@@ -290,7 +259,6 @@ function swipeIt (options) {
   }
 
   function init () {
-    // if (elms.length === 0) return onInit(-1)
     if (elms.length === 0) return instance.trigger('init', -1)
 
     // if (!expose) root.style.overflow = 'hidden'
@@ -327,7 +295,6 @@ function swipeIt (options) {
       if (!two && !one && el !== current && el !== current.$prev && el !== current.$next) hide(el)
     })
 
-    // if (one) return onInit(current.$index, current, main, elms)
     if (one) return trigger('init')
 
     if (!two && !cycle && index === 0) hide(current.$prev)
@@ -362,7 +329,6 @@ function swipeIt (options) {
     }
 
     main.x = 0
-    // onInit(current.$index, current, main, elms)
     trigger('init')
   }
 
